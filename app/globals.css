@@ -414,23 +414,25 @@ a { color: inherit; text-decoration: none; }
   color: var(--iridescent-2) !important;
 }
 
-/* ===== MEMBERSHIP GATE ===== */
-.membership-gate {
+/* ===== MEMBERSHIP CHECK ===== */
+.membership-check {
   text-align: center;
   animation: fadeIn 0.5s ease;
+  max-width: 420px;
+  margin: 0 auto;
 }
-.gate-header {
-  margin-bottom: 2rem;
+.check-header {
+  margin-bottom: 1.5rem;
 }
-.gate-header h2 {
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: var(--gold);
+.check-header h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
   margin-bottom: 0.5rem;
 }
-.gate-header p {
+.check-header p {
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   line-height: 1.6;
 }
 .gate-question {

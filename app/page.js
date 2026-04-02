@@ -92,35 +92,33 @@ const AGREEMENT_TEXT = [
   },
 ];
 
-function MembershipGate({ onConfirm }) {
+function MembershipCheck({ onConfirm }) {
   const [isMember, setIsMember] = useState(null);
 
   return (
-    <div className="membership-gate">
-      <div className="gate-header">
-        <h2>Before you RSVP</h2>
-        <p>The Magic Show is a ceremonial gathering of The JOB Church. Participation requires active church membership.</p>
+    <div className="membership-check">
+      <div className="check-header">
+        <h2>One quick thing.</h2>
+        <p>Magic Shows are held as ceremonial gatherings for JOB community members. Are you a member?</p>
       </div>
       {isMember === null && (
         <div className="gate-options">
-          <p className="gate-question">Are you a member of The JOB Church?</p>
           <div className="gate-buttons">
-            <button className="gate-btn gate-btn-yes" onClick={() => setIsMember(true)}>Yes, I&apos;m a member</button>
+            <button className="gate-btn gate-btn-yes" onClick={() => setIsMember(true)}>Yes</button>
             <button className="gate-btn gate-btn-no" onClick={() => setIsMember(false)}>Not yet</button>
           </div>
         </div>
       )}
       {isMember === true && (
         <div className="gate-confirmed">
-          <p>Welcome back.</p>
-          <button className="rsvp-btn" onClick={onConfirm}>Continue to RSVP</button>
+          <button className="intake-btn" onClick={onConfirm}>Continue</button>
         </div>
       )}
       {isMember === false && (
         <div className="gate-redirect">
-          <p>No worries. Membership is required before you can attend a Magic Show. Apply below, and once you&apos;re in, come back to this page to RSVP.</p>
-          <a href="https://apply.itsthejob.com" target="_blank" rel="noopener noreferrer" className="gate-apply-btn">Apply for Membership</a>
-          <button className="gate-link" onClick={() => setIsMember(null)}>I just became a member</button>
+          <p>No worries — you&apos;ll need to join first. It only takes a minute.</p>
+          <a href="https://apply.itsthejob.com" target="_blank" rel="noopener noreferrer" className="gate-apply-btn">Join JOB</a>
+          <button className="gate-link" onClick={() => setIsMember(null)}>Done — I just joined</button>
         </div>
       )}
     </div>
@@ -397,15 +395,15 @@ function WaiverForm({ rsvpData }) {
 }
 
 export default function Home() {
-  const [step, setStep] = useState('gate'); // gate → rsvp → intake → waiver
+  const [step, setStep] = useState('rsvp'); // rsvp → membership → intake → waiver
   const [rsvpData, setRsvpData] = useState(null);
-
-  function handleMemberConfirm() {
-    setStep('rsvp');
-  }
 
   function handleRSVP(data) {
     setRsvpData(data);
+    setStep('membership');
+  }
+
+  function handleMemberConfirm() {
     setStep('intake');
   }
 
@@ -417,8 +415,8 @@ export default function Home() {
     <div className="page">
       <div className="stars" />
 
-      {/* ===== GOLDEN TICKET (shows on gate + rsvp) ===== */}
-      {(step === 'gate' || step === 'rsvp') && (
+      {/* ===== GOLDEN TICKET (shows on rsvp) ===== */}
+      {step === 'rsvp' && (
         <div className="ticket-wrapper">
           <div className="ticket">
             <div className="ticket-edge ticket-edge-left" />
@@ -443,19 +441,16 @@ export default function Home() {
         </div>
       )}
 
-      {/* ===== STEP INDICATOR ===== */}
-      {step !== 'gate' && (
+      {/* ===== STEP INDICATOR (shows after RSVP) ===== */}
+      {step !== 'rsvp' && step !== 'membership' && (
         <div className="step-indicator">
-          <div className={`step-dot ${step === 'rsvp' ? 'active' : 'done'}`}><span>1</span></div>
+          <div className={`step-dot done`}><span>1</span></div>
           <div className="step-line" />
-          <div className={`step-dot ${step === 'intake' ? 'active' : step === 'waiver' ? 'done' : ''}`}><span>2</span></div>
+          <div className={`step-dot ${step === 'intake' ? 'active' : 'done'}`}><span>2</span></div>
           <div className="step-line" />
           <div className={`step-dot ${step === 'waiver' ? 'active' : ''}`}><span>3</span></div>
         </div>
       )}
-
-      {/* ===== MEMBERSHIP GATE ===== */}
-      {step === 'gate' && <MembershipGate onConfirm={handleMemberConfirm} />}
 
       {/* ===== RSVP ===== */}
       {step === 'rsvp' && (
@@ -465,6 +460,9 @@ export default function Home() {
           <RSVPForm onComplete={handleRSVP} />
         </div>
       )}
+
+      {/* ===== MEMBERSHIP CHECK ===== */}
+      {step === 'membership' && <MembershipCheck onConfirm={handleMemberConfirm} />}
 
       {/* ===== INTAKE ===== */}
       {step === 'intake' && <IntakeForm rsvpData={rsvpData} onComplete={handleIntakeComplete} />}
