@@ -10,17 +10,17 @@ function RSVPForm({ onComplete }) {
   async function handleSubmit(e) {
     e.preventDefault();
     setStatus('submitting');
-    const { error } = await supabase.from('deck_waitlist').insert([{
+    const { data, error } = await supabase.from('magic_show_rsvp').insert([{
+      event: 'big_sky_may_2026',
       name: form.name,
       email: form.email,
       phone: form.phone,
-      investment_level: 'magic_show_bigsky_rsvp',
-    }]);
+    }]).select();
     if (error) {
       setStatus('error');
     } else {
       setStatus('success');
-      onComplete(form);
+      onComplete({ ...form, id: data[0].id });
     }
   }
 
@@ -60,12 +60,18 @@ function IntakeForm({ rsvpData }) {
   async function handleSubmit(e) {
     e.preventDefault();
     setStatus('submitting');
-    const { error } = await supabase.from('deck_waitlist').insert([{
-      name: `${rsvpData.name} — INTAKE`,
-      email: rsvpData.email,
-      phone: `EC: ${form.emergency_name} ${form.emergency_phone}`,
-      investment_level: `exp:${form.plant_experience} | medical:${form.medical_conditions} | meds:${form.medications} | mental:${form.mental_health}`,
-    }]);
+    const { error } = await supabase.from('magic_show_rsvp')
+      .update({
+        medical_conditions: form.medical_conditions || null,
+        medications: form.medications || null,
+        mental_health: form.mental_health || null,
+        plant_experience: form.plant_experience || null,
+        emergency_name: form.emergency_name,
+        emergency_phone: form.emergency_phone,
+        consent: form.consent,
+        intake_complete: true,
+      })
+      .eq('id', rsvpData.id);
     setStatus(error ? 'error' : 'success');
   }
 
