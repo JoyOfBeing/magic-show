@@ -283,6 +283,77 @@ function IntakeForm({ rsvpData, onComplete }) {
   );
 }
 
+function ConfirmedScreen({ event }) {
+  return (
+    <div className="confirmed">
+      <div className="ticket ticket-mini">
+        <div className="ticket-confirmed">CONFIRMED</div>
+      </div>
+      <h2>You&apos;re in.</h2>
+      <p className="confirmed-sub">Your agreement has been signed and recorded. Here&apos;s what happens next.</p>
+
+      <div className="next-steps">
+        <div className="next-step">
+          <div className="step-number">1</div>
+          <div className="step-content">
+            <h3>Join the Signal Group</h3>
+            <p>All group communications for this Magic Show happen on Signal. Download the app now if you don&apos;t have it — we&apos;ll send the group invite to your phone number shortly.</p>
+            {event.signal_group ? (
+              <a href={event.signal_group} target="_blank" rel="noopener noreferrer" className="step-action">Join Signal Group</a>
+            ) : (
+              <a href="https://signal.org/download/" target="_blank" rel="noopener noreferrer" className="step-action">Download Signal</a>
+            )}
+          </div>
+        </div>
+
+        <div className="next-step">
+          <div className="step-number">2</div>
+          <div className="step-content">
+            <h3>Location Details</h3>
+            {event.venue_name ? (
+              <>
+                {event.venue_image && (
+                  <div className="venue-image">
+                    <img src={event.venue_image} alt={event.venue_name} />
+                  </div>
+                )}
+                <p className="venue-name">{event.venue_name}</p>
+                {event.venue_address && <p className="venue-address">{event.venue_address}</p>}
+              </>
+            ) : (
+              <p className="tbd">Location details coming soon. You&apos;ll be notified via Signal.</p>
+            )}
+          </div>
+        </div>
+
+        <div className="next-step">
+          <div className="step-number">3</div>
+          <div className="step-content">
+            <h3>Arrival & Departure</h3>
+            {event.arrival ? (
+              <>
+                <p><strong>Arrive:</strong> {event.arrival}</p>
+                <p><strong>Depart:</strong> {event.departure}</p>
+              </>
+            ) : (
+              <p className="tbd">Arrival and departure times coming soon.</p>
+            )}
+          </div>
+        </div>
+
+        <div className="next-step">
+          <div className="step-number">4</div>
+          <div className="step-content">
+            <h3>Prepare Your Body & Spirit</h3>
+            <p>Read our preparation and integration guide so you arrive ready — what to bring, how to eat, how to prepare mentally, and how to integrate after.</p>
+            <a href="/prepare" className="step-action">View Preparation Guide</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function WaiverForm({ event, rsvpData }) {
   const [signatureName, setSignatureName] = useState('');
   const [agreed, setAgreed] = useState(false);
@@ -313,74 +384,7 @@ function WaiverForm({ event, rsvpData }) {
   }
 
   if (status === 'success') {
-    return (
-      <div className="confirmed">
-        <div className="ticket ticket-mini">
-          <div className="ticket-confirmed">CONFIRMED</div>
-        </div>
-        <h2>You&apos;re in.</h2>
-        <p className="confirmed-sub">Your agreement has been signed and recorded. Here&apos;s what happens next.</p>
-
-        <div className="next-steps">
-          <div className="next-step">
-            <div className="step-number">1</div>
-            <div className="step-content">
-              <h3>Join the Signal Group</h3>
-              <p>All group communications for this Magic Show happen on Signal. Download the app now if you don&apos;t have it — we&apos;ll send the group invite to your phone number shortly.</p>
-              {event.signal_group ? (
-                <a href={event.signal_group} target="_blank" rel="noopener noreferrer" className="step-action">Join Signal Group</a>
-              ) : (
-                <a href="https://signal.org/download/" target="_blank" rel="noopener noreferrer" className="step-action">Download Signal</a>
-              )}
-            </div>
-          </div>
-
-          <div className="next-step">
-            <div className="step-number">2</div>
-            <div className="step-content">
-              <h3>Location Details</h3>
-              {event.venue_name ? (
-                <>
-                  {event.venue_image && (
-                    <div className="venue-image">
-                      <img src={event.venue_image} alt={event.venue_name} />
-                    </div>
-                  )}
-                  <p className="venue-name">{event.venue_name}</p>
-                  {event.venue_address && <p className="venue-address">{event.venue_address}</p>}
-                </>
-              ) : (
-                <p className="tbd">Location details coming soon. You&apos;ll be notified via Signal.</p>
-              )}
-            </div>
-          </div>
-
-          <div className="next-step">
-            <div className="step-number">3</div>
-            <div className="step-content">
-              <h3>Arrival & Departure</h3>
-              {event.arrival ? (
-                <>
-                  <p><strong>Arrive:</strong> {event.arrival}</p>
-                  <p><strong>Depart:</strong> {event.departure}</p>
-                </>
-              ) : (
-                <p className="tbd">Arrival and departure times coming soon.</p>
-              )}
-            </div>
-          </div>
-
-          <div className="next-step">
-            <div className="step-number">4</div>
-            <div className="step-content">
-              <h3>Prepare Your Body & Spirit</h3>
-              <p>Read our preparation and integration guide so you arrive ready — what to bring, how to eat, how to prepare mentally, and how to integrate after.</p>
-              <a href="/prepare" className="step-action">View Preparation Guide</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <ConfirmedScreen event={event} />;
   }
 
   return (
@@ -461,20 +465,46 @@ export default function Home() {
   const [rsvpData, setRsvpData] = useState(null);
 
   useEffect(() => {
-    async function loadEvent() {
-      const { data } = await supabase
+    async function load() {
+      // Fetch the live event
+      const { data: ev } = await supabase
         .from('magic_show_events')
         .select('*')
         .eq('is_live', true)
         .single();
-      setEvent(data);
+      setEvent(ev);
+
+      if (!ev) { setLoading(false); return; }
+
+      // Check if this user already RSVP'd for this event
+      const savedId = localStorage.getItem(`magic_show_rsvp_${ev.id}`);
+      if (savedId) {
+        const { data: existing } = await supabase
+          .from('magic_show_rsvp')
+          .select('*')
+          .eq('id', savedId)
+          .single();
+        if (existing) {
+          setRsvpData({ name: existing.name, email: existing.email, id: existing.id });
+          if (existing.waiver_signed) {
+            setStep('confirmed');
+          } else if (existing.intake_complete) {
+            setStep('waiver');
+          } else {
+            setStep('intake');
+          }
+        }
+      }
       setLoading(false);
     }
-    loadEvent();
+    load();
   }, []);
 
   function handleRSVP(data) {
     setRsvpData(data);
+    if (event) {
+      localStorage.setItem(`magic_show_rsvp_${event.id}`, data.id);
+    }
     setStep('membership');
   }
 
@@ -558,6 +588,8 @@ export default function Home() {
       {step === 'intake' && <IntakeForm rsvpData={rsvpData} onComplete={handleIntakeComplete} />}
 
       {step === 'waiver' && <WaiverForm event={event} rsvpData={rsvpData} />}
+
+      {step === 'confirmed' && <ConfirmedScreen event={event} />}
 
       <footer className="footer">
         <a href="https://itsthejob.vercel.app" target="_blank" rel="noopener noreferrer">J.O.B.</a>
