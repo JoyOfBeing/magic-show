@@ -123,17 +123,17 @@ function IntakeForm({ rsvpData }) {
           />
         </div>
         <div className="form-field">
-          <label>Experience with plant medicine</label>
+          <label>Experience with entheogenics</label>
           <select
             value={form.plant_experience}
             onChange={e => setForm(f => ({ ...f, plant_experience: e.target.value }))}
           >
             <option value="">Select your experience level</option>
-            <option value="none">No prior experience</option>
             <option value="curious">Curious but haven&apos;t tried</option>
-            <option value="beginner">1–2 experiences</option>
-            <option value="intermediate">Several experiences</option>
-            <option value="experienced">Experienced practitioner</option>
+            <option value="once-or-twice">Once or twice</option>
+            <option value="several">Several experiences</option>
+            <option value="experienced-practitioner">An experienced practitioner</option>
+            <option value="experienced-facilitator">An experienced facilitator</option>
           </select>
         </div>
 
@@ -171,7 +171,7 @@ function IntakeForm({ rsvpData }) {
               onChange={e => setForm(f => ({ ...f, consent: e.target.checked }))}
             />
             <span>
-              I understand that this experience may involve plant medicine and altered states of consciousness. I confirm that the information I&apos;ve provided is accurate and complete. I accept full responsibility for my participation and release the organizers from liability.
+              I understand that this experience may involve entheogenics and altered states of consciousness. I confirm that the information I&apos;ve provided is accurate and complete. I accept full responsibility for my participation and release the organizers from liability.
             </span>
           </label>
         </div>
