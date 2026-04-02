@@ -10,13 +10,11 @@ function RSVPForm({ onComplete }) {
   async function handleSubmit(e) {
     e.preventDefault();
     setStatus('submitting');
-    const { error } = await supabase.from('waitlist').insert([{
+    const { error } = await supabase.from('deck_waitlist').insert([{
+      name: form.name,
       email: form.email,
-      source: 'magic_show_bigsky_may2026',
-      metadata: JSON.stringify({
-        name: form.name,
-        phone: form.phone,
-      }),
+      phone: form.phone,
+      investment_level: 'magic_show_bigsky_rsvp',
     }]);
     if (error) {
       setStatus('error');
@@ -62,14 +60,11 @@ function IntakeForm({ rsvpData }) {
   async function handleSubmit(e) {
     e.preventDefault();
     setStatus('submitting');
-    const { error } = await supabase.from('waitlist').insert([{
+    const { error } = await supabase.from('deck_waitlist').insert([{
+      name: `${rsvpData.name} — INTAKE`,
       email: rsvpData.email,
-      source: 'magic_show_bigsky_intake',
-      metadata: JSON.stringify({
-        name: rsvpData.name,
-        phone: rsvpData.phone,
-        ...form,
-      }),
+      phone: `EC: ${form.emergency_name} ${form.emergency_phone}`,
+      investment_level: `exp:${form.plant_experience} | medical:${form.medical_conditions} | meds:${form.medications} | mental:${form.mental_health}`,
     }]);
     setStatus(error ? 'error' : 'success');
   }
