@@ -25,7 +25,7 @@ function PasswordGate({ onAuth }) {
 
   function handleSubmit(e) {
     e.preventDefault();
-    if (pw === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
+    if (pw === 'P@cM@n123') {
       onAuth();
     } else {
       setError(true);
