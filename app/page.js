@@ -169,6 +169,59 @@ function RSVPForm({ event, onComplete }) {
   );
 }
 
+function LookupLink({ event, onFound }) {
+  const [open, setOpen] = useState(false);
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState('idle');
+
+  async function handleLookup(e) {
+    e.preventDefault();
+    setStatus('looking');
+    const { data } = await supabase
+      .from('magic_show_rsvp')
+      .select('*')
+      .eq('event', event.id)
+      .eq('email', email.trim().toLowerCase())
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+    if (!data) {
+      setStatus('not_found');
+      return;
+    }
+    let foundStep = 'membership';
+    if (data.waiver_signed) foundStep = 'confirmed';
+    else if (data.intake_complete) foundStep = 'waiver';
+    else if (data.intake_complete === false || data.name) foundStep = 'intake';
+    onFound({ name: data.name, email: data.email, id: data.id }, foundStep);
+  }
+
+  if (!open) {
+    return (
+      <button className="lookup-toggle" onClick={() => setOpen(true)}>
+        Already registered?
+      </button>
+    );
+  }
+
+  return (
+    <form className="lookup-form" onSubmit={handleLookup}>
+      <input
+        type="email"
+        required
+        value={email}
+        onChange={e => { setEmail(e.target.value); setStatus('idle'); }}
+        placeholder="Enter your email"
+        autoFocus
+      />
+      <button type="submit" disabled={status === 'looking'}>
+        {status === 'looking' ? '...' : 'Find me'}
+      </button>
+      {status === 'not_found' && <p className="lookup-error">No registration found for that email.</p>}
+    </form>
+  );
+}
+
 function IntakeForm({ rsvpData, onComplete }) {
   const [form, setForm] = useState({
     medical_conditions: '',
@@ -580,6 +633,11 @@ export default function Home() {
           <h2 className="rsvp-heading">RSVP</h2>
           <p className="rsvp-sub">Spots are limited. This invitation is non-transferable.</p>
           <RSVPForm event={event} onComplete={handleRSVP} />
+          <LookupLink event={event} onFound={(data, foundStep) => {
+            setRsvpData(data);
+            localStorage.setItem(`magic_show_rsvp_${event.id}`, data.id);
+            setStep(foundStep);
+          }} />
         </div>
       )}
 
