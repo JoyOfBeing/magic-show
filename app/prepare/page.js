@@ -10,11 +10,11 @@ const SECTIONS = [
     content: [
       {
         heading: 'What to Expect',
-        text: 'The Magic Show is a multi-day ceremonial gathering. You\'ll move through structured ceremonies, group integration, stillness, movement, and connection — all held within a sacred container by experienced facilitators.',
+        text: 'The Magic Show is a multi-day experience that defies easy categorization. You\'ll move through ceremonies, play, stillness, weirdness, movement, laughter, and connection — some of it planned, some of it not. The whole thing is held by people who\'ve done this before. Your only job is to show up.',
       },
       {
         heading: 'The Container',
-        text: 'From the moment you arrive until the moment you leave, you are in ceremony. This doesn\'t mean everything is intense — it means everything is intentional. Meals, rest, conversation, silence — all of it is part of the experience.',
+        text: 'From the moment you arrive until the moment you leave, you\'re inside the show. That doesn\'t mean everything is intense — it means everything is on purpose. The meals, the silence, the strange conversations at 2 AM, the walk you take alone — it\'s all part of it. Let it be.',
       },
     ],
   },
@@ -26,7 +26,7 @@ const SECTIONS = [
       {
         heading: 'Diet — 2 Weeks Before',
         items: [
-          'Begin shifting toward clean, whole foods — vegetables, fruits, grains, lean proteins',
+          'Start shifting toward clean, whole foods — vegetables, fruits, grains, lean proteins',
           'Reduce or eliminate processed foods, refined sugar, and fried foods',
           'Minimize caffeine and alcohol',
           'Avoid pork and red meat for at least 7 days before',
@@ -40,21 +40,21 @@ const SECTIONS = [
           'Eliminate alcohol, cannabis, and all recreational substances',
           'Eliminate caffeine if possible, or reduce to minimal',
           'No heavy, rich, or spicy foods',
-          'Fast or eat very lightly the day of ceremony (details provided by facilitators)',
+          'Fast or eat very lightly the day of (details provided by your guides)',
         ],
       },
       {
         heading: 'Medications — Important',
         items: [
-          'SSRIs and MAOIs can have dangerous interactions with certain entheogenics. If you are on SSRIs, you MUST disclose this on your intake form and discuss with facilitators before attending',
+          'SSRIs and MAOIs can have dangerous interactions with certain entheogenics. If you are on SSRIs, you MUST disclose this on your intake form and talk to us before attending',
           'Do not stop or adjust any prescribed medication without consulting your doctor',
           'Disclose ALL supplements, even those that seem harmless — St. John\'s Wort, 5-HTP, and others can interact',
-          'If in doubt, ask. We would rather have the conversation than have a preventable incident',
+          'If in doubt, ask. We\'d rather have the conversation than have a preventable incident',
         ],
       },
       {
         heading: 'Sleep & Rest',
-        text: 'Arrive well-rested. Prioritize 7-9 hours of sleep in the nights leading up to the gathering. Your nervous system will thank you.',
+        text: 'Show up well-rested. Prioritize 7-9 hours of sleep in the nights leading up to the show. Your nervous system will thank you. You\'re going to need the bandwidth.',
       },
     ],
   },
@@ -65,19 +65,19 @@ const SECTIONS = [
     content: [
       {
         heading: 'Set Your Intention',
-        text: 'What are you here for? Not the surface answer — the real one. Spend time in the days before arrival journaling, meditating, or simply sitting with the question: What am I ready to meet?',
+        text: 'What are you actually here for? Not the polished answer — the real one. Spend some time before arrival journaling, sitting quietly, or just letting the question breathe: What am I ready to meet?',
       },
       {
         heading: 'Slow Down',
-        text: 'In the week before, begin to slow your pace. Reduce screen time. Spend time in nature. Have fewer conversations, but make them more honest. Start arriving before you arrive.',
+        text: 'In the week before, start unwinding. Less screen time. More nature. Fewer conversations, but more honest ones. Start arriving before you arrive.',
       },
       {
         heading: 'Release Expectations',
-        text: 'You may have heard stories. You may have ideas about what this will be. Let them go. The experience you need is rarely the one you planned for. Trust the process and your own inner wisdom.',
+        text: 'You might have heard things. You might have a whole story built about what this will be. Drop it. The experience you need is almost never the one you imagined. That\'s kind of the point.',
       },
       {
-        heading: 'Boundaries & Consent',
-        text: 'Think about your boundaries before you arrive. What feels safe? What are your edges? You have full permission to participate, pause, or pass at any time. Knowing your own limits is a sign of strength, not weakness.',
+        heading: 'Know Your Edges',
+        text: 'Think about your boundaries before you get here. What feels safe? Where are your edges? You have full permission to participate, pause, or pass at any time — no explanation needed. Knowing your own limits is part of the magic, not a limitation of it.',
       },
     ],
   },
@@ -90,7 +90,6 @@ const SECTIONS = [
         heading: 'Essentials',
         items: [
           'Comfortable, layered clothing (temperatures may vary)',
-          'A warm blanket or sleeping bag liner for ceremony space',
           'A journal and pen',
           'Toiletries and any personal care items',
           'Any prescribed medications you need',
@@ -101,9 +100,9 @@ const SECTIONS = [
       {
         heading: 'Optional',
         items: [
-          'A personal sacred object or talisman',
-          'Eye mask for rest and ceremony',
-          'Earplugs (for sleep, not ceremony)',
+          'A personal object that means something to you',
+          'Eye mask for rest',
+          'Earplugs for sleep',
           'Warm socks and slippers',
           'Art supplies if that\'s how you process',
         ],
@@ -111,7 +110,7 @@ const SECTIONS = [
       {
         heading: 'Leave Behind',
         items: [
-          'Laptops and work devices',
+          'Work devices',
           'Expectations and timelines',
           'The need to document everything — be present, not performing',
         ],
@@ -125,43 +124,43 @@ const SECTIONS = [
     content: [
       {
         heading: 'What is Integration?',
-        text: 'Integration is the process of bringing the insights, emotions, and experiences from ceremony into your daily life. It\'s where the real work happens. The ceremony opens the door — integration is walking through it.',
+        text: 'Integration is what happens when the show ends and real life starts talking back. It\'s the process of weaving whatever you experienced — the insights, the feelings, the weird stuff you can\'t quite name — into your actual day-to-day. The show opens the door. Integration is walking through it.',
       },
       {
         heading: 'The First 48 Hours',
         items: [
-          'Move slowly. Give yourself permission to do less',
-          'Avoid making major life decisions immediately',
+          'Move slowly. Give yourself permission to do absolutely nothing',
+          'Avoid making major life decisions (seriously)',
           'Stay off social media — protect the space you\'ve opened',
           'Eat nourishing, simple food',
           'Drink plenty of water',
-          'Journal or record voice memos about your experience while it\'s fresh',
+          'Journal or record voice memos while it\'s fresh — you\'ll forget more than you think',
         ],
       },
       {
         heading: 'The First Two Weeks',
         items: [
-          'Maintain the dietary awareness from preparation',
-          'Continue journaling',
-          'Spend time in nature',
-          'Talk to people who understand — your Signal group is a resource',
-          'Notice what has shifted in how you see, feel, and respond to daily life',
-          'Be patient with yourself. Integration is not linear',
+          'Keep eating clean — your body is still processing',
+          'Continue journaling, even when it feels repetitive',
+          'Spend time outside',
+          'Talk to people who get it — your Signal group is there for a reason',
+          'Notice what\'s shifted in how you see, feel, and respond to daily life',
+          'Be patient with yourself. Integration is not linear. Some days feel like breakthroughs, some feel like backslides. Both are the work.',
         ],
       },
       {
         heading: 'Ongoing',
         items: [
-          'Consider working with a therapist or integration coach who understands entheogenic experiences',
-          'Stay connected to the community — you don\'t have to do this alone',
-          'Revisit your journal entries from time to time',
+          'Consider working with a therapist or integration coach who understands these experiences',
+          'Stay connected to the community — you don\'t have to figure this out alone',
+          'Revisit your journal entries from time to time — you\'ll see things you missed',
           'Pay attention to your dreams',
-          'Practice what you learned. The ceremony was the spark — your life is the fire',
+          'Practice what you learned. The show was the spark — your life is the magic',
         ],
       },
       {
-        heading: 'When to Seek Support',
-        text: 'If you are experiencing persistent anxiety, depression, confusion, or difficulty functioning after the experience, please reach out to a facilitator or mental health professional. This is not a sign of failure — it\'s a sign that you\'re processing something significant and deserve support.',
+        heading: 'When to Reach Out',
+        text: 'If you\'re experiencing persistent anxiety, confusion, or difficulty functioning after the experience, reach out to us or to a mental health professional. This isn\'t a sign of failure — it\'s a sign you\'re processing something real and you deserve support doing it.',
       },
     ],
   },
@@ -177,7 +176,7 @@ export default function PreparePage() {
       <div className="prep-header">
         <a href="/" className="prep-back">&larr; Back</a>
         <h1>Preparation & Integration</h1>
-        <p>Everything you need to arrive ready and integrate fully.</p>
+        <p>Everything you need to show up ready and take it home with you.</p>
       </div>
 
       <nav className="prep-nav">
