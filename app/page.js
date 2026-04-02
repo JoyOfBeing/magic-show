@@ -1,123 +1,107 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 
-// ===== EVENT CONFIG =====
-// Update this object for each Magic Show. Everything show-specific lives here.
-const EVENT = {
-  id: 'big_sky_may_2026',
-  name: 'The Magic Show',
-  dates: 'May 1–3, 2026',
-  location: 'Big Sky, Montana',
-  church: 'J.O.B. Church',
-  // Update these once finalized:
-  venue_name: '', // e.g. "Lone Mountain Ranch"
-  venue_address: '', // e.g. "750 Lone Mountain Ranch Rd, Big Sky, MT 59716"
-  venue_image: '', // URL to location image
-  arrival: '', // e.g. "Thursday May 1, check-in begins at 2:00 PM"
-  departure: '', // e.g. "Sunday May 3, ceremony closes at 12:00 PM"
-  signal_group: '', // Signal group invite link
-  prep_notes: '', // Any additional preparation notes
-};
+function getAgreementText(event) {
+  return [
+    {
+      title: 'I. Religious Practice & RFRA Acknowledgment',
+      paragraphs: [
+        `I, the undersigned Participant, affirm that I am a member in good standing of ${event.church} ("the Church"), a sincerely held religious organization. I understand that this ceremonial gathering ("${event.name}") is conducted as a religious and spiritual practice of the Church, protected under the Religious Freedom Restoration Act (RFRA), 42 U.S.C. \u00a7 2000bb et seq., and the First Amendment to the United States Constitution.`,
+        'I acknowledge that the sacramental and ceremonial practices of the Church may include the use of entheogenic substances as part of its sincerely held religious beliefs and practices. My participation in these practices is voluntary, knowing, and an exercise of my religious freedom.',
+        'I affirm that my participation in this ceremony is motivated by sincere religious and spiritual intent, not recreational purpose.',
+      ],
+    },
+    {
+      title: 'II. Assumption of Risk',
+      paragraphs: [
+        'I understand and acknowledge that participation in this ceremonial gathering involves inherent risks, including but not limited to: physical discomfort, nausea, emotional distress, psychological disturbance, altered states of consciousness, allergic reactions, interactions with medications, and other unforeseen physical or psychological effects.',
+        'I understand that the ceremonial environment may include outdoor activities, remote locations, uneven terrain, exposure to weather, fire, and other natural elements. I voluntarily assume all risks, known and unknown, associated with my participation.',
+        'I confirm that I have disclosed all relevant medical conditions, medications, mental health history, and other health information on my intake form. I understand that incomplete or inaccurate disclosure may endanger my health and safety. I affirm that all information I have provided is truthful and complete to the best of my knowledge.',
+      ],
+    },
+    {
+      title: 'III. Waiver of Liability & Indemnification',
+      paragraphs: [
+        `To the fullest extent permitted by law, I hereby release, waive, and forever discharge ${event.church}, its officers, directors, members, facilitators, volunteers, agents, and affiliates (collectively, "Released Parties") from any and all claims, demands, causes of action, liabilities, losses, damages, costs, and expenses (including attorney's fees) arising out of or related to my participation in this ceremony, including but not limited to claims of negligence, personal injury, emotional distress, property damage, or death.`,
+        'I agree to indemnify, defend, and hold harmless the Released Parties from any claims, lawsuits, or demands brought by me, my heirs, estate, or any third party arising from my participation in this ceremony.',
+        'I understand that this waiver is intended to be as broad and inclusive as permitted by the laws of the State of Colorado and that if any portion is held invalid, the remainder shall continue in full legal force and effect.',
+      ],
+    },
+    {
+      title: 'IV. Scope of Practice & Limitations',
+      paragraphs: [
+        'I understand that the facilitators of this ceremony are spiritual practitioners and ceremony holders. They are not licensed physicians, therapists, psychologists, psychiatrists, or medical professionals.',
+        'Nothing in this ceremony constitutes medical advice, diagnosis, treatment, or a substitute for professional medical or mental health care. I take full responsibility for seeking appropriate professional support before, during, and after this experience as needed.',
+        'I understand that facilitators may, in their sole discretion, limit or terminate my participation if they believe it is necessary for my safety or the safety of others.',
+      ],
+    },
+    {
+      title: 'V. Personal Responsibility & Sovereignty',
+      paragraphs: [
+        'I recognize myself as a sovereign being, fully responsible for my physical, emotional, mental, and spiritual experience before, during, and after the ceremony.',
+        'I understand that my participation in any activity, conversation, or energetic process is my choice. I may opt in or out of any practice at any time without explanation.',
+        'I understand that this experience may bring up discomfort, deep emotions, realizations, or growth edges. I commit to holding myself with compassion and agency throughout this process. I take full ownership of my actions, choices, and outcomes.',
+      ],
+    },
+    {
+      title: 'VI. Consent & Boundaries',
+      paragraphs: [
+        'I understand that all practices in this ceremony are voluntary. I give myself full permission to participate, pass, modify, or pause as needed.',
+        'I will honor the boundaries of others and agree not to touch, counsel, or intervene in another participant\'s process without their clear and explicit consent.',
+        'I understand that this is a space for presence and authenticity, not persuasion, performance, or fixing.',
+      ],
+    },
+    {
+      title: 'VII. Confidentiality',
+      paragraphs: [
+        'I understand that everything shared in the ceremonial space is strictly confidential. I will not share, disclose, record, or reproduce other participants\' stories, words, identities, or processes outside of this container, in any medium, at any time.',
+        'I understand that the Church and its facilitators will maintain strict confidentiality about my participation and any information I have shared, except as required by law or as necessary to protect my safety or the safety of others.',
+      ],
+    },
+    {
+      title: 'VIII. Communication & Good Faith',
+      paragraphs: [
+        'I commit to expressing my needs, boundaries, and concerns with clarity and honesty. I will speak up if I need support.',
+        'I enter this space in good faith, with openness to the unknown and respect for the wisdom unfolding in myself and others.',
+        'If disagreements arise, I agree to seek resolution through honest communication and, if needed, mediation, before pursuing any other remedy.',
+      ],
+    },
+    {
+      title: 'IX. Media & Recording',
+      paragraphs: [
+        'I understand that I may not photograph, video, audio record, or otherwise capture any portion of the ceremony or other participants without the express written consent of the Church and all individuals depicted.',
+        'Unless I explicitly opt out in writing, I consent to the Church capturing and using photographs or video of the gathering for internal and promotional purposes, understanding that my identity will not be disclosed without my separate written permission.',
+      ],
+    },
+    {
+      title: 'X. Governing Law & Dispute Resolution',
+      paragraphs: [
+        'This Agreement shall be governed by and construed in accordance with the laws of the State of Colorado, without regard to its conflicts of law provisions.',
+        'Any dispute arising out of or relating to this Agreement or my participation in the ceremony shall first be submitted to good-faith mediation. If mediation is unsuccessful, the dispute shall be resolved by binding arbitration in the State of Colorado, in accordance with the rules of the American Arbitration Association. I waive my right to a jury trial.',
+        'In the event any provision of this Agreement is found to be unenforceable or invalid, such provision shall be severed, and all remaining provisions shall remain in full force and effect.',
+      ],
+    },
+    {
+      title: 'XI. Acknowledgment & Electronic Signature',
+      paragraphs: [
+        'I have read this entire Ceremonial Agreement, Waiver of Liability, and Release of Claims. I understand its contents and sign it voluntarily. I am at least 18 years of age and legally competent to enter into this agreement.',
+        'I understand that by typing my full name below and checking the agreement box, I am executing this document as an electronic signature, which carries the same legal force and effect as a handwritten signature pursuant to the Electronic Signatures in Global and National Commerce Act (ESIGN Act), 15 U.S.C. \u00a7 7001 et seq.',
+        'I intend this Agreement to be binding upon myself, my heirs, executors, administrators, and assigns.',
+      ],
+    },
+  ];
+}
 
-const AGREEMENT_TEXT = [
-  {
-    title: 'I. Religious Practice & RFRA Acknowledgment',
-    paragraphs: [
-      `I, the undersigned Participant, affirm that I am a member in good standing of ${EVENT.church} ("the Church"), a sincerely held religious organization. I understand that this ceremonial gathering ("${EVENT.name}") is conducted as a religious and spiritual practice of the Church, protected under the Religious Freedom Restoration Act (RFRA), 42 U.S.C. \u00a7 2000bb et seq., and the First Amendment to the United States Constitution.`,
-      'I acknowledge that the sacramental and ceremonial practices of the Church may include the use of entheogenic substances as part of its sincerely held religious beliefs and practices. My participation in these practices is voluntary, knowing, and an exercise of my religious freedom.',
-      'I affirm that my participation in this ceremony is motivated by sincere religious and spiritual intent, not recreational purpose.',
-    ],
-  },
-  {
-    title: 'II. Assumption of Risk',
-    paragraphs: [
-      'I understand and acknowledge that participation in this ceremonial gathering involves inherent risks, including but not limited to: physical discomfort, nausea, emotional distress, psychological disturbance, altered states of consciousness, allergic reactions, interactions with medications, and other unforeseen physical or psychological effects.',
-      'I understand that the ceremonial environment may include outdoor activities, remote locations, uneven terrain, exposure to weather, fire, and other natural elements. I voluntarily assume all risks, known and unknown, associated with my participation.',
-      'I confirm that I have disclosed all relevant medical conditions, medications, mental health history, and other health information on my intake form. I understand that incomplete or inaccurate disclosure may endanger my health and safety. I affirm that all information I have provided is truthful and complete to the best of my knowledge.',
-    ],
-  },
-  {
-    title: 'III. Waiver of Liability & Indemnification',
-    paragraphs: [
-      `To the fullest extent permitted by law, I hereby release, waive, and forever discharge ${EVENT.church}, its officers, directors, members, facilitators, volunteers, agents, and affiliates (collectively, "Released Parties") from any and all claims, demands, causes of action, liabilities, losses, damages, costs, and expenses (including attorney's fees) arising out of or related to my participation in this ceremony, including but not limited to claims of negligence, personal injury, emotional distress, property damage, or death.`,
-      'I agree to indemnify, defend, and hold harmless the Released Parties from any claims, lawsuits, or demands brought by me, my heirs, estate, or any third party arising from my participation in this ceremony.',
-      'I understand that this waiver is intended to be as broad and inclusive as permitted by the laws of the State of Colorado and that if any portion is held invalid, the remainder shall continue in full legal force and effect.',
-    ],
-  },
-  {
-    title: 'IV. Scope of Practice & Limitations',
-    paragraphs: [
-      'I understand that the facilitators of this ceremony are spiritual practitioners and ceremony holders. They are not licensed physicians, therapists, psychologists, psychiatrists, or medical professionals.',
-      'Nothing in this ceremony constitutes medical advice, diagnosis, treatment, or a substitute for professional medical or mental health care. I take full responsibility for seeking appropriate professional support before, during, and after this experience as needed.',
-      'I understand that facilitators may, in their sole discretion, limit or terminate my participation if they believe it is necessary for my safety or the safety of others.',
-    ],
-  },
-  {
-    title: 'V. Personal Responsibility & Sovereignty',
-    paragraphs: [
-      'I recognize myself as a sovereign being, fully responsible for my physical, emotional, mental, and spiritual experience before, during, and after the ceremony.',
-      'I understand that my participation in any activity, conversation, or energetic process is my choice. I may opt in or out of any practice at any time without explanation.',
-      'I understand that this experience may bring up discomfort, deep emotions, realizations, or growth edges. I commit to holding myself with compassion and agency throughout this process. I take full ownership of my actions, choices, and outcomes.',
-    ],
-  },
-  {
-    title: 'VI. Consent & Boundaries',
-    paragraphs: [
-      'I understand that all practices in this ceremony are voluntary. I give myself full permission to participate, pass, modify, or pause as needed.',
-      'I will honor the boundaries of others and agree not to touch, counsel, or intervene in another participant\'s process without their clear and explicit consent.',
-      'I understand that this is a space for presence and authenticity, not persuasion, performance, or fixing.',
-    ],
-  },
-  {
-    title: 'VII. Confidentiality',
-    paragraphs: [
-      'I understand that everything shared in the ceremonial space is strictly confidential. I will not share, disclose, record, or reproduce other participants\' stories, words, identities, or processes outside of this container, in any medium, at any time.',
-      'I understand that the Church and its facilitators will maintain strict confidentiality about my participation and any information I have shared, except as required by law or as necessary to protect my safety or the safety of others.',
-    ],
-  },
-  {
-    title: 'VIII. Communication & Good Faith',
-    paragraphs: [
-      'I commit to expressing my needs, boundaries, and concerns with clarity and honesty. I will speak up if I need support.',
-      'I enter this space in good faith, with openness to the unknown and respect for the wisdom unfolding in myself and others.',
-      'If disagreements arise, I agree to seek resolution through honest communication and, if needed, mediation, before pursuing any other remedy.',
-    ],
-  },
-  {
-    title: 'IX. Media & Recording',
-    paragraphs: [
-      'I understand that I may not photograph, video, audio record, or otherwise capture any portion of the ceremony or other participants without the express written consent of the Church and all individuals depicted.',
-      'Unless I explicitly opt out in writing, I consent to the Church capturing and using photographs or video of the gathering for internal and promotional purposes, understanding that my identity will not be disclosed without my separate written permission.',
-    ],
-  },
-  {
-    title: 'X. Governing Law & Dispute Resolution',
-    paragraphs: [
-      'This Agreement shall be governed by and construed in accordance with the laws of the State of Colorado, without regard to its conflicts of law provisions.',
-      'Any dispute arising out of or relating to this Agreement or my participation in the ceremony shall first be submitted to good-faith mediation. If mediation is unsuccessful, the dispute shall be resolved by binding arbitration in the State of Colorado, in accordance with the rules of the American Arbitration Association. I waive my right to a jury trial.',
-      'In the event any provision of this Agreement is found to be unenforceable or invalid, such provision shall be severed, and all remaining provisions shall remain in full force and effect.',
-    ],
-  },
-  {
-    title: 'XI. Acknowledgment & Electronic Signature',
-    paragraphs: [
-      'I have read this entire Ceremonial Agreement, Waiver of Liability, and Release of Claims. I understand its contents and sign it voluntarily. I am at least 18 years of age and legally competent to enter into this agreement.',
-      'I understand that by typing my full name below and checking the agreement box, I am executing this document as an electronic signature, which carries the same legal force and effect as a handwritten signature pursuant to the Electronic Signatures in Global and National Commerce Act (ESIGN Act), 15 U.S.C. \u00a7 7001 et seq.',
-      'I intend this Agreement to be binding upon myself, my heirs, executors, administrators, and assigns.',
-    ],
-  },
-];
-
-function MembershipCheck({ onConfirm }) {
+function MembershipCheck({ event, onConfirm }) {
   const [isMember, setIsMember] = useState(null);
 
   return (
     <div className="membership-check">
       <div className="check-header">
         <h2>One quick thing.</h2>
-        <p>Magic Shows are held as ceremonial gatherings in partnership with one of our church partners. For this Magic Show, are you a member of {EVENT.church}?</p>
+        <p>Magic Shows are held as ceremonial gatherings in partnership with one of our church partners. For this Magic Show, are you a member of {event.church}?</p>
       </div>
       {isMember === null && (
         <div className="gate-options">
@@ -135,7 +119,7 @@ function MembershipCheck({ onConfirm }) {
       {isMember === false && (
         <div className="gate-redirect">
           <p>No worries — you&apos;ll need to join first. It only takes a minute.</p>
-          <a href="https://apply.itsthejob.com" target="_blank" rel="noopener noreferrer" className="gate-apply-btn">Join {EVENT.church}</a>
+          <a href="https://apply.itsthejob.com" target="_blank" rel="noopener noreferrer" className="gate-apply-btn">Join {event.church}</a>
           <button className="gate-link" onClick={() => setIsMember(null)}>Done — I just joined</button>
         </div>
       )}
@@ -143,7 +127,7 @@ function MembershipCheck({ onConfirm }) {
   );
 }
 
-function RSVPForm({ onComplete }) {
+function RSVPForm({ event, onComplete }) {
   const [form, setForm] = useState({ name: '', email: '', phone: '' });
   const [status, setStatus] = useState('idle');
 
@@ -151,7 +135,7 @@ function RSVPForm({ onComplete }) {
     e.preventDefault();
     setStatus('submitting');
     const { data, error } = await supabase.from('magic_show_rsvp').insert([{
-      event: EVENT.id,
+      event: event.id,
       name: form.name,
       email: form.email,
       phone: form.phone,
@@ -299,11 +283,12 @@ function IntakeForm({ rsvpData, onComplete }) {
   );
 }
 
-function WaiverForm({ rsvpData }) {
+function WaiverForm({ event, rsvpData }) {
   const [signatureName, setSignatureName] = useState('');
   const [agreed, setAgreed] = useState(false);
   const [status, setStatus] = useState('idle');
   const docRef = useRef(null);
+  const agreementText = getAgreementText(event);
 
   const today = new Date().toLocaleDateString('en-US', {
     year: 'numeric', month: 'long', day: 'numeric',
@@ -342,7 +327,11 @@ function WaiverForm({ rsvpData }) {
             <div className="step-content">
               <h3>Join the Signal Group</h3>
               <p>All group communications for this Magic Show happen on Signal. Download the app now if you don&apos;t have it — we&apos;ll send the group invite to your phone number shortly.</p>
-              <a href="https://signal.org/download/" target="_blank" rel="noopener noreferrer" className="step-action">Download Signal</a>
+              {event.signal_group ? (
+                <a href={event.signal_group} target="_blank" rel="noopener noreferrer" className="step-action">Join Signal Group</a>
+              ) : (
+                <a href="https://signal.org/download/" target="_blank" rel="noopener noreferrer" className="step-action">Download Signal</a>
+              )}
             </div>
           </div>
 
@@ -350,15 +339,15 @@ function WaiverForm({ rsvpData }) {
             <div className="step-number">2</div>
             <div className="step-content">
               <h3>Location Details</h3>
-              {EVENT.venue_name ? (
+              {event.venue_name ? (
                 <>
-                  {EVENT.venue_image && (
+                  {event.venue_image && (
                     <div className="venue-image">
-                      <img src={EVENT.venue_image} alt={EVENT.venue_name} />
+                      <img src={event.venue_image} alt={event.venue_name} />
                     </div>
                   )}
-                  <p className="venue-name">{EVENT.venue_name}</p>
-                  {EVENT.venue_address && <p className="venue-address">{EVENT.venue_address}</p>}
+                  <p className="venue-name">{event.venue_name}</p>
+                  {event.venue_address && <p className="venue-address">{event.venue_address}</p>}
                 </>
               ) : (
                 <p className="tbd">Location details coming soon. You&apos;ll be notified via Signal.</p>
@@ -370,10 +359,10 @@ function WaiverForm({ rsvpData }) {
             <div className="step-number">3</div>
             <div className="step-content">
               <h3>Arrival & Departure</h3>
-              {EVENT.arrival ? (
+              {event.arrival ? (
                 <>
-                  <p><strong>Arrive:</strong> {EVENT.arrival}</p>
-                  <p><strong>Depart:</strong> {EVENT.departure}</p>
+                  <p><strong>Arrive:</strong> {event.arrival}</p>
+                  <p><strong>Depart:</strong> {event.departure}</p>
                 </>
               ) : (
                 <p className="tbd">Arrival and departure times coming soon.</p>
@@ -400,17 +389,17 @@ function WaiverForm({ rsvpData }) {
         <h2>Ceremonial Agreement</h2>
         <p>Waiver of Liability, Assumption of Risk & Release of Claims</p>
         <div className="waiver-parties">
-          <span>{EVENT.church} &mdash; {EVENT.location} &mdash; {EVENT.dates}</span>
+          <span>{event.church} &mdash; {event.location} &mdash; {event.dates}</span>
         </div>
       </div>
 
       <div className="waiver-preamble">
-        <p>This Agreement is entered into between <strong>{EVENT.church}</strong> (&ldquo;the Church&rdquo;) and <strong>{rsvpData.name}</strong> (&ldquo;Participant&rdquo;) as a condition of participation in the ceremonial gathering known as {EVENT.name}.</p>
+        <p>This Agreement is entered into between <strong>{event.church}</strong> (&ldquo;the Church&rdquo;) and <strong>{rsvpData.name}</strong> (&ldquo;Participant&rdquo;) as a condition of participation in the ceremonial gathering known as {event.name}.</p>
         <p>This Agreement is a co-created foundation for the ceremonial container we are entering together. It is rooted in mutual respect, trust, sovereignty, shared intention, and the sincerely held religious beliefs and practices of the Church.</p>
       </div>
 
       <div className="waiver-document" ref={docRef}>
-        {AGREEMENT_TEXT.map((section, i) => (
+        {agreementText.map((section, i) => (
           <div key={i} className="waiver-section">
             <h3>{section.title}</h3>
             {section.paragraphs.map((p, j) => (
@@ -466,8 +455,23 @@ function WaiverForm({ rsvpData }) {
 }
 
 export default function Home() {
-  const [step, setStep] = useState('rsvp'); // rsvp → membership → intake → waiver
+  const [event, setEvent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [step, setStep] = useState('rsvp');
   const [rsvpData, setRsvpData] = useState(null);
+
+  useEffect(() => {
+    async function loadEvent() {
+      const { data } = await supabase
+        .from('magic_show_events')
+        .select('*')
+        .eq('is_live', true)
+        .single();
+      setEvent(data);
+      setLoading(false);
+    }
+    loadEvent();
+  }, []);
 
   function handleRSVP(data) {
     setRsvpData(data);
@@ -482,26 +486,45 @@ export default function Home() {
     setStep('waiver');
   }
 
+  if (loading) {
+    return (
+      <div className="page">
+        <div className="stars" />
+      </div>
+    );
+  }
+
+  if (!event) {
+    return (
+      <div className="page">
+        <div className="stars" />
+        <div className="no-event">
+          <h2>No show currently scheduled.</h2>
+          <p>Check back soon.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="page">
       <div className="stars" />
 
-      {/* ===== GOLDEN TICKET (shows on rsvp) ===== */}
       {step === 'rsvp' && (
         <div className="ticket-wrapper">
           <div className="ticket">
             <div className="ticket-edge ticket-edge-left" />
             <div className="ticket-inner">
               <div className="ticket-eyebrow">You&apos;ve been invited to</div>
-              <h1 className="ticket-title">The Magic Show</h1>
+              <h1 className="ticket-title">{event.name}</h1>
               <div className="ticket-details">
                 <div className="ticket-detail">
                   <span className="detail-label">When</span>
-                  <span className="detail-value">{EVENT.dates}</span>
+                  <span className="detail-value">{event.dates}</span>
                 </div>
                 <div className="ticket-detail">
                   <span className="detail-label">Where</span>
-                  <span className="detail-value">{EVENT.location}</span>
+                  <span className="detail-value">{event.location}</span>
                 </div>
               </div>
               <div className="ticket-tagline">Surprise, you&apos;re the magic.</div>
@@ -512,10 +535,9 @@ export default function Home() {
         </div>
       )}
 
-      {/* ===== STEP INDICATOR (shows after RSVP) ===== */}
       {step !== 'rsvp' && step !== 'membership' && (
         <div className="step-indicator">
-          <div className={`step-dot done`}><span>1</span></div>
+          <div className="step-dot done"><span>1</span></div>
           <div className="step-line" />
           <div className={`step-dot ${step === 'intake' ? 'active' : 'done'}`}><span>2</span></div>
           <div className="step-line" />
@@ -523,23 +545,19 @@ export default function Home() {
         </div>
       )}
 
-      {/* ===== RSVP ===== */}
       {step === 'rsvp' && (
         <div className="rsvp-section">
           <h2 className="rsvp-heading">RSVP</h2>
           <p className="rsvp-sub">Spots are limited. This invitation is non-transferable.</p>
-          <RSVPForm onComplete={handleRSVP} />
+          <RSVPForm event={event} onComplete={handleRSVP} />
         </div>
       )}
 
-      {/* ===== MEMBERSHIP CHECK ===== */}
-      {step === 'membership' && <MembershipCheck onConfirm={handleMemberConfirm} />}
+      {step === 'membership' && <MembershipCheck event={event} onConfirm={handleMemberConfirm} />}
 
-      {/* ===== INTAKE ===== */}
       {step === 'intake' && <IntakeForm rsvpData={rsvpData} onComplete={handleIntakeComplete} />}
 
-      {/* ===== WAIVER ===== */}
-      {step === 'waiver' && <WaiverForm rsvpData={rsvpData} />}
+      {step === 'waiver' && <WaiverForm event={event} rsvpData={rsvpData} />}
 
       <footer className="footer">
         <a href="https://itsthejob.vercel.app" target="_blank" rel="noopener noreferrer">J.O.B.</a>

@@ -12,8 +12,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "The Magic Show — Big Sky, Montana",
-  description: "You've been invited. May 1–3, 2026.",
+  title: "The Magic Show",
+  description: "You've been invited.",
 };
 
 export default function RootLayout({ children }) {

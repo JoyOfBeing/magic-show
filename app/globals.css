@@ -869,6 +869,284 @@ a { color: inherit; text-decoration: none; }
   opacity: 0.6;
 }
 
+/* ===== NO EVENT STATE ===== */
+.no-event {
+  text-align: center;
+  padding: 4rem 0;
+}
+.no-event h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+.no-event p {
+  color: var(--muted);
+  opacity: 0.6;
+  font-size: 0.9rem;
+}
+
+/* ===== ADMIN PAGE ===== */
+.admin-page {
+  max-width: 750px;
+}
+.admin-password {
+  text-align: center;
+  padding: 6rem 0;
+}
+.admin-password h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--gold);
+  margin-bottom: 1.5rem;
+}
+.admin-password form {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  max-width: 300px;
+  margin: 0 auto;
+}
+.admin-password input {
+  flex: 1;
+  padding: 0.6rem 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+}
+.admin-password input:focus { border-color: var(--gold); }
+.admin-password button {
+  padding: 0.6rem 1.25rem;
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+  color: #1a1200;
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+.admin-error {
+  color: var(--iridescent-3);
+  font-size: 0.8rem;
+  margin-top: 0.75rem;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+.admin-header h1 {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--gold);
+}
+.admin-new-btn {
+  padding: 0.5rem 1.25rem;
+  background: linear-gradient(135deg, var(--iridescent-1), var(--iridescent-2));
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.admin-new-btn:hover { opacity: 0.85; }
+
+.admin-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.admin-card {
+  padding: 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: border-color 0.2s;
+}
+.admin-card:hover { border-color: rgba(212, 168, 67, 0.3); }
+.admin-card-live { border-color: var(--gold); }
+.admin-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+.admin-card-header h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.admin-card-id {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-family: monospace;
+}
+.admin-live-badge {
+  padding: 0.2rem 0.6rem;
+  background: var(--gold);
+  color: #1a1200;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  border-radius: 4px;
+}
+.admin-card-details {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+.admin-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+  opacity: 0.7;
+  margin-bottom: 0.75rem;
+}
+.admin-card-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.admin-edit-btn, .admin-live-btn, .admin-unlive-btn {
+  padding: 0.4rem 1rem;
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.admin-edit-btn {
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.admin-live-btn {
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+  border: none;
+  color: #1a1200;
+}
+.admin-unlive-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+.admin-edit-btn:hover, .admin-live-btn:hover, .admin-unlive-btn:hover { opacity: 0.8; }
+
+.admin-empty {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+  padding: 3rem 0;
+}
+
+/* Admin form */
+.admin-form {
+  animation: fadeIn 0.3s ease;
+}
+.admin-form h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 1.25rem;
+}
+.admin-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.admin-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.admin-field.full-width {
+  grid-column: 1 / -1;
+}
+.admin-field label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  font-weight: 600;
+}
+.admin-field input, .admin-field textarea {
+  padding: 0.5rem 0.65rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 0.85rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.admin-field input:focus, .admin-field textarea:focus { border-color: var(--gold); }
+.admin-field input:disabled { opacity: 0.5; }
+.admin-field input::placeholder, .admin-field textarea::placeholder {
+  color: var(--muted);
+  opacity: 0.5;
+}
+.admin-field textarea { resize: vertical; min-height: 60px; }
+.admin-hint {
+  font-size: 0.7rem;
+  color: var(--muted);
+  opacity: 0.6;
+}
+.admin-divider {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+  font-weight: 600;
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--border);
+  margin: 0.5rem 0;
+}
+.admin-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+.admin-save {
+  padding: 0.6rem 1.5rem;
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+  color: #1a1200;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.admin-save:hover { opacity: 0.9; }
+.admin-save:disabled { opacity: 0.5; cursor: not-allowed; }
+.admin-cancel {
+  padding: 0.6rem 1.5rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+.admin-cancel:hover { color: var(--text); }
+
 /* Mobile */
 @media (max-width: 600px) {
   .page { padding: 2rem 1rem; }
