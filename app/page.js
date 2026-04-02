@@ -3,11 +3,29 @@
 import { useState, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 
+// ===== EVENT CONFIG =====
+// Update this object for each Magic Show. Everything show-specific lives here.
+const EVENT = {
+  id: 'big_sky_may_2026',
+  name: 'The Magic Show',
+  dates: 'May 1–3, 2026',
+  location: 'Big Sky, Montana',
+  church: 'J.O.B. Church',
+  // Update these once finalized:
+  venue_name: '', // e.g. "Lone Mountain Ranch"
+  venue_address: '', // e.g. "750 Lone Mountain Ranch Rd, Big Sky, MT 59716"
+  venue_image: '', // URL to location image
+  arrival: '', // e.g. "Thursday May 1, check-in begins at 2:00 PM"
+  departure: '', // e.g. "Sunday May 3, ceremony closes at 12:00 PM"
+  signal_group: '', // Signal group invite link
+  prep_notes: '', // Any additional preparation notes
+};
+
 const AGREEMENT_TEXT = [
   {
     title: 'I. Religious Practice & RFRA Acknowledgment',
     paragraphs: [
-      'I, the undersigned Participant, affirm that I am a member in good standing of The JOB Church ("the Church"), a sincerely held religious organization. I understand that this ceremonial gathering ("The Magic Show") is conducted as a religious and spiritual practice of the Church, protected under the Religious Freedom Restoration Act (RFRA), 42 U.S.C. \u00a7 2000bb et seq., and the First Amendment to the United States Constitution.',
+      `I, the undersigned Participant, affirm that I am a member in good standing of ${EVENT.church} ("the Church"), a sincerely held religious organization. I understand that this ceremonial gathering ("${EVENT.name}") is conducted as a religious and spiritual practice of the Church, protected under the Religious Freedom Restoration Act (RFRA), 42 U.S.C. \u00a7 2000bb et seq., and the First Amendment to the United States Constitution.`,
       'I acknowledge that the sacramental and ceremonial practices of the Church may include the use of entheogenic substances as part of its sincerely held religious beliefs and practices. My participation in these practices is voluntary, knowing, and an exercise of my religious freedom.',
       'I affirm that my participation in this ceremony is motivated by sincere religious and spiritual intent, not recreational purpose.',
     ],
@@ -23,9 +41,9 @@ const AGREEMENT_TEXT = [
   {
     title: 'III. Waiver of Liability & Indemnification',
     paragraphs: [
-      'To the fullest extent permitted by law, I hereby release, waive, and forever discharge The JOB Church, its officers, directors, members, facilitators, volunteers, agents, and affiliates (collectively, "Released Parties") from any and all claims, demands, causes of action, liabilities, losses, damages, costs, and expenses (including attorney\'s fees) arising out of or related to my participation in this ceremony, including but not limited to claims of negligence, personal injury, emotional distress, property damage, or death.',
+      `To the fullest extent permitted by law, I hereby release, waive, and forever discharge ${EVENT.church}, its officers, directors, members, facilitators, volunteers, agents, and affiliates (collectively, "Released Parties") from any and all claims, demands, causes of action, liabilities, losses, damages, costs, and expenses (including attorney's fees) arising out of or related to my participation in this ceremony, including but not limited to claims of negligence, personal injury, emotional distress, property damage, or death.`,
       'I agree to indemnify, defend, and hold harmless the Released Parties from any claims, lawsuits, or demands brought by me, my heirs, estate, or any third party arising from my participation in this ceremony.',
-      'I understand that this waiver is intended to be as broad and inclusive as permitted by the laws of the State of Montana and that if any portion is held invalid, the remainder shall continue in full legal force and effect.',
+      'I understand that this waiver is intended to be as broad and inclusive as permitted by the laws of the State of Colorado and that if any portion is held invalid, the remainder shall continue in full legal force and effect.',
     ],
   },
   {
@@ -77,8 +95,8 @@ const AGREEMENT_TEXT = [
   {
     title: 'X. Governing Law & Dispute Resolution',
     paragraphs: [
-      'This Agreement shall be governed by and construed in accordance with the laws of the State of Montana, without regard to its conflicts of law provisions.',
-      'Any dispute arising out of or relating to this Agreement or my participation in the ceremony shall first be submitted to good-faith mediation. If mediation is unsuccessful, the dispute shall be resolved by binding arbitration in the State of Montana, in accordance with the rules of the American Arbitration Association. I waive my right to a jury trial.',
+      'This Agreement shall be governed by and construed in accordance with the laws of the State of Colorado, without regard to its conflicts of law provisions.',
+      'Any dispute arising out of or relating to this Agreement or my participation in the ceremony shall first be submitted to good-faith mediation. If mediation is unsuccessful, the dispute shall be resolved by binding arbitration in the State of Colorado, in accordance with the rules of the American Arbitration Association. I waive my right to a jury trial.',
       'In the event any provision of this Agreement is found to be unenforceable or invalid, such provision shall be severed, and all remaining provisions shall remain in full force and effect.',
     ],
   },
@@ -86,7 +104,7 @@ const AGREEMENT_TEXT = [
     title: 'XI. Acknowledgment & Electronic Signature',
     paragraphs: [
       'I have read this entire Ceremonial Agreement, Waiver of Liability, and Release of Claims. I understand its contents and sign it voluntarily. I am at least 18 years of age and legally competent to enter into this agreement.',
-      'I understand that by typing my full legal name below and checking the agreement box, I am executing this document as an electronic signature, which carries the same legal force and effect as a handwritten signature pursuant to the Electronic Signatures in Global and National Commerce Act (ESIGN Act), 15 U.S.C. \u00a7 7001 et seq.',
+      'I understand that by typing my full name below and checking the agreement box, I am executing this document as an electronic signature, which carries the same legal force and effect as a handwritten signature pursuant to the Electronic Signatures in Global and National Commerce Act (ESIGN Act), 15 U.S.C. \u00a7 7001 et seq.',
       'I intend this Agreement to be binding upon myself, my heirs, executors, administrators, and assigns.',
     ],
   },
@@ -99,7 +117,7 @@ function MembershipCheck({ onConfirm }) {
     <div className="membership-check">
       <div className="check-header">
         <h2>One quick thing.</h2>
-        <p>Magic Shows are held as ceremonial gatherings for JOB community members. Are you a member?</p>
+        <p>Magic Shows are held as ceremonial gatherings in partnership with one of our church partners. For this Magic Show, are you a member of {EVENT.church}?</p>
       </div>
       {isMember === null && (
         <div className="gate-options">
@@ -117,7 +135,7 @@ function MembershipCheck({ onConfirm }) {
       {isMember === false && (
         <div className="gate-redirect">
           <p>No worries — you&apos;ll need to join first. It only takes a minute.</p>
-          <a href="https://apply.itsthejob.com" target="_blank" rel="noopener noreferrer" className="gate-apply-btn">Join JOB</a>
+          <a href="https://apply.itsthejob.com" target="_blank" rel="noopener noreferrer" className="gate-apply-btn">Join {EVENT.church}</a>
           <button className="gate-link" onClick={() => setIsMember(null)}>Done — I just joined</button>
         </div>
       )}
@@ -133,7 +151,7 @@ function RSVPForm({ onComplete }) {
     e.preventDefault();
     setStatus('submitting');
     const { data, error } = await supabase.from('magic_show_rsvp').insert([{
-      event: 'big_sky_may_2026',
+      event: EVENT.id,
       name: form.name,
       email: form.email,
       phone: form.phone,
@@ -149,8 +167,8 @@ function RSVPForm({ onComplete }) {
   return (
     <form className="rsvp-form" onSubmit={handleSubmit}>
       <div className="form-field">
-        <label>Full legal name *</label>
-        <input type="text" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="As it appears on your ID" />
+        <label>Full Name *</label>
+        <input type="text" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="First and Last" />
       </div>
       <div className="form-field">
         <label>Email *</label>
@@ -220,7 +238,7 @@ function IntakeForm({ rsvpData, onComplete }) {
           <textarea
             value={form.medications}
             onChange={e => setForm(f => ({ ...f, medications: e.target.value }))}
-            placeholder="List any medications you're currently taking, including supplements..."
+            placeholder="List any medications you're currently taking, including supplements and SSRIs..."
             rows={3}
           />
         </div>
@@ -294,7 +312,7 @@ function WaiverForm({ rsvpData }) {
   async function handleSubmit(e) {
     e.preventDefault();
     if (signatureName.trim().toLowerCase() !== rsvpData.name.trim().toLowerCase()) {
-      alert('Your signature must match the full legal name you provided during RSVP: ' + rsvpData.name);
+      alert('Your signature must match the name you provided during RSVP: ' + rsvpData.name);
       return;
     }
     setStatus('submitting');
@@ -311,14 +329,67 @@ function WaiverForm({ rsvpData }) {
 
   if (status === 'success') {
     return (
-      <div className="intake-complete">
+      <div className="confirmed">
         <div className="ticket ticket-mini">
           <div className="ticket-confirmed">CONFIRMED</div>
         </div>
         <h2>You&apos;re in.</h2>
-        <p>Your agreement has been signed and recorded.</p>
-        <p>We&apos;ll be in touch with everything you need before May 1.</p>
-        <p className="intake-note">Check your email. Prepare accordingly.</p>
+        <p className="confirmed-sub">Your agreement has been signed and recorded. Here&apos;s what happens next.</p>
+
+        <div className="next-steps">
+          <div className="next-step">
+            <div className="step-number">1</div>
+            <div className="step-content">
+              <h3>Join the Signal Group</h3>
+              <p>All group communications for this Magic Show happen on Signal. Download the app now if you don&apos;t have it — we&apos;ll send the group invite to your phone number shortly.</p>
+              <a href="https://signal.org/download/" target="_blank" rel="noopener noreferrer" className="step-action">Download Signal</a>
+            </div>
+          </div>
+
+          <div className="next-step">
+            <div className="step-number">2</div>
+            <div className="step-content">
+              <h3>Location Details</h3>
+              {EVENT.venue_name ? (
+                <>
+                  {EVENT.venue_image && (
+                    <div className="venue-image">
+                      <img src={EVENT.venue_image} alt={EVENT.venue_name} />
+                    </div>
+                  )}
+                  <p className="venue-name">{EVENT.venue_name}</p>
+                  {EVENT.venue_address && <p className="venue-address">{EVENT.venue_address}</p>}
+                </>
+              ) : (
+                <p className="tbd">Location details coming soon. You&apos;ll be notified via Signal.</p>
+              )}
+            </div>
+          </div>
+
+          <div className="next-step">
+            <div className="step-number">3</div>
+            <div className="step-content">
+              <h3>Arrival & Departure</h3>
+              {EVENT.arrival ? (
+                <>
+                  <p><strong>Arrive:</strong> {EVENT.arrival}</p>
+                  <p><strong>Depart:</strong> {EVENT.departure}</p>
+                </>
+              ) : (
+                <p className="tbd">Arrival and departure times coming soon.</p>
+              )}
+            </div>
+          </div>
+
+          <div className="next-step">
+            <div className="step-number">4</div>
+            <div className="step-content">
+              <h3>Prepare Your Body & Spirit</h3>
+              <p>Read our preparation and integration guide so you arrive ready — what to bring, how to eat, how to prepare mentally, and how to integrate after.</p>
+              <a href="/prepare" className="step-action">View Preparation Guide</a>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -329,12 +400,12 @@ function WaiverForm({ rsvpData }) {
         <h2>Ceremonial Agreement</h2>
         <p>Waiver of Liability, Assumption of Risk & Release of Claims</p>
         <div className="waiver-parties">
-          <span>The JOB Church &mdash; Big Sky, Montana &mdash; May 1&ndash;3, 2026</span>
+          <span>{EVENT.church} &mdash; {EVENT.location} &mdash; {EVENT.dates}</span>
         </div>
       </div>
 
       <div className="waiver-preamble">
-        <p>This Agreement is entered into between <strong>The JOB Church</strong> (&ldquo;the Church&rdquo;) and <strong>{rsvpData.name}</strong> (&ldquo;Participant&rdquo;) as a condition of participation in the ceremonial gathering known as The Magic Show.</p>
+        <p>This Agreement is entered into between <strong>{EVENT.church}</strong> (&ldquo;the Church&rdquo;) and <strong>{rsvpData.name}</strong> (&ldquo;Participant&rdquo;) as a condition of participation in the ceremonial gathering known as {EVENT.name}.</p>
         <p>This Agreement is a co-created foundation for the ceremonial container we are entering together. It is rooted in mutual respect, trust, sovereignty, shared intention, and the sincerely held religious beliefs and practices of the Church.</p>
       </div>
 
@@ -352,7 +423,7 @@ function WaiverForm({ rsvpData }) {
       <form className="waiver-sign-form" onSubmit={handleSubmit}>
         <div className="waiver-sign-header">
           <h3>Sign Below</h3>
-          <p>By typing your full legal name exactly as provided during RSVP, you are executing this agreement as a legally binding electronic signature.</p>
+          <p>By typing your full name exactly as provided during RSVP, you are executing this agreement as a legally binding electronic signature.</p>
         </div>
 
         <div className="form-field">
@@ -361,7 +432,7 @@ function WaiverForm({ rsvpData }) {
         </div>
 
         <div className="form-field">
-          <label>Type your full legal name to sign *</label>
+          <label>Type your full name to sign *</label>
           <input
             type="text"
             required
@@ -426,14 +497,14 @@ export default function Home() {
               <div className="ticket-details">
                 <div className="ticket-detail">
                   <span className="detail-label">When</span>
-                  <span className="detail-value">May 1&ndash;3, 2026</span>
+                  <span className="detail-value">{EVENT.dates}</span>
                 </div>
                 <div className="ticket-detail">
                   <span className="detail-label">Where</span>
-                  <span className="detail-value">Big Sky, Montana</span>
+                  <span className="detail-value">{EVENT.location}</span>
                 </div>
               </div>
-              <div className="ticket-tagline">This is not a retreat. This is not a conference.<br />This is something else entirely.</div>
+              <div className="ticket-tagline">Surprise, you&apos;re the magic.</div>
               <div className="ticket-admit">ADMIT ONE</div>
             </div>
             <div className="ticket-edge ticket-edge-right" />
