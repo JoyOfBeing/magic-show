@@ -10,11 +10,11 @@ const SECTIONS = [
     content: [
       {
         heading: 'What to Expect',
-        text: 'The Magic Show is a multi-day experience that defies easy categorization. You\'ll move through ceremonies, play, stillness, weirdness, movement, laughter, and connection — some of it planned, some of it not. The whole thing is held by people who\'ve done this before. Your only job is to show up.',
+        text: 'The Magic Show is a multi-day emergent experience. Your only job is to show up.',
       },
       {
         heading: 'The Container',
-        text: 'From the moment you arrive until the moment you leave, you\'re inside the show. That doesn\'t mean everything is intense — it means everything is on purpose. The meals, the silence, the strange conversations at 2 AM, the walk you take alone — it\'s all part of it. Let it be.',
+        text: 'From the moment you arrive until the moment you leave, you\'re the show. Just be yourself, it\'s not that hard. Or is it? We\'ll be in a beautiful space with a private chef. We\'ll explore the intersection of creativity, community, and consciousness. How you participate is completely up to you.',
       },
     ],
   },
@@ -25,36 +25,18 @@ const SECTIONS = [
     content: [
       {
         heading: 'Diet — 2 Weeks Before',
-        items: [
-          'Start shifting toward clean, whole foods — vegetables, fruits, grains, lean proteins',
-          'Reduce or eliminate processed foods, refined sugar, and fried foods',
-          'Minimize caffeine and alcohol',
-          'Avoid pork and red meat for at least 7 days before',
-          'Stay well hydrated — aim for half your body weight in ounces of water daily',
-        ],
+        text: 'Cut: Minimize caffeine and alcohol',
       },
       {
         heading: 'Diet — 3 Days Before',
         items: [
-          'Eat light, simple meals — soups, rice, steamed vegetables, fruit',
-          'Eliminate alcohol, cannabis, and all recreational substances',
-          'Eliminate caffeine if possible, or reduce to minimal',
-          'No heavy, rich, or spicy foods',
-          'Fast or eat very lightly the day of (details provided by your guides)',
-        ],
-      },
-      {
-        heading: 'Medications — Important',
-        items: [
-          'SSRIs and MAOIs can have dangerous interactions with certain entheogenics. If you are on SSRIs, you MUST disclose this on your intake form and talk to us before attending',
-          'Do not stop or adjust any prescribed medication without consulting your doctor',
-          'Disclose ALL supplements, even those that seem harmless — St. John\'s Wort, 5-HTP, and others can interact',
-          'If in doubt, ask. We\'d rather have the conversation than have a preventable incident',
+          'Cut: Eliminate caffeine if possible, or reduce to minimal',
+          'Cut: Fast or eat very lightly the day of (details provided by your guides)',
         ],
       },
       {
         heading: 'Sleep & Rest',
-        text: 'Show up well-rested. Prioritize 7-9 hours of sleep in the nights leading up to the show. Your nervous system will thank you. You\'re going to need the bandwidth.',
+        text: 'Cut: You\'re going to need the bandwidth.',
       },
     ],
   },
@@ -65,19 +47,19 @@ const SECTIONS = [
     content: [
       {
         heading: 'Set Your Intention',
-        text: 'What are you actually here for? Not the polished answer — the real one. Spend some time before arrival journaling, sitting quietly, or just letting the question breathe: What am I ready to meet?',
+        text: 'Even though you hardly know what the Magic Show is \u2013 you said yes. Why did you say yes? What are you open to? What are you looking for?',
       },
       {
         heading: 'Slow Down',
-        text: 'In the week before, start unwinding. Less screen time. More nature. Fewer conversations, but more honest ones. Start arriving before you arrive.',
+        text: 'Leading up to the event, give yourself permission to start unwinding. Less screen time. More nature. Start arriving before you arrive, ya feel?',
       },
       {
         heading: 'Release Expectations',
-        text: 'You might have heard things. You might have a whole story built about what this will be. Drop it. The experience you need is almost never the one you imagined. That\'s kind of the point.',
+        text: 'Maybe you\'ve heard someone else\'s experience of the Magic Show. Maybe you\'ve built a whole story around what it\'ll be. Drop it. The experience you need is almost never the one you imagined.',
       },
       {
         heading: 'Know Your Edges',
-        text: 'Think about your boundaries before you get here. What feels safe? Where are your edges? You have full permission to participate, pause, or pass at any time — no explanation needed. Knowing your own limits is part of the magic, not a limitation of it.',
+        text: 'Think about your boundaries before you get here. What feels safe? Where are your edges? You have full permission to participate, pause, or pass at any time. No explanation needed. Knowing your own limits is part of the magic, not a limitation of it.',
       },
     ],
   },
@@ -124,7 +106,7 @@ const SECTIONS = [
     content: [
       {
         heading: 'What is Integration?',
-        text: 'Integration is what happens when the show ends and real life starts talking back. It\'s the process of weaving whatever you experienced — the insights, the feelings, the weird stuff you can\'t quite name — into your actual day-to-day. The show opens the door. Integration is walking through it.',
+        text: 'Integration is what happens when the show ends and real life sets back in. It\'s the process of how you weave together what you experienced \u2014 the existential insights, the unexpected feelings, and the stuff you can\'t quite name \u2014 into your actual day-to-day. The show kicks open the door. Integration is how you walk through it.',
       },
       {
         heading: 'The First 48 Hours',
@@ -160,7 +142,7 @@ const SECTIONS = [
       },
       {
         heading: 'When to Reach Out',
-        text: 'If you\'re experiencing persistent anxiety, confusion, or difficulty functioning after the experience, reach out to us or to a mental health professional. This isn\'t a sign of failure — it\'s a sign you\'re processing something real and you deserve support doing it.',
+        text: 'Outside of our group Signal thread, if you\'re experiencing persistent anxiety, confusion, or difficulty functioning after the experience, reach out to us or to a mental health professional. Everyone processes transformation differently. If this happens, think of it as a sign you\'re processing something significant and that you deserve support doing it.',
       },
     ],
   },
