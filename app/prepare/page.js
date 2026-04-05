@@ -25,18 +25,33 @@ const SECTIONS = [
     content: [
       {
         heading: 'Diet — 2 Weeks Before',
-        text: 'Cut: Minimize caffeine and alcohol',
+        items: [
+          'Start shifting toward clean, whole foods — vegetables, fruits, grains, lean proteins',
+          'Reduce or eliminate processed foods, refined sugar, and fried foods',
+          'Avoid pork and red meat for at least 7 days before',
+          'Stay well hydrated — aim for half your body weight in ounces of water daily',
+        ],
       },
       {
         heading: 'Diet — 3 Days Before',
         items: [
-          'Cut: Eliminate caffeine if possible, or reduce to minimal',
-          'Cut: Fast or eat very lightly the day of (details provided by your guides)',
+          'Eat light, simple meals — soups, rice, steamed vegetables, fruit',
+          'Eliminate alcohol, cannabis, and all recreational substances',
+          'No heavy, rich, or spicy foods',
+        ],
+      },
+      {
+        heading: 'Medications — Important',
+        items: [
+          'SSRIs and MAOIs can have dangerous interactions with certain entheogenics. If you are on SSRIs, you MUST disclose this on your intake form and talk to us before attending',
+          'Do not stop or adjust any prescribed medication without consulting your doctor',
+          'Disclose ALL supplements, even those that seem harmless — St. John\'s Wort, 5-HTP, and others can interact',
+          'If in doubt, ask. We\'d rather have the conversation than have a preventable incident',
         ],
       },
       {
         heading: 'Sleep & Rest',
-        text: 'Cut: You\'re going to need the bandwidth.',
+        text: 'Show up well-rested. Prioritize 7-9 hours of sleep in the nights leading up to the show. Your nervous system will thank you.',
       },
     ],
   },
