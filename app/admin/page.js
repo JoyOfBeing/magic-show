@@ -145,8 +145,8 @@ function EventForm({ event, isNew, onSave, onCancel }) {
           <input type="text" value={form.venue_address} onChange={e => set('venue_address', e.target.value)} placeholder="Full address" />
         </div>
         <div className="admin-field full-width">
-          <label>Venue Image URL</label>
-          <input type="text" value={form.venue_image} onChange={e => set('venue_image', e.target.value)} placeholder="https://..." />
+          <label>Venue Link (Airbnb, Inspirato, etc.)</label>
+          <input type="text" value={form.venue_image} onChange={e => set('venue_image', e.target.value)} placeholder="https://www.airbnb.com/rooms/..." />
         </div>
       </div>
 

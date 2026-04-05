@@ -366,9 +366,9 @@ function ConfirmedScreen({ event }) {
             {event.venue_name ? (
               <>
                 {event.venue_image && (
-                  <div className="venue-image">
-                    <img src={event.venue_image} alt={event.venue_name} />
-                  </div>
+                  <a href={event.venue_image} target="_blank" rel="noopener noreferrer" className="venue-link">
+                    View the space &rarr;
+                  </a>
                 )}
                 <p className="venue-name">{event.venue_name}</p>
                 {event.venue_address && <p className="venue-address">{event.venue_address}</p>}
