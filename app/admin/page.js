@@ -235,7 +235,7 @@ export default function AdminPage() {
       <div className="admin-header">
         <div>
           <h1>Magic Show Admin</h1>
-          <a href="/" target="_blank" rel="noopener noreferrer" className="admin-preview-link">View live landing page &rarr;</a>
+          <a href="/big-sky" target="_blank" rel="noopener noreferrer" className="admin-preview-link">View live landing page &rarr;</a>
         </div>
         <button className="admin-new-btn" onClick={() => setEditing('new')}>+ New Show</button>
       </div>

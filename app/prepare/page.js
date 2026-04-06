@@ -171,7 +171,7 @@ export default function PreparePage() {
       <div className="stars" />
 
       <div className="prep-header">
-        <a href="/" className="prep-back">&larr; Back</a>
+        <a href="/big-sky" className="prep-back">&larr; Back</a>
         <h1>Preparation & Integration</h1>
         <p>Everything you need to show up ready and take it home with you.</p>
       </div>
