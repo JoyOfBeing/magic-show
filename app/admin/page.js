@@ -21,6 +21,47 @@ const EMPTY_EVENT = {
   is_live: false,
 };
 
+function RosterRow({ r, onDelete }) {
+  const [expanded, setExpanded] = useState(false);
+  const has = (v) => v && v.trim && v.trim().length > 0;
+  return (
+    <div className={`roster-row ${expanded ? 'roster-row-open' : ''}`}>
+      <div className="roster-row-top">
+        <button className="roster-row-info" onClick={() => setExpanded(e => !e)}>
+          <div className="roster-name">{r.name} {expanded ? '▾' : '▸'}</div>
+          <div className="roster-contact">{r.email} · {r.phone}</div>
+        </button>
+        <button className="invite-delete" onClick={() => onDelete(r)} title="Remove">×</button>
+      </div>
+      {expanded && (
+        <div className="roster-detail">
+          {!r.intake_complete && <p className="roster-detail-empty">Intake not yet completed.</p>}
+          {has(r.medical_conditions) && (
+            <div className="roster-field"><strong>Medical conditions:</strong> {r.medical_conditions}</div>
+          )}
+          {has(r.medications) && (
+            <div className="roster-field"><strong>Medications:</strong> {r.medications}</div>
+          )}
+          {has(r.mental_health) && (
+            <div className="roster-field"><strong>Mental health:</strong> {r.mental_health}</div>
+          )}
+          {has(r.plant_experience) && (
+            <div className="roster-field"><strong>Entheogen experience:</strong> {r.plant_experience}</div>
+          )}
+          {has(r.emergency_name) && (
+            <div className="roster-field"><strong>Emergency contact:</strong> {r.emergency_name} · {r.emergency_phone}</div>
+          )}
+          {r.waiver_signed && (
+            <div className="roster-field roster-field-meta">
+              Waiver signed {r.waiver_signed_at ? new Date(r.waiver_signed_at).toLocaleDateString() : ''}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function RosterView({ event, onClose }) {
   const [rsvps, setRsvps] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -90,13 +131,7 @@ function RosterView({ event, onClose }) {
       ) : (
         <div className="roster-list">
           {confirmed.map(r => (
-            <div key={r.id} className="roster-row">
-              <div className="roster-row-info">
-                <div className="roster-name">{r.name}</div>
-                <div className="roster-contact">{r.email} · {r.phone}</div>
-              </div>
-              <button className="invite-delete" onClick={() => deleteRsvp(r)} title="Remove">×</button>
-            </div>
+            <RosterRow key={r.id} r={r} onDelete={deleteRsvp} />
           ))}
         </div>
       )}
@@ -106,13 +141,7 @@ function RosterView({ event, onClose }) {
           <h3 className="roster-section-title">In Progress</h3>
           <div className="roster-list">
             {inProgress.map(r => (
-              <div key={r.id} className="roster-row roster-row-pending">
-                <div className="roster-row-info">
-                  <div className="roster-name">{r.name}</div>
-                  <div className="roster-contact">{r.email} · {r.phone}</div>
-                </div>
-                <button className="invite-delete" onClick={() => deleteRsvp(r)} title="Remove">×</button>
-              </div>
+              <RosterRow key={r.id} r={r} onDelete={deleteRsvp} />
             ))}
           </div>
         </>
