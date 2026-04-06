@@ -101,7 +101,7 @@ export default function Home() {
       <section className="home-section">
         <div className="home-section-label">Currently Open</div>
         <a href="/big-sky" className="show-card show-card-open">
-          <div className="show-card-image show-card-image-bigsky" />
+          <img src="/big-sky.jpg" alt="Big Sky" className="show-card-image" />
           <div className="show-card-body">
             <div className="show-card-city">Big Sky, Montana</div>
             <div className="show-card-name">The Magic Show</div>
