@@ -8,17 +8,10 @@ function InviteGate({ event, onValid }) {
   const [code, setCode] = useState('');
   const [status, setStatus] = useState('idle');
 
-  async function handleSubmit(e) {
+  function handleSubmit(e) {
     e.preventDefault();
-    setStatus('checking');
     const trimmed = code.trim().toUpperCase();
-    const { data } = await supabase
-      .from('magic_show_invites')
-      .select('code')
-      .eq('code', trimmed)
-      .eq('event_id', event.id)
-      .maybeSingle();
-    if (data) {
+    if (event.invite_code && trimmed === event.invite_code.toUpperCase()) {
       localStorage.setItem(`magic_show_invite_${event.id}`, trimmed);
       onValid();
     } else {
@@ -36,14 +29,22 @@ function InviteGate({ event, onValid }) {
           required
           value={code}
           onChange={e => { setCode(e.target.value); setStatus('idle'); }}
-          placeholder="MAGIC-XXXXXX"
+          placeholder="Enter your code"
           autoFocus
         />
-        <button type="submit" disabled={status === 'checking'}>
-          {status === 'checking' ? 'Checking...' : 'Enter'}
-        </button>
+        <button type="submit">Enter</button>
         {status === 'invalid' && <p className="invite-gate-error">That code isn&apos;t valid for this show.</p>}
       </form>
+    </div>
+  );
+}
+
+function FullScreen() {
+  return (
+    <div className="invite-gate">
+      <h2>This show is full.</h2>
+      <p>All spots for this Magic Show have been claimed. Join the lottery on the homepage to be considered for the next one.</p>
+      <a href="/" className="invite-gate-home">&larr; Back to homepage</a>
     </div>
   );
 }
@@ -563,6 +564,7 @@ function HomeInner() {
   const [step, setStep] = useState('rsvp');
   const [rsvpData, setRsvpData] = useState(null);
   const [hasInvite, setHasInvite] = useState(false);
+  const [isFull, setIsFull] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -576,25 +578,33 @@ function HomeInner() {
 
       if (!ev) { setLoading(false); return; }
 
-      // Check invite code from URL or localStorage
+      // Check if this user already RSVP'd for this event (returning user)
+      const savedId = localStorage.getItem(`magic_show_rsvp_${ev.id}`);
+      const isReturning = !!savedId;
+
+      // Validate invite code from URL or localStorage
       const urlCode = searchParams.get('code');
       const storedCode = localStorage.getItem(`magic_show_invite_${ev.id}`);
-      const codeToCheck = urlCode || storedCode;
-      if (codeToCheck) {
-        const { data: invite } = await supabase
-          .from('magic_show_invites')
-          .select('code')
-          .eq('code', codeToCheck.toUpperCase())
-          .eq('event_id', ev.id)
-          .maybeSingle();
-        if (invite) {
-          localStorage.setItem(`magic_show_invite_${ev.id}`, codeToCheck.toUpperCase());
-          setHasInvite(true);
+      const codeToCheck = (urlCode || storedCode || '').toUpperCase();
+      const codeValid = ev.invite_code && codeToCheck === ev.invite_code.toUpperCase();
+      if (codeValid) {
+        localStorage.setItem(`magic_show_invite_${ev.id}`, codeToCheck);
+        setHasInvite(true);
+      }
+
+      // Check capacity — count waiver-signed RSVPs
+      if (ev.capacity && !isReturning) {
+        const { count } = await supabase
+          .from('magic_show_rsvp')
+          .select('*', { count: 'exact', head: true })
+          .eq('event', ev.id)
+          .eq('waiver_signed', true);
+        if (count !== null && count >= ev.capacity) {
+          setIsFull(true);
         }
       }
 
-      // Check if this user already RSVP'd for this event
-      const savedId = localStorage.getItem(`magic_show_rsvp_${ev.id}`);
+      // Resume returning user state
       if (savedId) {
         const { data: existing } = await supabase
           .from('magic_show_rsvp')
@@ -657,7 +667,19 @@ function HomeInner() {
     return (
       <div className="page">
         <div className="stars" />
-        <InviteGate event={event} onValid={() => setHasInvite(true)} />
+        {isFull ? <FullScreen /> : <InviteGate event={event} onValid={() => setHasInvite(true)} />}
+        <footer className="footer">
+          <a href="https://itsthejob.vercel.app" target="_blank" rel="noopener noreferrer">J.O.B.</a>
+        </footer>
+      </div>
+    );
+  }
+
+  if (isFull && step === 'rsvp') {
+    return (
+      <div className="page">
+        <div className="stars" />
+        <FullScreen />
         <footer className="footer">
           <a href="https://itsthejob.vercel.app" target="_blank" rel="noopener noreferrer">J.O.B.</a>
         </footer>

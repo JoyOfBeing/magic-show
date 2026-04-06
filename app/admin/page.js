@@ -16,89 +16,94 @@ const EMPTY_EVENT = {
   departure: '',
   signal_group: '',
   prep_notes: '',
+  invite_code: '',
+  capacity: 12,
   is_live: false,
 };
 
-const INVITE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // no 0/O/1/I/L
-function generateCode() {
-  let s = 'MAGIC-';
-  for (let i = 0; i < 6; i++) s += INVITE_ALPHABET[Math.floor(Math.random() * INVITE_ALPHABET.length)];
-  return s;
-}
-
-function InviteManager({ event, onClose }) {
-  const [invites, setInvites] = useState([]);
+function RosterView({ event, onClose }) {
+  const [rsvps, setRsvps] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [generating, setGenerating] = useState(false);
-  const [copiedCode, setCopiedCode] = useState(null);
+  const [copied, setCopied] = useState(false);
 
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+  const inviteLink = event.invite_code ? `${baseUrl}/big-sky?code=${event.invite_code}` : null;
 
   async function load() {
     const { data } = await supabase
-      .from('magic_show_invites')
+      .from('magic_show_rsvp')
       .select('*')
-      .eq('event_id', event.id)
+      .eq('event', event.id)
       .order('created_at', { ascending: false });
-    setInvites(data || []);
+    setRsvps(data || []);
     setLoading(false);
   }
 
   useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  async function generate(n) {
-    setGenerating(true);
-    const codes = Array.from({ length: n }, () => ({
-      code: generateCode(),
-      event_id: event.id,
-    }));
-    await supabase.from('magic_show_invites').insert(codes);
-    await load();
-    setGenerating(false);
+  function copyLink() {
+    if (!inviteLink) return;
+    navigator.clipboard.writeText(inviteLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
   }
 
-  async function deleteCode(code) {
-    if (!confirm(`Delete code ${code}?`)) return;
-    await supabase.from('magic_show_invites').delete().eq('code', code);
-    await load();
-  }
-
-  function copyLink(code) {
-    const url = `${baseUrl}/big-sky?code=${code}`;
-    navigator.clipboard.writeText(url);
-    setCopiedCode(code);
-    setTimeout(() => setCopiedCode(null), 1500);
-  }
+  const confirmed = rsvps.filter(r => r.waiver_signed);
+  const inProgress = rsvps.filter(r => !r.waiver_signed);
 
   return (
     <div className="invite-manager">
       <div className="invite-manager-header">
-        <h2>Golden Tickets — {event.name}</h2>
+        <h2>Roster — {event.name}</h2>
         <button className="admin-cancel" onClick={onClose}>Close</button>
       </div>
-      <p className="invite-manager-sub">
-        Codes are reusable. Share the link with your guests — they tap it once and they&apos;re in.
-      </p>
-      <div className="invite-actions">
-        <button className="admin-save" onClick={() => generate(1)} disabled={generating}>+ Generate 1</button>
-        <button className="admin-save" onClick={() => generate(12)} disabled={generating}>+ Generate 12</button>
+
+      <div className="roster-stats">
+        <div className="roster-stat">
+          <div className="roster-stat-num">{confirmed.length}{event.capacity ? ` / ${event.capacity}` : ''}</div>
+          <div className="roster-stat-label">Confirmed (waiver signed)</div>
+        </div>
+        <div className="roster-stat">
+          <div className="roster-stat-num">{inProgress.length}</div>
+          <div className="roster-stat-label">In progress</div>
+        </div>
       </div>
+
+      {inviteLink && (
+        <div className="roster-link-row">
+          <span className="invite-code">{inviteLink}</span>
+          <button className="invite-copy" onClick={copyLink}>{copied ? 'Copied!' : 'Copy link'}</button>
+        </div>
+      )}
+
+      <h3 className="roster-section-title">Confirmed</h3>
       {loading ? (
         <p>Loading...</p>
-      ) : invites.length === 0 ? (
-        <p className="admin-empty">No codes yet.</p>
+      ) : confirmed.length === 0 ? (
+        <p className="admin-empty">No one confirmed yet.</p>
       ) : (
-        <div className="invite-list">
-          {invites.map(inv => (
-            <div key={inv.code} className="invite-row">
-              <span className="invite-code">{inv.code}</span>
-              <button className="invite-copy" onClick={() => copyLink(inv.code)}>
-                {copiedCode === inv.code ? 'Copied!' : 'Copy link'}
-              </button>
-              <button className="invite-delete" onClick={() => deleteCode(inv.code)}>×</button>
+        <div className="roster-list">
+          {confirmed.map(r => (
+            <div key={r.id} className="roster-row">
+              <div className="roster-name">{r.name}</div>
+              <div className="roster-contact">{r.email} · {r.phone}</div>
             </div>
           ))}
         </div>
+      )}
+
+      {inProgress.length > 0 && (
+        <>
+          <h3 className="roster-section-title">In Progress</h3>
+          <div className="roster-list">
+            {inProgress.map(r => (
+              <div key={r.id} className="roster-row roster-row-pending">
+                <div className="roster-name">{r.name}</div>
+                <div className="roster-contact">{r.email} · {r.phone}</div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   );
@@ -151,6 +156,8 @@ function EventForm({ event, isNew, onSave, onCancel }) {
     if (isNew) {
       const { error } = await supabase.from('magic_show_events').insert([{
         ...form,
+        invite_code: form.invite_code ? form.invite_code.toUpperCase() : null,
+        capacity: form.capacity ? Number(form.capacity) : null,
         is_live: false,
       }]);
       if (error) {
@@ -171,6 +178,8 @@ function EventForm({ event, isNew, onSave, onCancel }) {
           departure: form.departure,
           signal_group: form.signal_group,
           prep_notes: form.prep_notes,
+          invite_code: form.invite_code ? form.invite_code.toUpperCase() : null,
+          capacity: form.capacity ? Number(form.capacity) : null,
           updated_at: new Date().toISOString(),
         })
         .eq('id', form.id);
@@ -215,6 +224,21 @@ function EventForm({ event, isNew, onSave, onCancel }) {
         <div className="admin-field">
           <label>Church Partner</label>
           <input type="text" value={form.church} onChange={e => set('church', e.target.value)} placeholder="J.O.B. Church" />
+        </div>
+      </div>
+
+      <div className="admin-divider">Access</div>
+
+      <div className="admin-form-grid">
+        <div className="admin-field">
+          <label>Invite Code</label>
+          <input type="text" value={form.invite_code} onChange={e => set('invite_code', e.target.value.toUpperCase())} placeholder="MAGIC-BIGSKY" />
+          <span className="admin-hint">One code shared with all guests. Share as link: /big-sky?code=YOURCODE</span>
+        </div>
+        <div className="admin-field">
+          <label>Capacity</label>
+          <input type="number" min="1" value={form.capacity} onChange={e => set('capacity', e.target.value)} placeholder="12" />
+          <span className="admin-hint">Code stops working once this many people complete the waiver.</span>
         </div>
       </div>
 
@@ -275,7 +299,7 @@ export default function AdminPage() {
   const [authed, setAuthed] = useState(false);
   const [events, setEvents] = useState([]);
   const [editing, setEditing] = useState(null); // event object or 'new'
-  const [managingInvites, setManagingInvites] = useState(null);
+  const [viewingRoster, setViewingRoster] = useState(null);
   const [toggling, setToggling] = useState(false);
 
   const loadEvents = useCallback(async () => {
@@ -333,8 +357,8 @@ export default function AdminPage() {
           onSave={() => { setEditing(null); loadEvents(); }}
           onCancel={() => setEditing(null)}
         />
-      ) : managingInvites ? (
-        <InviteManager event={managingInvites} onClose={() => setManagingInvites(null)} />
+      ) : viewingRoster ? (
+        <RosterView event={viewingRoster} onClose={() => setViewingRoster(null)} />
       ) : (
         <div className="admin-grid">
           {events.map(ev => (
@@ -357,7 +381,7 @@ export default function AdminPage() {
               </div>
               <div className="admin-card-actions">
                 <button className="admin-edit-btn" onClick={() => setEditing(ev)}>Edit</button>
-                <button className="admin-edit-btn" onClick={() => setManagingInvites(ev)}>Tickets</button>
+                <button className="admin-edit-btn" onClick={() => setViewingRoster(ev)}>Roster</button>
                 {ev.is_live ? (
                   <button className="admin-unlive-btn" onClick={() => setNotLive(ev.id)} disabled={toggling}>
                     Take Offline
