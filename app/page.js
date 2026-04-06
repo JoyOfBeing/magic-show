@@ -54,10 +54,10 @@ function LeadForm({ interestType, onClose }) {
 
   return (
     <form className="lead-form" onSubmit={handleSubmit}>
-      <h3>{interestType === 'invite' ? 'Request an Invite' : 'Host Your Own'}</h3>
+      <h3>{interestType === 'invite' ? 'Join the Lottery' : 'Host a Show'}</h3>
       <p className="lead-sub">
         {interestType === 'invite'
-          ? 'Magic Shows are invite-only. Tell us who you are and we’ll be in touch.'
+          ? 'Drop your info for a chance to buy a golden ticket to the next Magic Show.'
           : 'Want to bring a Magic Show to your people, your company, or your community? Start here.'}
       </p>
       <div className="form-field">
@@ -94,7 +94,7 @@ export default function Home() {
         <h1 className="home-title">The Magic Show</h1>
         <p className="home-tagline">Surprise, you’re the magic.</p>
         <p className="home-sub">
-          A multi-day emergent ceremony for the curious, the cracked-open, and the ones quietly looking for the next door. Each show is small. Each one is different. Each one finds the people who are meant to be there.
+          The Magic Show is a living, immersive experience you can&apos;t fully understand until you&apos;re inside it. Not knowing what it is is part of the trick. It either calls you or it doesn&apos;t.
         </p>
       </header>
 
@@ -126,21 +126,18 @@ export default function Home() {
       </section>
 
       <section className="home-cta">
-        <h2>Want in?</h2>
+        <h2>Want in on a Magic Show?</h2>
         <p>
-          We don’t sell tickets. Magic Shows happen when the right people find each other. If something here is pulling at you, tell us.
+          We don&apos;t sell tickets — Magic Shows are invite only — but you can join the lottery for a chance to buy a golden ticket. You can also host your own Magic Show.
         </p>
         <div className="home-cta-buttons">
           <button className="cta-btn cta-btn-primary" onClick={() => setOpenForm('invite')}>
-            Request an Invite
+            Join the Lottery
           </button>
           <button className="cta-btn cta-btn-secondary" onClick={() => setOpenForm('host')}>
-            Host Your Own
+            Host a Show
           </button>
         </div>
-        <p className="home-cta-fine">
-          Hosting requires a J.O.B. elder. Attend a show first — that’s how you become one.
-        </p>
       </section>
 
       {openForm && (
