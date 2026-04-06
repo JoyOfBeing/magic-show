@@ -48,6 +48,12 @@ function RosterView({ event, onClose }) {
     setTimeout(() => setCopied(false), 1500);
   }
 
+  async function deleteRsvp(r) {
+    if (!confirm(`Remove ${r.name} (${r.email}) from this show? This frees up their spot.`)) return;
+    await supabase.from('magic_show_rsvp').delete().eq('id', r.id);
+    await load();
+  }
+
   const confirmed = rsvps.filter(r => r.waiver_signed);
   const inProgress = rsvps.filter(r => !r.waiver_signed);
 
@@ -85,8 +91,11 @@ function RosterView({ event, onClose }) {
         <div className="roster-list">
           {confirmed.map(r => (
             <div key={r.id} className="roster-row">
-              <div className="roster-name">{r.name}</div>
-              <div className="roster-contact">{r.email} · {r.phone}</div>
+              <div className="roster-row-info">
+                <div className="roster-name">{r.name}</div>
+                <div className="roster-contact">{r.email} · {r.phone}</div>
+              </div>
+              <button className="invite-delete" onClick={() => deleteRsvp(r)} title="Remove">×</button>
             </div>
           ))}
         </div>
@@ -98,8 +107,11 @@ function RosterView({ event, onClose }) {
           <div className="roster-list">
             {inProgress.map(r => (
               <div key={r.id} className="roster-row roster-row-pending">
-                <div className="roster-name">{r.name}</div>
-                <div className="roster-contact">{r.email} · {r.phone}</div>
+                <div className="roster-row-info">
+                  <div className="roster-name">{r.name}</div>
+                  <div className="roster-contact">{r.email} · {r.phone}</div>
+                </div>
+                <button className="invite-delete" onClick={() => deleteRsvp(r)} title="Remove">×</button>
               </div>
             ))}
           </div>
