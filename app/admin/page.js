@@ -48,6 +48,9 @@ function RosterRow({ r, onDelete }) {
           {has(r.plant_experience) && (
             <div className="roster-field"><strong>Entheogen experience:</strong> {r.plant_experience}</div>
           )}
+          {has(r.dietary) && (
+            <div className="roster-field"><strong>Dietary:</strong> {r.dietary}</div>
+          )}
           {has(r.emergency_name) && (
             <div className="roster-field"><strong>Emergency contact:</strong> {r.emergency_name} · {r.emergency_phone}</div>
           )}

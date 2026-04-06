@@ -274,6 +274,7 @@ function IntakeForm({ rsvpData, onComplete }) {
     medications: '',
     mental_health: '',
     plant_experience: '',
+    dietary: '',
     emergency_name: '',
     emergency_phone: '',
   });
@@ -288,6 +289,7 @@ function IntakeForm({ rsvpData, onComplete }) {
         medications: form.medications || null,
         mental_health: form.mental_health || null,
         plant_experience: form.plant_experience || null,
+        dietary: form.dietary || null,
         emergency_name: form.emergency_name,
         emergency_phone: form.emergency_phone,
         intake_complete: true,
@@ -347,6 +349,16 @@ function IntakeForm({ rsvpData, onComplete }) {
             <option value="experienced-practitioner">An experienced practitioner</option>
             <option value="experienced-facilitator">An experienced facilitator</option>
           </select>
+        </div>
+
+        <div className="form-field">
+          <label>Dietary needs & food preferences</label>
+          <textarea
+            value={form.dietary}
+            onChange={e => setForm(f => ({ ...f, dietary: e.target.value }))}
+            placeholder="Allergies, intolerances, vegan/vegetarian, foods you can't stand, anything our chef should know..."
+            rows={3}
+          />
         </div>
 
         <div className="intake-divider">Emergency Contact</div>
