@@ -19,6 +19,91 @@ const EMPTY_EVENT = {
   is_live: false,
 };
 
+const INVITE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // no 0/O/1/I/L
+function generateCode() {
+  let s = 'MAGIC-';
+  for (let i = 0; i < 6; i++) s += INVITE_ALPHABET[Math.floor(Math.random() * INVITE_ALPHABET.length)];
+  return s;
+}
+
+function InviteManager({ event, onClose }) {
+  const [invites, setInvites] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(null);
+
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+
+  async function load() {
+    const { data } = await supabase
+      .from('magic_show_invites')
+      .select('*')
+      .eq('event_id', event.id)
+      .order('created_at', { ascending: false });
+    setInvites(data || []);
+    setLoading(false);
+  }
+
+  useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function generate(n) {
+    setGenerating(true);
+    const codes = Array.from({ length: n }, () => ({
+      code: generateCode(),
+      event_id: event.id,
+    }));
+    await supabase.from('magic_show_invites').insert(codes);
+    await load();
+    setGenerating(false);
+  }
+
+  async function deleteCode(code) {
+    if (!confirm(`Delete code ${code}?`)) return;
+    await supabase.from('magic_show_invites').delete().eq('code', code);
+    await load();
+  }
+
+  function copyLink(code) {
+    const url = `${baseUrl}/big-sky?code=${code}`;
+    navigator.clipboard.writeText(url);
+    setCopiedCode(code);
+    setTimeout(() => setCopiedCode(null), 1500);
+  }
+
+  return (
+    <div className="invite-manager">
+      <div className="invite-manager-header">
+        <h2>Golden Tickets — {event.name}</h2>
+        <button className="admin-cancel" onClick={onClose}>Close</button>
+      </div>
+      <p className="invite-manager-sub">
+        Codes are reusable. Share the link with your guests — they tap it once and they&apos;re in.
+      </p>
+      <div className="invite-actions">
+        <button className="admin-save" onClick={() => generate(1)} disabled={generating}>+ Generate 1</button>
+        <button className="admin-save" onClick={() => generate(12)} disabled={generating}>+ Generate 12</button>
+      </div>
+      {loading ? (
+        <p>Loading...</p>
+      ) : invites.length === 0 ? (
+        <p className="admin-empty">No codes yet.</p>
+      ) : (
+        <div className="invite-list">
+          {invites.map(inv => (
+            <div key={inv.code} className="invite-row">
+              <span className="invite-code">{inv.code}</span>
+              <button className="invite-copy" onClick={() => copyLink(inv.code)}>
+                {copiedCode === inv.code ? 'Copied!' : 'Copy link'}
+              </button>
+              <button className="invite-delete" onClick={() => deleteCode(inv.code)}>×</button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function PasswordGate({ onAuth }) {
   const [pw, setPw] = useState('');
   const [error, setError] = useState(false);
@@ -190,6 +275,7 @@ export default function AdminPage() {
   const [authed, setAuthed] = useState(false);
   const [events, setEvents] = useState([]);
   const [editing, setEditing] = useState(null); // event object or 'new'
+  const [managingInvites, setManagingInvites] = useState(null);
   const [toggling, setToggling] = useState(false);
 
   const loadEvents = useCallback(async () => {
@@ -247,6 +333,8 @@ export default function AdminPage() {
           onSave={() => { setEditing(null); loadEvents(); }}
           onCancel={() => setEditing(null)}
         />
+      ) : managingInvites ? (
+        <InviteManager event={managingInvites} onClose={() => setManagingInvites(null)} />
       ) : (
         <div className="admin-grid">
           {events.map(ev => (
@@ -269,6 +357,7 @@ export default function AdminPage() {
               </div>
               <div className="admin-card-actions">
                 <button className="admin-edit-btn" onClick={() => setEditing(ev)}>Edit</button>
+                <button className="admin-edit-btn" onClick={() => setManagingInvites(ev)}>Tickets</button>
                 {ev.is_live ? (
                   <button className="admin-unlive-btn" onClick={() => setNotLive(ev.id)} disabled={toggling}>
                     Take Offline

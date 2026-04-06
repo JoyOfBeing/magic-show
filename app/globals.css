@@ -1211,6 +1211,134 @@ a { color: inherit; text-decoration: none; }
 }
 .admin-cancel:hover { color: var(--text); }
 
+/* ===== INVITE GATE ===== */
+.invite-gate {
+  max-width: 460px;
+  margin: 4rem auto 0;
+  text-align: center;
+  padding: 2rem;
+  background: var(--surface);
+  border: 1px solid var(--gold-dark);
+  border-radius: var(--radius);
+}
+.invite-gate h2 {
+  font-size: 1.8rem;
+  font-weight: 300;
+  color: var(--gold-light);
+  margin-bottom: 0.75rem;
+}
+.invite-gate p {
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+.invite-gate-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.invite-gate-form input {
+  padding: 0.9rem 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 1rem;
+  text-align: center;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-family: inherit;
+}
+.invite-gate-form button {
+  padding: 0.9rem;
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+  color: var(--bg);
+  border: none;
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+}
+.invite-gate-error {
+  color: #ec4899;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+/* ===== INVITE MANAGER (admin) ===== */
+.invite-manager {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+}
+.invite-manager-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+.invite-manager-header h2 {
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: var(--gold-light);
+}
+.invite-manager-sub {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+.invite-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+.invite-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.invite-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.invite-code {
+  flex: 1;
+  font-family: monospace;
+  font-size: 1rem;
+  color: var(--gold-light);
+  letter-spacing: 0.05em;
+}
+.invite-copy {
+  background: transparent;
+  border: 1px solid var(--gold-dark);
+  color: var(--gold-light);
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-family: inherit;
+}
+.invite-copy:hover { background: rgba(212, 168, 67, 0.1); }
+.invite-delete {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.invite-delete:hover { color: #ec4899; border-color: #ec4899; }
+
 /* ===== HOME PAGE ===== */
 .home-page { max-width: 760px; }
 

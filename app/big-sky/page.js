@@ -1,7 +1,52 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { supabase } from '../../lib/supabase';
+
+function InviteGate({ event, onValid }) {
+  const [code, setCode] = useState('');
+  const [status, setStatus] = useState('idle');
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setStatus('checking');
+    const trimmed = code.trim().toUpperCase();
+    const { data } = await supabase
+      .from('magic_show_invites')
+      .select('code')
+      .eq('code', trimmed)
+      .eq('event_id', event.id)
+      .maybeSingle();
+    if (data) {
+      localStorage.setItem(`magic_show_invite_${event.id}`, trimmed);
+      onValid();
+    } else {
+      setStatus('invalid');
+    }
+  }
+
+  return (
+    <div className="invite-gate">
+      <h2>Invite Only</h2>
+      <p>The Magic Show is invite only. Enter your golden ticket code to continue.</p>
+      <form onSubmit={handleSubmit} className="invite-gate-form">
+        <input
+          type="text"
+          required
+          value={code}
+          onChange={e => { setCode(e.target.value); setStatus('idle'); }}
+          placeholder="MAGIC-XXXXXX"
+          autoFocus
+        />
+        <button type="submit" disabled={status === 'checking'}>
+          {status === 'checking' ? 'Checking...' : 'Enter'}
+        </button>
+        {status === 'invalid' && <p className="invite-gate-error">That code isn&apos;t valid for this show.</p>}
+      </form>
+    </div>
+  );
+}
 
 function getAgreementText(event) {
   return [
@@ -511,11 +556,13 @@ function WaiverForm({ event, rsvpData }) {
   );
 }
 
-export default function Home() {
+function HomeInner() {
+  const searchParams = useSearchParams();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [step, setStep] = useState('rsvp');
   const [rsvpData, setRsvpData] = useState(null);
+  const [hasInvite, setHasInvite] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -528,6 +575,23 @@ export default function Home() {
       setEvent(ev);
 
       if (!ev) { setLoading(false); return; }
+
+      // Check invite code from URL or localStorage
+      const urlCode = searchParams.get('code');
+      const storedCode = localStorage.getItem(`magic_show_invite_${ev.id}`);
+      const codeToCheck = urlCode || storedCode;
+      if (codeToCheck) {
+        const { data: invite } = await supabase
+          .from('magic_show_invites')
+          .select('code')
+          .eq('code', codeToCheck.toUpperCase())
+          .eq('event_id', ev.id)
+          .maybeSingle();
+        if (invite) {
+          localStorage.setItem(`magic_show_invite_${ev.id}`, codeToCheck.toUpperCase());
+          setHasInvite(true);
+        }
+      }
 
       // Check if this user already RSVP'd for this event
       const savedId = localStorage.getItem(`magic_show_rsvp_${ev.id}`);
@@ -585,6 +649,18 @@ export default function Home() {
           <h2>No show currently scheduled.</h2>
           <p>Check back soon.</p>
         </div>
+      </div>
+    );
+  }
+
+  if (!hasInvite) {
+    return (
+      <div className="page">
+        <div className="stars" />
+        <InviteGate event={event} onValid={() => setHasInvite(true)} />
+        <footer className="footer">
+          <a href="https://itsthejob.vercel.app" target="_blank" rel="noopener noreferrer">J.O.B.</a>
+        </footer>
       </div>
     );
   }
@@ -653,5 +729,13 @@ export default function Home() {
         <a href="https://itsthejob.vercel.app" target="_blank" rel="noopener noreferrer">J.O.B.</a>
       </footer>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div className="page"><div className="stars" /></div>}>
+      <HomeInner />
+    </Suspense>
   );
 }
