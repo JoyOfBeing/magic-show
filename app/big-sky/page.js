@@ -165,7 +165,7 @@ function MembershipCheck({ event, onConfirm }) {
       {isMember === false && (
         <div className="gate-redirect">
           <p>No worries — you&apos;ll need to join first. It only takes a minute.</p>
-          <a href="https://apply.itsthejob.com" target="_blank" rel="noopener noreferrer" className="gate-apply-btn">Join {event.church}</a>
+          <a href="https://apply.itsthejob.com/doctrine" target="_blank" rel="noopener noreferrer" className="gate-apply-btn">Join {event.church}</a>
           <button className="gate-link" onClick={() => setIsMember(null)}>Done — I just joined</button>
         </div>
       )}
@@ -421,14 +421,13 @@ function ConfirmedScreen({ event }) {
           <div className="step-number">2</div>
           <div className="step-content">
             <h3>Location Details</h3>
-            {event.venue_name ? (
+            {event.venue_address || event.venue_image ? (
               <>
                 {event.venue_image && (
                   <a href={event.venue_image} target="_blank" rel="noopener noreferrer" className="venue-link">
                     View the space &rarr;
                   </a>
                 )}
-                <p className="venue-name">{event.venue_name}</p>
                 {event.venue_address && <p className="venue-address">{event.venue_address}</p>}
               </>
             ) : (

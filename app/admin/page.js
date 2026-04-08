@@ -9,7 +9,6 @@ const EMPTY_EVENT = {
   dates: '',
   location: '',
   church: 'J.O.B. Church',
-  venue_name: '',
   venue_address: '',
   venue_image: '',
   arrival: '',
@@ -215,7 +214,6 @@ function EventForm({ event, isNew, onSave, onCancel }) {
           dates: form.dates,
           location: form.location,
           church: form.church,
-          venue_name: form.venue_name,
           venue_address: form.venue_address,
           venue_image: form.venue_image,
           arrival: form.arrival,
@@ -289,11 +287,7 @@ function EventForm({ event, isNew, onSave, onCancel }) {
       <div className="admin-divider">Venue Details</div>
 
       <div className="admin-form-grid">
-        <div className="admin-field">
-          <label>Venue Name</label>
-          <input type="text" value={form.venue_name} onChange={e => set('venue_name', e.target.value)} placeholder="e.g. Lone Mountain Ranch" />
-        </div>
-        <div className="admin-field">
+        <div className="admin-field full-width">
           <label>Venue Address</label>
           <input type="text" value={form.venue_address} onChange={e => set('venue_address', e.target.value)} placeholder="Full address" />
         </div>
@@ -419,7 +413,7 @@ export default function AdminPage() {
                 <span>{ev.location}</span>
               </div>
               <div className="admin-card-meta">
-                {ev.venue_name && <span>Venue: {ev.venue_name}</span>}
+                {ev.venue_address && <span>Venue: {ev.venue_address}</span>}
                 {ev.arrival && <span>Arrival: {ev.arrival}</span>}
                 {ev.signal_group && <span>Signal: set</span>}
               </div>
