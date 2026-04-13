@@ -49,6 +49,8 @@ function FullScreen() {
   );
 }
 
+const WAIVER_VERSION = '2026-04-13-v1';
+
 function getAgreementText(event) {
   return [
     {
@@ -140,8 +142,18 @@ function getAgreementText(event) {
   ];
 }
 
-function MembershipCheck({ event, onConfirm }) {
+function MembershipCheck({ event, rsvpData, onConfirm }) {
   const [isMember, setIsMember] = useState(null);
+
+  async function handleAttest() {
+    setIsMember(true);
+    await supabase.from('magic_show_rsvp')
+      .update({
+        membership_attested: true,
+        membership_attested_at: new Date().toISOString(),
+      })
+      .eq('id', rsvpData.id);
+  }
 
   return (
     <div className="membership-check">
@@ -152,7 +164,7 @@ function MembershipCheck({ event, onConfirm }) {
       {isMember === null && (
         <div className="gate-options">
           <div className="gate-buttons">
-            <button className="gate-btn gate-btn-yes" onClick={() => setIsMember(true)}>Yes</button>
+            <button className="gate-btn gate-btn-yes" onClick={handleAttest}>Yes</button>
             <button className="gate-btn gate-btn-no" onClick={() => setIsMember(false)}>Not yet</button>
           </div>
         </div>
@@ -278,6 +290,7 @@ function IntakeForm({ rsvpData, onComplete }) {
     emergency_name: '',
     emergency_phone: '',
   });
+  const [accuracyConfirmed, setAccuracyConfirmed] = useState(false);
   const [status, setStatus] = useState('idle');
 
   async function handleSubmit(e) {
@@ -293,6 +306,7 @@ function IntakeForm({ rsvpData, onComplete }) {
         emergency_name: form.emergency_name,
         emergency_phone: form.emergency_phone,
         intake_complete: true,
+        intake_accuracy_confirmed: true,
       })
       .eq('id', rsvpData.id);
     if (error) {
@@ -386,7 +400,19 @@ function IntakeForm({ rsvpData, onComplete }) {
           </div>
         </div>
 
-        <button type="submit" className="intake-btn" disabled={status === 'submitting'}>
+        <div className="form-field consent-field">
+          <label className="consent-label">
+            <input
+              type="checkbox"
+              required
+              checked={accuracyConfirmed}
+              onChange={e => setAccuracyConfirmed(e.target.checked)}
+            />
+            <span>I confirm that the information I have provided above is truthful and complete to the best of my knowledge.</span>
+          </label>
+        </div>
+
+        <button type="submit" className="intake-btn" disabled={status === 'submitting' || !accuracyConfirmed}>
           {status === 'submitting' ? 'Saving...' : status === 'error' ? 'Try again' : 'Continue to Agreement'}
         </button>
       </form>
@@ -487,6 +513,7 @@ function WaiverForm({ event, rsvpData }) {
         waiver_signed: true,
         waiver_signed_at: new Date().toISOString(),
         waiver_signature_name: signatureName.trim(),
+        waiver_version: WAIVER_VERSION,
         consent: true,
       })
       .eq('id', rsvpData.id);
@@ -750,7 +777,7 @@ function HomeInner() {
         </div>
       )}
 
-      {step === 'membership' && <MembershipCheck event={event} onConfirm={handleMemberConfirm} />}
+      {step === 'membership' && <MembershipCheck event={event} rsvpData={rsvpData} onConfirm={handleMemberConfirm} />}
 
       {step === 'intake' && <IntakeForm rsvpData={rsvpData} onComplete={handleIntakeComplete} />}
 
