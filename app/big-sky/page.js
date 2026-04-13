@@ -49,14 +49,209 @@ function FullScreen() {
   );
 }
 
+const PROGRAM_AGREEMENT_VERSION = '2026-04-13-v1';
 const WAIVER_VERSION = '2026-04-13-v1';
+
+function getProgramAgreementText(event) {
+  return [
+    {
+      title: '1. Program Structure & Participation',
+      subsections: [
+        {
+          subtitle: '1.1 Program Overview',
+          paragraphs: [
+            'The Program generally includes:',
+          ],
+          list: [
+            'One (1) 60-minute virtual 1:1 preparation coaching call',
+            'Four (4) weeks of online preparation content and resources',
+            'One (1) live in-person retreat experience (single or multi-day)',
+            'Online post-retreat integration content',
+            'One (1) 90-minute virtual post-integration group call',
+            'One (1) 60-minute virtual 1:1 integration coaching call',
+          ],
+          footer: 'Program structure may be reasonably adjusted at the discretion of the Company.',
+        },
+        {
+          subtitle: '1.2 Active Participation',
+          paragraphs: [
+            'Participant agrees to engage actively in preparation and integration content, attend scheduled calls whenever possible, participate fully in the in-person retreat from opening to closing, and take personal responsibility for growth and integration.',
+            'The Program is participatory in nature. Outcomes depend on Participant\u2019s engagement.',
+          ],
+        },
+        {
+          subtitle: '1.3 Travel & Logistics',
+          paragraphs: [
+            'Travel expenses are not included unless explicitly stated in writing. Participant is responsible for transportation to and from the retreat location. Participant must arrive and depart within designated retreat timelines communicated by the Company.',
+          ],
+        },
+      ],
+    },
+    {
+      title: '2. Financial Terms',
+      subsections: [
+        {
+          subtitle: '2.1 Payment Commitment',
+          paragraphs: [
+            'Participant agrees to pay the full Program tuition as selected at enrollment, honor the payment schedule selected at checkout (if applicable), and make all payments on time. Payment obligations remain in effect regardless of Participant\u2019s level of participation.',
+          ],
+        },
+        {
+          subtitle: '2.2 No Refund Policy',
+          paragraphs: [
+            'All payments are final and non-refundable. Withdrawal, cancellation, or failure to complete the Program does not relieve Participant of outstanding financial obligations. Retreat logistics and planning require firm commitment from all parties.',
+          ],
+        },
+        {
+          subtitle: '2.3 Withdrawal',
+          paragraphs: [
+            'In the event Participant withdraws, all outstanding balances remain due, access to Program materials may be revoked, and re-enrollment in future programs is not guaranteed.',
+          ],
+        },
+      ],
+    },
+    {
+      title: '3. Cancellation by Company',
+      subsections: [
+        {
+          paragraphs: [
+            'The Company reserves the right to cancel, reschedule, or modify the Program due to circumstances beyond its reasonable control, including but not limited to: natural disaster, severe weather, public health emergency, venue unavailability, facilitator illness, government action, or insufficient enrollment.',
+            'In the event of cancellation by the Company, Participant will receive either a full credit toward a future program or a full refund, at the Company\u2019s discretion. The Company shall not be liable for any travel, lodging, or other costs incurred by Participant.',
+          ],
+        },
+      ],
+    },
+    {
+      title: '4. Personal Responsibility & Assumption of Risk',
+      subsections: [
+        {
+          subtitle: '4.1 Acknowledgment of Personal Responsibility',
+          paragraphs: [
+            'Participant understands that the Program may involve emotional, psychological, or personal growth processes. Growth work may surface discomfort, vulnerability, or challenging emotions. Participant voluntarily assumes full responsibility for their experience and well-being.',
+          ],
+        },
+        {
+          subtitle: '4.2 Limitation of Liability',
+          paragraphs: [
+            'To the fullest extent permitted by law, Participant agrees that the Company, its officers, members, employees, contractors, and affiliated facilitators shall not be liable for any injuries, losses, damages, costs, or expenses arising from Participant\u2019s participation in the Program, including but not limited to claims related to travel, lodging, group activities, or personal transformation work.',
+          ],
+        },
+        {
+          subtitle: '4.3 Non-Medical Disclaimer',
+          paragraphs: [
+            'Program facilitators are not licensed medical or mental health professionals unless explicitly stated otherwise in writing. The Program does not constitute medical advice, diagnosis, psychiatric treatment, or therapy. Participant is solely responsible for seeking licensed professional care as needed before, during, and after the Program.',
+          ],
+        },
+        {
+          subtitle: '4.4 Separation of Ceremonial Activities',
+          paragraphs: [
+            'Participant acknowledges that certain retreat activities may be conducted by a third-party religious organization under a separate Ceremonial Agreement. This Agreement governs the Participant\u2019s relationship with the Company regarding the Program. It does not govern ceremonial or sacramental activities, which are subject to a separate agreement between Participant and the officiating religious organization.',
+          ],
+        },
+      ],
+    },
+    {
+      title: '5. Conduct & Communication',
+      subsections: [
+        {
+          subtitle: '5.1 Good-Faith Collaboration',
+          paragraphs: [
+            'Participant agrees to communicate concerns clearly and promptly, engage respectfully with facilitators and fellow participants, and attempt good-faith resolution of any disagreement before pursuing formal remedies.',
+          ],
+        },
+        {
+          subtitle: '5.2 Community Standards',
+          paragraphs: [
+            'Participant agrees to maintain respectful behavior at all times during the Program, avoid disruptive, threatening, or harmful conduct, and honor the safety, dignity, and boundaries of all attendees.',
+            'The Company reserves the right to remove a Participant for misconduct at any time, without refund.',
+          ],
+        },
+      ],
+    },
+    {
+      title: '6. Confidentiality',
+      subsections: [
+        {
+          subtitle: '6.1 Participant Obligations',
+          paragraphs: [
+            'Participant agrees to maintain strict confidentiality regarding personal information, stories, disclosures, and identities shared by other participants during the Program. Participant shall not share such information in any medium without the explicit written consent of the individual(s) involved.',
+          ],
+        },
+        {
+          subtitle: '6.2 Company Obligations',
+          paragraphs: [
+            'The Company will maintain confidentiality of Participant\u2019s personal information and disclosures in accordance with applicable privacy standards. The Company will not disclose Participant\u2019s identity or participation without consent, except as required by law.',
+          ],
+        },
+        {
+          subtitle: '6.3 Survival',
+          paragraphs: [
+            'Confidentiality obligations survive the completion or termination of the Program.',
+          ],
+        },
+      ],
+    },
+    {
+      title: '7. Intellectual Property',
+      subsections: [
+        {
+          subtitle: '7.1 Program Materials',
+          paragraphs: [
+            'All Program materials, content, frameworks, and methodologies are the proprietary intellectual property of the Company. Participant may not reproduce, record, distribute, or share any Program materials without the Company\u2019s prior written consent.',
+          ],
+        },
+        {
+          subtitle: '7.2 Participant Creations',
+          paragraphs: [
+            'Participant retains full ownership of personal creative works produced during the Program. Participant grants the Company a non-exclusive, royalty-free license to reference anonymized testimonials or creative contributions for educational or promotional purposes. This license may be revoked by Participant at any time in writing.',
+          ],
+        },
+      ],
+    },
+    {
+      title: '8. Media & Recording',
+      subsections: [
+        {
+          paragraphs: [
+            'Participant may not photograph, video record, audio record, or otherwise capture any portion of the Program or other participants without the express written consent of the Company and all individuals depicted.',
+            'Unless Participant explicitly opts out in writing prior to the retreat, Participant consents to the Company capturing and using photographs or video of the Program for internal and promotional purposes. Participant\u2019s identity will not be publicly disclosed without separate written permission.',
+          ],
+        },
+      ],
+    },
+    {
+      title: '9. Dispute Resolution',
+      subsections: [
+        {
+          paragraphs: [
+            'In the event of any dispute arising out of or relating to this Agreement or the Program, the parties agree to first attempt resolution through good-faith negotiation. If negotiation is unsuccessful, the dispute shall be submitted to mediation before a mutually agreed-upon mediator. If mediation is unsuccessful, the dispute shall be resolved by binding arbitration in accordance with the rules of the American Arbitration Association.',
+            'This Agreement shall be governed by and construed in accordance with the laws of the State of Delaware. Participant waives any right to a jury trial.',
+            'In the event any provision of this Agreement is found to be unenforceable or invalid, such provision shall be severed, and all remaining provisions shall remain in full force and effect.',
+          ],
+        },
+      ],
+    },
+    {
+      title: '10. Electronic Signature & Acknowledgment',
+      subsections: [
+        {
+          paragraphs: [
+            'By typing their full name and checking the agreement box below, Participant confirms they have read and understood this entire Agreement, affirms they are at least 18 years of age and legally competent to enter into this Agreement, voluntarily and knowingly enters into this Program, and accepts full responsibility for their participation.',
+            'Participant understands that their electronic signature carries the same legal force and effect as a handwritten signature pursuant to the Electronic Signatures in Global and National Commerce Act (ESIGN Act), 15 U.S.C. \u00a7 7001 et seq.',
+            'This Agreement remains in effect for the duration of the Program and survives as necessary for enforcement of financial, confidentiality, and intellectual property provisions.',
+          ],
+        },
+      ],
+    },
+  ];
+}
 
 function getAgreementText(event) {
   return [
     {
       title: 'I. Religious Practice & RFRA Acknowledgment',
       paragraphs: [
-        `I, the undersigned Participant, affirm that I am a member in good standing of ${event.church} ("the Church"), a sincerely held religious organization. I understand that this ceremonial gathering ("${event.name}") is conducted as a religious and spiritual practice of the Church, protected under the Religious Freedom Restoration Act (RFRA), 42 U.S.C. \u00a7 2000bb et seq., and the First Amendment to the United States Constitution.`,
+        `I, the undersigned Participant, affirm that I am a member in good standing of ${event.church} (\u201cthe Church\u201d), a sincerely held religious organization. I understand that this ceremonial gathering (\u201c${event.name}\u201d) is conducted as a religious and spiritual practice of the Church, protected under the Religious Freedom Restoration Act (RFRA), 42 U.S.C. \u00a7 2000bb et seq., and the First Amendment to the United States Constitution.`,
         'I acknowledge that the sacramental and ceremonial practices of the Church may include the use of entheogenic substances as part of its sincerely held religious beliefs and practices. My participation in these practices is voluntary, knowing, and an exercise of my religious freedom.',
         'I affirm that my participation in this ceremony is motivated by sincere religious and spiritual intent, not recreational purpose.',
       ],
@@ -72,7 +267,7 @@ function getAgreementText(event) {
     {
       title: 'III. Waiver of Liability & Indemnification',
       paragraphs: [
-        `To the fullest extent permitted by law, I hereby release, waive, and forever discharge ${event.church}, its officers, directors, members, facilitators, volunteers, agents, and affiliates (collectively, "Released Parties") from any and all claims, demands, causes of action, liabilities, losses, damages, costs, and expenses (including attorney's fees) arising out of or related to my participation in this ceremony, including but not limited to claims of negligence, personal injury, emotional distress, property damage, or death.`,
+        `To the fullest extent permitted by law, I hereby release, waive, and forever discharge ${event.church}, its officers, directors, members, facilitators, volunteers, agents, and affiliates (collectively, \u201cReleased Parties\u201d) from any and all claims, demands, causes of action, liabilities, losses, damages, costs, and expenses (including attorney\u2019s fees) arising out of or related to my participation in this ceremony, including but not limited to claims of negligence, personal injury, emotional distress, property damage, or death.`,
         'I agree to indemnify, defend, and hold harmless the Released Parties from any claims, lawsuits, or demands brought by me, my heirs, estate, or any third party arising from my participation in this ceremony.',
         'I understand that this waiver is intended to be as broad and inclusive as permitted by the laws of the State of Colorado and that if any portion is held invalid, the remainder shall continue in full legal force and effect.',
       ],
@@ -140,6 +335,122 @@ function getAgreementText(event) {
       ],
     },
   ];
+}
+
+function ProgramAgreementForm({ event, rsvpData, onComplete }) {
+  const [signatureName, setSignatureName] = useState('');
+  const [agreed, setAgreed] = useState(false);
+  const [status, setStatus] = useState('idle');
+  const docRef = useRef(null);
+  const sections = getProgramAgreementText(event);
+
+  const today = new Date().toLocaleDateString('en-US', {
+    year: 'numeric', month: 'long', day: 'numeric',
+  });
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (signatureName.trim().toLowerCase() !== rsvpData.name.trim().toLowerCase()) {
+      alert('Your signature must match the name you provided during RSVP: ' + rsvpData.name);
+      return;
+    }
+    setStatus('submitting');
+    const { error } = await supabase.from('magic_show_rsvp')
+      .update({
+        program_agreement_signed: true,
+        program_agreement_signed_at: new Date().toISOString(),
+        program_agreement_signature_name: signatureName.trim(),
+        program_agreement_version: PROGRAM_AGREEMENT_VERSION,
+      })
+      .eq('id', rsvpData.id);
+    if (error) {
+      setStatus('error');
+    } else {
+      onComplete();
+    }
+  }
+
+  return (
+    <div className="waiver">
+      <div className="waiver-header">
+        <h2>Program Participation Agreement</h2>
+        <p>J.O.B. Inc.</p>
+        <div className="waiver-parties">
+          <span>{event.name} &mdash; {event.location} &mdash; {event.dates}</span>
+        </div>
+      </div>
+
+      <div className="waiver-preamble">
+        <p>This Agreement is entered into between <strong>J.O.B. Inc.</strong> (&ldquo;Company&rdquo;), a Delaware corporation, and <strong>{rsvpData.name}</strong> (&ldquo;Participant&rdquo;) as a condition of enrollment in the Company&apos;s experiential program (&ldquo;Program&rdquo;).</p>
+      </div>
+
+      <div className="waiver-document" ref={docRef}>
+        {sections.map((section, i) => (
+          <div key={i} className="waiver-section">
+            <h3>{section.title}</h3>
+            {section.subsections.map((sub, j) => (
+              <div key={j} className="waiver-subsection">
+                {sub.subtitle && <h4>{sub.subtitle}</h4>}
+                {sub.paragraphs.map((p, k) => (
+                  <p key={k}>{p}</p>
+                ))}
+                {sub.list && (
+                  <ul>
+                    {sub.list.map((item, k) => (
+                      <li key={k}>{item}</li>
+                    ))}
+                  </ul>
+                )}
+                {sub.footer && <p>{sub.footer}</p>}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+
+      <form className="waiver-sign-form" onSubmit={handleSubmit}>
+        <div className="waiver-sign-header">
+          <h3>Sign Below</h3>
+          <p>By typing your full name exactly as provided during RSVP, you are executing this agreement as a legally binding electronic signature.</p>
+        </div>
+
+        <div className="form-field">
+          <label>Participant: {rsvpData.name}</label>
+          <div className="waiver-meta">Date: {today}</div>
+        </div>
+
+        <div className="form-field">
+          <label>Type your full name to sign *</label>
+          <input
+            type="text"
+            required
+            value={signatureName}
+            onChange={e => setSignatureName(e.target.value)}
+            placeholder={rsvpData.name}
+            className="signature-input"
+          />
+        </div>
+
+        <div className="form-field consent-field">
+          <label className="consent-label">
+            <input
+              type="checkbox"
+              required
+              checked={agreed}
+              onChange={e => setAgreed(e.target.checked)}
+            />
+            <span>
+              I have read this entire Program Participation Agreement in full. I understand its terms, I agree to be bound by them, and I sign voluntarily. I am at least 18 years of age.
+            </span>
+          </label>
+        </div>
+
+        <button type="submit" className="intake-btn" disabled={status === 'submitting'}>
+          {status === 'submitting' ? 'Recording signature...' : status === 'error' ? 'Try again' : 'Sign & Continue'}
+        </button>
+      </form>
+    </div>
+  );
 }
 
 function MembershipCheck({ event, rsvpData, onConfirm }) {
@@ -247,10 +558,11 @@ function LookupLink({ event, onFound }) {
       setStatus('not_found');
       return;
     }
-    let foundStep = 'membership';
+    let foundStep = 'program_agreement';
     if (data.waiver_signed) foundStep = 'confirmed';
     else if (data.intake_complete) foundStep = 'waiver';
-    else if (data.intake_complete === false || data.name) foundStep = 'intake';
+    else if (data.membership_attested) foundStep = 'intake';
+    else if (data.program_agreement_signed) foundStep = 'membership';
     onFound({ name: data.name, email: data.email, id: data.id }, foundStep);
   }
 
@@ -413,7 +725,7 @@ function IntakeForm({ rsvpData, onComplete }) {
         </div>
 
         <button type="submit" className="intake-btn" disabled={status === 'submitting' || !accuracyConfirmed}>
-          {status === 'submitting' ? 'Saving...' : status === 'error' ? 'Try again' : 'Continue to Agreement'}
+          {status === 'submitting' ? 'Saving...' : status === 'error' ? 'Try again' : 'Continue to Ceremonial Agreement'}
         </button>
       </form>
     </div>
@@ -427,7 +739,7 @@ function ConfirmedScreen({ event }) {
         <div className="ticket-confirmed">CONFIRMED</div>
       </div>
       <h2>You&apos;re in.</h2>
-      <p className="confirmed-sub">Your agreement has been signed and recorded. Here&apos;s what happens next.</p>
+      <p className="confirmed-sub">Your agreements have been signed and recorded. Here&apos;s what happens next.</p>
 
       <div className="next-steps">
         <div className="next-step">
@@ -490,7 +802,7 @@ function ConfirmedScreen({ event }) {
   );
 }
 
-function WaiverForm({ event, rsvpData }) {
+function WaiverForm({ event, rsvpData, onComplete }) {
   const [signatureName, setSignatureName] = useState('');
   const [agreed, setAgreed] = useState(false);
   const [status, setStatus] = useState('idle');
@@ -517,11 +829,11 @@ function WaiverForm({ event, rsvpData }) {
         consent: true,
       })
       .eq('id', rsvpData.id);
-    setStatus(error ? 'error' : 'success');
-  }
-
-  if (status === 'success') {
-    return <ConfirmedScreen event={event} />;
+    if (error) {
+      setStatus('error');
+    } else {
+      onComplete();
+    }
   }
 
   return (
@@ -595,6 +907,30 @@ function WaiverForm({ event, rsvpData }) {
   );
 }
 
+// Flow: RSVP → program_agreement → membership → intake → waiver → confirmed
+// Step indicator groups: Agreement (1) → Health & Safety (2) → Ceremony (3)
+
+function StepIndicator({ step }) {
+  const stepMap = {
+    program_agreement: 1,
+    membership: 1,
+    intake: 2,
+    waiver: 3,
+    confirmed: 3,
+  };
+  const current = stepMap[step] || 1;
+
+  return (
+    <div className="step-indicator">
+      <div className={`step-dot ${current > 1 ? 'done' : 'active'}`}><span>1</span></div>
+      <div className="step-line" />
+      <div className={`step-dot ${current > 2 ? 'done' : current === 2 ? 'active' : ''}`}><span>2</span></div>
+      <div className="step-line" />
+      <div className={`step-dot ${current >= 3 ? 'active' : ''}`}><span>3</span></div>
+    </div>
+  );
+}
+
 function HomeInner() {
   const searchParams = useSearchParams();
   const [event, setEvent] = useState(null);
@@ -655,8 +991,12 @@ function HomeInner() {
             setStep('confirmed');
           } else if (existing.intake_complete) {
             setStep('waiver');
-          } else {
+          } else if (existing.membership_attested) {
             setStep('intake');
+          } else if (existing.program_agreement_signed) {
+            setStep('membership');
+          } else {
+            setStep('program_agreement');
           }
         }
       }
@@ -670,6 +1010,10 @@ function HomeInner() {
     if (event) {
       localStorage.setItem(`magic_show_rsvp_${event.id}`, data.id);
     }
+    setStep('program_agreement');
+  }
+
+  function handleProgramAgreementComplete() {
     setStep('membership');
   }
 
@@ -679,6 +1023,10 @@ function HomeInner() {
 
   function handleIntakeComplete() {
     setStep('waiver');
+  }
+
+  function handleWaiverComplete() {
+    setStep('confirmed');
   }
 
   if (loading) {
@@ -754,14 +1102,8 @@ function HomeInner() {
         </div>
       )}
 
-      {step !== 'rsvp' && step !== 'membership' && (
-        <div className="step-indicator">
-          <div className="step-dot done"><span>1</span></div>
-          <div className="step-line" />
-          <div className={`step-dot ${step === 'intake' ? 'active' : 'done'}`}><span>2</span></div>
-          <div className="step-line" />
-          <div className={`step-dot ${step === 'waiver' ? 'active' : ''}`}><span>3</span></div>
-        </div>
+      {step !== 'rsvp' && (
+        <StepIndicator step={step} />
       )}
 
       {step === 'rsvp' && (
@@ -777,11 +1119,13 @@ function HomeInner() {
         </div>
       )}
 
+      {step === 'program_agreement' && <ProgramAgreementForm event={event} rsvpData={rsvpData} onComplete={handleProgramAgreementComplete} />}
+
       {step === 'membership' && <MembershipCheck event={event} rsvpData={rsvpData} onConfirm={handleMemberConfirm} />}
 
       {step === 'intake' && <IntakeForm rsvpData={rsvpData} onComplete={handleIntakeComplete} />}
 
-      {step === 'waiver' && <WaiverForm event={event} rsvpData={rsvpData} />}
+      {step === 'waiver' && <WaiverForm event={event} rsvpData={rsvpData} onComplete={handleWaiverComplete} />}
 
       {step === 'confirmed' && <ConfirmedScreen event={event} />}
 
