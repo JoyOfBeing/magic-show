@@ -559,7 +559,7 @@ function LookupLink({ event, onFound }) {
       return;
     }
     let foundStep = 'program_agreement';
-    if (data.waiver_signed) foundStep = 'confirmed';
+    if (data.waiver_signed) foundStep = 'preparation';
     else if (data.intake_complete) foundStep = 'waiver';
     else if (data.membership_attested) foundStep = 'intake';
     else if (data.program_agreement_signed) foundStep = 'membership';
@@ -732,7 +732,7 @@ function IntakeForm({ rsvpData, onComplete }) {
   );
 }
 
-function ConfirmedScreen({ event }) {
+function PreparationScreen({ event }) {
   return (
     <div className="confirmed">
       <div className="ticket ticket-mini">
@@ -795,6 +795,84 @@ function ConfirmedScreen({ event }) {
             <h3>Prepare Your Body & Spirit</h3>
             <p>Read our preparation and integration guide so you arrive ready — what to bring, how to eat, how to prepare mentally, and how to integrate after.</p>
             <a href="/prepare" className="step-action">View Preparation Guide</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function IntegrationScreen({ event }) {
+  return (
+    <div className="confirmed">
+      <h2>Integration</h2>
+      <p className="confirmed-sub">The work doesn&apos;t end when the ceremony does. Here are your resources for bringing the experience home.</p>
+
+      <div className="next-steps">
+        <div className="next-step">
+          <div className="step-number">1</div>
+          <div className="step-content">
+            <h3>Group Integration Call</h3>
+            <p>Reconnect with your cohort and share what&apos;s landed since the retreat. This is a sacred space to process together.</p>
+            <div className="crowdcast-embed">
+              <p className="tbd">Video call link coming soon.</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="next-step">
+          <div className="step-number">2</div>
+          <div className="step-content">
+            <h3>1:1 Integration Coaching</h3>
+            <p>Your private session to go deeper into what came up for you. This is your space — no agenda, no performance, just presence.</p>
+          </div>
+        </div>
+
+        <div className="next-step">
+          <div className="step-number">3</div>
+          <div className="step-content">
+            <h3>Integration Resources</h3>
+            <p>Journaling prompts, somatic practices, and guidance for the weeks ahead. Integration is a practice, not a moment.</p>
+          </div>
+        </div>
+
+        <div className="next-step">
+          <div className="step-number">4</div>
+          <div className="step-content">
+            <h3>Stay Connected</h3>
+            <p>Your Signal group remains open. Lean on your cohort. The container holds beyond the retreat.</p>
+            {event.signal_group && (
+              <a href={event.signal_group} target="_blank" rel="noopener noreferrer" className="step-action">Open Signal Group</a>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FacilitationScreen() {
+  return (
+    <div className="confirmed">
+      <h2>Go Deeper</h2>
+      <p className="confirmed-sub">The magic wants to move through you. Here are two ways to carry it forward.</p>
+
+      <div className="next-steps">
+        <div className="next-step">
+          <div className="step-number">&rarr;</div>
+          <div className="step-content">
+            <h3>Host a Magic Show</h3>
+            <p>Bring the experience to your community. We handle the facilitation, the ceremony, and the container — you bring the people and the place.</p>
+            <a href="mailto:hello@itsthejob.com?subject=Host%20a%20Magic%20Show" className="step-action">Inquire About Hosting</a>
+          </div>
+        </div>
+
+        <div className="next-step">
+          <div className="step-number">&rarr;</div>
+          <div className="step-content">
+            <h3>Become a Church Elder</h3>
+            <p>Train as an ordained elder of J.O.B. Church to hold ceremonial space and facilitate Magic Shows. This is the path from participant to practitioner.</p>
+            <a href="mailto:hello@itsthejob.com?subject=Elder%20Training" className="step-action">Learn About Elder Training</a>
           </div>
         </div>
       </div>
@@ -907,8 +985,10 @@ function WaiverForm({ event, rsvpData, onComplete }) {
   );
 }
 
-// Flow: RSVP → program_agreement → membership → intake → waiver → confirmed
-// Step indicator groups: Agreement (1) → Health & Safety (2) → Ceremony (3)
+// Flow: RSVP → program_agreement → membership → intake → waiver → preparation → integration → facilitation
+// Steps: Agreement (1) → Health & Safety (2) → Ceremony (3) → Preparation (4) → Integration (5) → Facilitation (6)
+
+const STEP_LABELS = ['Agreement', 'Health & Safety', 'Ceremony', 'Preparation', 'Integration', 'Facilitation'];
 
 function StepIndicator({ step }) {
   const stepMap = {
@@ -916,17 +996,32 @@ function StepIndicator({ step }) {
     membership: 1,
     intake: 2,
     waiver: 3,
-    confirmed: 3,
+    preparation: 4,
+    integration: 5,
+    facilitation: 6,
   };
   const current = stepMap[step] || 1;
 
   return (
     <div className="step-indicator">
-      <div className={`step-dot ${current > 1 ? 'done' : 'active'}`}><span>1</span></div>
-      <div className="step-line" />
-      <div className={`step-dot ${current > 2 ? 'done' : current === 2 ? 'active' : ''}`}><span>2</span></div>
-      <div className="step-line" />
-      <div className={`step-dot ${current >= 3 ? 'active' : ''}`}><span>3</span></div>
+      <div className="step-dots-row">
+        {STEP_LABELS.map((label, i) => {
+          const num = i + 1;
+          const isDone = current > num;
+          const isActive = current === num;
+          return (
+            <div key={num} className="step-indicator-item">
+              {i > 0 && <div className="step-line" />}
+              <div className="step-dot-col">
+                <div className={`step-dot ${isDone ? 'done' : isActive ? 'active' : ''}`}>
+                  <span>{num}</span>
+                </div>
+                <div className={`step-label ${isDone ? 'step-label-done' : isActive ? 'step-label-active' : ''}`}>{label}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -988,7 +1083,7 @@ function HomeInner() {
         if (existing) {
           setRsvpData({ name: existing.name, email: existing.email, id: existing.id });
           if (existing.waiver_signed) {
-            setStep('confirmed');
+            setStep('preparation');
           } else if (existing.intake_complete) {
             setStep('waiver');
           } else if (existing.membership_attested) {
@@ -1026,7 +1121,7 @@ function HomeInner() {
   }
 
   function handleWaiverComplete() {
-    setStep('confirmed');
+    setStep('preparation');
   }
 
   if (loading) {
@@ -1127,7 +1222,33 @@ function HomeInner() {
 
       {step === 'waiver' && <WaiverForm event={event} rsvpData={rsvpData} onComplete={handleWaiverComplete} />}
 
-      {step === 'confirmed' && <ConfirmedScreen event={event} />}
+      {step === 'preparation' && (
+        <>
+          <PreparationScreen event={event} />
+          <div className="step-nav">
+            <button className="step-nav-btn" onClick={() => setStep('integration')}>Integration &rarr;</button>
+          </div>
+        </>
+      )}
+
+      {step === 'integration' && (
+        <>
+          <IntegrationScreen event={event} />
+          <div className="step-nav">
+            <button className="step-nav-btn step-nav-back" onClick={() => setStep('preparation')}>&larr; Preparation</button>
+            <button className="step-nav-btn" onClick={() => setStep('facilitation')}>Facilitation &rarr;</button>
+          </div>
+        </>
+      )}
+
+      {step === 'facilitation' && (
+        <>
+          <FacilitationScreen />
+          <div className="step-nav">
+            <button className="step-nav-btn step-nav-back" onClick={() => setStep('integration')}>&larr; Integration</button>
+          </div>
+        </>
+      )}
 
       <footer className="footer">
         <a href="https://itsthejob.vercel.app" target="_blank" rel="noopener noreferrer">J.O.B.</a>
