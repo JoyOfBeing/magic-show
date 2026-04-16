@@ -68,6 +68,7 @@ function RosterView({ event, onClose }) {
   const [rsvps, setRsvps] = useState([]);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [providerCopied, setProviderCopied] = useState(false);
 
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
   const inviteLink = event.invite_code ? `${baseUrl}/big-sky?code=${event.invite_code}` : null;
@@ -89,6 +90,26 @@ function RosterView({ event, onClose }) {
     navigator.clipboard.writeText(inviteLink);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
+  }
+
+  function copyForProvider() {
+    const lines = confirmed
+      .filter(r => r.intake_complete)
+      .map(r => {
+        const fields = [
+          r.medical_conditions && `Medical: ${r.medical_conditions}`,
+          r.medications && `Medications: ${r.medications}`,
+          r.mental_health && `Mental health: ${r.mental_health}`,
+          r.plant_experience && `Plant experience: ${r.plant_experience}`,
+          r.dietary && `Dietary: ${r.dietary}`,
+        ].filter(Boolean);
+        return `${r.name}\n${fields.length ? fields.map(f => `  - ${f}`).join('\n') : '  - No disclosures'}`;
+      })
+      .join('\n\n');
+    const header = `${event.name} — ${event.dates}\n${confirmed.filter(r => r.intake_complete).length} participants\n${'—'.repeat(30)}\n\n`;
+    navigator.clipboard.writeText(header + lines);
+    setProviderCopied(true);
+    setTimeout(() => setProviderCopied(false), 2000);
   }
 
   async function deleteRsvp(r) {
@@ -122,6 +143,14 @@ function RosterView({ event, onClose }) {
         <div className="roster-link-row">
           <span className="invite-code">{inviteLink}</span>
           <button className="invite-copy" onClick={copyLink}>{copied ? 'Copied!' : 'Copy link'}</button>
+        </div>
+      )}
+
+      {confirmed.length > 0 && (
+        <div className="roster-link-row">
+          <button className="invite-copy" onClick={copyForProvider}>
+            {providerCopied ? 'Copied!' : 'Copy Intake for Provider'}
+          </button>
         </div>
       )}
 
