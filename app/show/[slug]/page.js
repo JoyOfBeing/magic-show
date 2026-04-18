@@ -852,70 +852,7 @@ function IntegrationScreen({ event }) {
   );
 }
 
-function InviteAFriend({ event, rsvpData }) {
-  const [form, setForm] = useState({ friend_name: '', friend_email: '', note: '' });
-  const [status, setStatus] = useState('idle');
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setStatus('submitting');
-    const { error } = await supabase.from('magic_show_referrals').insert([{
-      event: event.id,
-      referrer_name: rsvpData.name,
-      referrer_email: rsvpData.email,
-      friend_name: form.friend_name,
-      friend_email: form.friend_email,
-      note: form.note || null,
-    }]);
-    if (error) {
-      setStatus('error');
-    } else {
-      setStatus('success');
-    }
-  }
-
-  if (status === 'success') {
-    return (
-      <div className="next-step">
-        <div className="step-number">&hearts;</div>
-        <div className="step-content">
-          <h3>Invite Sent</h3>
-          <p>Thanks for spreading the magic. We&apos;ll reach out to your friend about a future show.</p>
-          <button className="step-action" onClick={() => { setForm({ friend_name: '', friend_email: '', note: '' }); setStatus('idle'); }}>Invite Another</button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="next-step">
-      <div className="step-number">&hearts;</div>
-      <div className="step-content">
-        <h3>Send a Friend a Golden Ticket</h3>
-        <p>Know someone who should experience this? Refer them for a future Magic Show.</p>
-        <form className="referral-form" onSubmit={handleSubmit}>
-          <div className="form-field">
-            <label>Friend&apos;s Name *</label>
-            <input type="text" required value={form.friend_name} onChange={e => setForm(f => ({ ...f, friend_name: e.target.value }))} placeholder="First and Last" />
-          </div>
-          <div className="form-field">
-            <label>Friend&apos;s Email *</label>
-            <input type="email" required value={form.friend_email} onChange={e => setForm(f => ({ ...f, friend_email: e.target.value }))} placeholder="friend@email.com" />
-          </div>
-          <div className="form-field">
-            <label>Personal Note (optional)</label>
-            <textarea value={form.note} onChange={e => setForm(f => ({ ...f, note: e.target.value }))} placeholder="Why you think they'd love this..." rows={2} />
-          </div>
-          <button type="submit" className="intake-btn" disabled={status === 'submitting'}>
-            {status === 'submitting' ? 'Sending...' : status === 'error' ? 'Try again' : 'Send Referral'}
-          </button>
-        </form>
-      </div>
-    </div>
-  );
-}
-
-function FacilitationScreen({ event, rsvpData }) {
+function FacilitationScreen() {
   return (
     <div className="confirmed">
       <h2>Go Deeper</h2>
@@ -940,7 +877,14 @@ function FacilitationScreen({ event, rsvpData }) {
           </div>
         </div>
 
-        <InviteAFriend event={event} rsvpData={rsvpData} />
+        <div className="next-step">
+          <div className="step-number">&#9733;</div>
+          <div className="step-content">
+            <h3>Send a Friend a Golden Ticket</h3>
+            <p>You have golden tickets to share with people who need this. Manage them in your portal.</p>
+            <a href="/portal" className="step-action">Open My Portal</a>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -1179,6 +1123,21 @@ function ShowInner({ eventSlug }) {
         setHasInvite(true);
       }
 
+      // Check for golden ticket
+      const ticketCode = searchParams.get('ticket') || localStorage.getItem(`magic_show_ticket_${ev.id}`);
+      if (ticketCode && !codeValid) {
+        const { data: ticket } = await supabase
+          .from('golden_tickets')
+          .select('*')
+          .eq('code', ticketCode)
+          .in('status', ['sent', 'gifted'])
+          .single();
+        if (ticket) {
+          localStorage.setItem(`magic_show_ticket_${ev.id}`, ticketCode);
+          setHasInvite(true);
+        }
+      }
+
       // Check capacity — count waiver-signed RSVPs
       if (ev.capacity && !isReturning) {
         const { count } = await supabase
@@ -1238,7 +1197,35 @@ function ShowInner({ eventSlug }) {
     setStep('waiver');
   }
 
-  function handleWaiverComplete() {
+  async function handleWaiverComplete() {
+    const ticketCode = event && localStorage.getItem(`magic_show_ticket_${event.id}`);
+    if (ticketCode) {
+      await supabase
+        .from('golden_tickets')
+        .update({
+          status: 'redeemed',
+          redeemed_by_user_id: authUser?.id || null,
+          redeemed_at: new Date().toISOString(),
+        })
+        .eq('code', ticketCode)
+        .in('status', ['sent', 'gifted']);
+
+      const { data: redeemedTicket } = await supabase
+        .from('golden_tickets')
+        .select('sender_user_id')
+        .eq('code', ticketCode)
+        .single();
+      if (redeemedTicket) {
+        await supabase
+          .from('golden_tickets')
+          .update({ earned_back: true })
+          .eq('sender_user_id', redeemedTicket.sender_user_id)
+          .eq('earned_back', false)
+          .in('status', ['sent', 'redeemed', 'gifted'])
+          .limit(1);
+      }
+    }
+
     if (authUser) {
       supabase.from('magic_show_rsvp').update({ user_id: authUser.id }).eq('id', rsvpData.id);
       setStep('preparation');
@@ -1385,7 +1372,7 @@ function ShowInner({ eventSlug }) {
 
       {step === 'facilitation' && (
         <>
-          <FacilitationScreen event={event} rsvpData={rsvpData} />
+          <FacilitationScreen />
           <div className="step-nav">
             <button className="step-nav-btn step-nav-back" onClick={() => setStep('integration')}>&larr; Integration</button>
           </div>

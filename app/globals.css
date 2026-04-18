@@ -2242,6 +2242,254 @@ a { color: inherit; text-decoration: none; }
   color: var(--text);
 }
 
+/* ===== TICKET LANDING PAGE ===== */
+.ticket-landing {
+  text-align: center;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 4rem 0 2rem;
+  position: relative;
+}
+.ticket-landing-glow {
+  position: absolute;
+  top: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(212, 168, 67, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.ticket-landing-eyebrow {
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1.5rem;
+}
+.ticket-landing-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  line-height: 1.3;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 1.5rem;
+}
+.ticket-landing-divider {
+  font-size: 1.5rem;
+  color: var(--gold);
+  margin-bottom: 1.5rem;
+}
+.ticket-landing-mystery {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--text);
+  margin-bottom: 2rem;
+}
+.ticket-landing-note {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin-bottom: 2rem;
+  text-align: left;
+}
+.ticket-landing-note-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+.ticket-landing-note p {
+  font-style: italic;
+  color: var(--text);
+  line-height: 1.6;
+}
+.ticket-landing-gift {
+  background: linear-gradient(135deg, rgba(212, 168, 67, 0.1), rgba(240, 214, 138, 0.05));
+  border: 1px solid var(--gold-dark);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  color: var(--gold-light);
+  font-size: 0.9rem;
+  margin-bottom: 2rem;
+}
+.ticket-landing-cta {
+  display: inline-block;
+  padding: 1rem 2.5rem;
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+  color: #1a1200;
+  font-weight: 800;
+  font-size: 1rem;
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: opacity 0.2s, transform 0.2s;
+  margin-bottom: 2rem;
+}
+.ticket-landing-cta:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+.ticket-landing-fine {
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.6;
+  font-style: italic;
+}
+.ticket-landing-icon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+.ticket-landing-sub {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+/* ===== GOLDEN TICKETS (Portal) ===== */
+.gt-balance {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+.gt-ticket-icons {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.gt-ticket-icon {
+  font-size: 1.8rem;
+  transition: opacity 0.3s;
+}
+.gt-ticket-available {
+  color: var(--gold);
+}
+.gt-ticket-spent {
+  color: var(--border);
+  opacity: 0.4;
+}
+.gt-balance-text {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.gt-earned {
+  color: var(--iridescent-2);
+}
+.gt-choose {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+.gt-choose p {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+.gt-send-form {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  animation: fadeIn 0.3s ease;
+}
+.gt-send-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.gt-gift-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.gt-empty {
+  text-align: center;
+  color: var(--muted);
+  font-style: italic;
+  font-size: 0.9rem;
+  padding: 1rem 0;
+}
+.gt-sent-confirmation {
+  text-align: center;
+  padding: 1.5rem 0;
+  animation: fadeIn 0.3s ease;
+}
+.gt-sent-icon {
+  font-size: 2rem;
+  margin-bottom: 0.75rem;
+}
+.gt-sent-confirmation h3 {
+  color: var(--gold-light);
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+.gt-sent-confirmation p {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+.gt-sent-list {
+  margin-top: 1.5rem;
+}
+.gt-sent-list h3 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 0.75rem;
+}
+.gt-sent-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+}
+.gt-sent-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.gt-sent-info strong {
+  color: var(--text);
+  font-size: 0.9rem;
+}
+.gt-sent-status {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+}
+.gt-status-sent {
+  background: var(--gold-dark);
+  color: #1a1200;
+}
+.gt-status-redeemed {
+  background: var(--iridescent-2);
+  color: #0a0a0f;
+}
+.gt-status-gifted {
+  background: var(--iridescent-1);
+  color: white;
+}
+.gt-sent-email {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 0.2rem;
+}
+
 /* ===== REFERRAL FORM ===== */
 .referral-form {
   margin-top: 0.75rem;

@@ -104,47 +104,208 @@ function ShowCard({ rsvp, event }) {
   );
 }
 
-function GoldenTicket() {
-  const [liveEvent, setLiveEvent] = useState(null);
+const TICKETS_PER_SHOW = 3;
+
+function generateCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = 'GT-';
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
+}
+
+function SendTicketForm({ ticket, user, displayName, onSent }) {
+  const [form, setForm] = useState({ name: '', email: '', note: '' });
+  const [status, setStatus] = useState('idle');
   const [copied, setCopied] = useState(false);
+  const [sentCode, setSentCode] = useState(null);
 
-  useEffect(() => {
-    supabase
-      .from('magic_show_events')
-      .select('*')
-      .eq('is_live', true)
-      .single()
-      .then(({ data }) => setLiveEvent(data));
-  }, []);
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setStatus('sending');
 
-  if (!liveEvent || !liveEvent.invite_code) return null;
+    const code = generateCode();
 
-  const inviteUrl = `${window.location.origin}/big-sky?code=${liveEvent.invite_code}`;
+    const { error } = await supabase
+      .from('golden_tickets')
+      .update({
+        code,
+        recipient_name: form.name,
+        recipient_email: form.email.trim().toLowerCase(),
+        note: form.note || null,
+        sender_name: displayName,
+        sender_email: user.email,
+        status: 'sent',
+      })
+      .eq('id', ticket.id);
 
-  function handleCopy() {
-    const message = `You've been invited to The Magic Show.\n\n${liveEvent.name} — ${liveEvent.dates}, ${liveEvent.location}\n\nUse this link to register:\n${inviteUrl}`;
-    navigator.clipboard.writeText(message);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 3000);
+    if (error) {
+      setStatus('error');
+    } else {
+      setSentCode(code);
+      setStatus('sent');
+      onSent();
+    }
+  }
+
+  if (status === 'sent' && sentCode) {
+    const ticketUrl = `${window.location.origin}/ticket/${sentCode}`;
+    const message = `Something extraordinary is waiting for you. I can't tell you what it is — that would ruin the whole thing. But I chose you.\n\n${ticketUrl}`;
+
+    function handleCopy() {
+      navigator.clipboard.writeText(message);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 3000);
+    }
+
+    return (
+      <div className="gt-sent-confirmation">
+        <div className="gt-sent-icon">&#10024;</div>
+        <h3>Golden Ticket sent to {form.name}</h3>
+        <p>Share this link with them however feels right:</p>
+        <div className="golden-ticket-link">
+          <input type="text" readOnly value={ticketUrl} />
+          <button onClick={handleCopy} className="golden-ticket-copy">
+            {copied ? 'Copied!' : 'Copy Message'}
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
+    <form className="gt-send-form" onSubmit={handleSubmit}>
+      <div className="form-field">
+        <label>Their Name *</label>
+        <input type="text" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="First and Last" />
+      </div>
+      <div className="form-field">
+        <label>Their Email *</label>
+        <input type="email" required value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="friend@email.com" />
+      </div>
+      <div className="form-field">
+        <label>Personal Note (they&apos;ll see this)</label>
+        <textarea value={form.note} onChange={e => setForm(f => ({ ...f, note: e.target.value }))} placeholder="Why you chose them..." rows={2} />
+      </div>
+      <div className="gt-send-actions">
+        <button type="submit" className="rsvp-btn" disabled={status === 'sending'}>
+          {status === 'sending' ? 'Sending...' : status === 'error' ? 'Try again' : 'Send Golden Ticket'}
+        </button>
+        <button type="button" className="gt-gift-btn" disabled>
+          Gift a Golden Ticket ($2,500) — Coming Soon
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function GoldenTickets({ user, displayName, hasCompletedShow }) {
+  const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [sendingTicket, setSendingTicket] = useState(null);
+
+  async function loadTickets() {
+    const { data } = await supabase
+      .from('golden_tickets')
+      .select('*')
+      .eq('sender_user_id', user.id)
+      .order('created_at', { ascending: true });
+    setTickets(data || []);
+    setLoading(false);
+  }
+
+  async function seedTickets() {
+    // Check if user already has tickets
+    const { count } = await supabase
+      .from('golden_tickets')
+      .select('*', { count: 'exact', head: true })
+      .eq('sender_user_id', user.id);
+
+    if (count === 0 && hasCompletedShow) {
+      // Seed 3 available tickets
+      const newTickets = [];
+      for (let i = 0; i < TICKETS_PER_SHOW; i++) {
+        newTickets.push({
+          code: generateCode(),
+          sender_user_id: user.id,
+          sender_name: displayName,
+          sender_email: user.email,
+          status: 'available',
+          type: 'invite',
+        });
+      }
+      await supabase.from('golden_tickets').insert(newTickets);
+    }
+    await loadTickets();
+  }
+
+  useEffect(() => {
+    seedTickets();
+  }, [user.id]);
+
+  if (loading) return null;
+  if (!hasCompletedShow) return null;
+
+  const available = tickets.filter(t => t.status === 'available');
+  const spent = tickets.filter(t => ['sent', 'redeemed', 'gifted'].includes(t.status));
+  const earnedBack = tickets.filter(t => t.earned_back).length;
+  const balance = available.length;
+
+  return (
     <div className="portal-golden-ticket">
-      <h2>Send a Friend a Golden Ticket</h2>
-      <p>Know someone who should experience this? Copy the invite and send it however feels right — text, DM, carrier pigeon.</p>
-      <div className="golden-ticket-card">
-        <div className="golden-ticket-show">
-          <strong>{liveEvent.name}</strong>
-          <span>{liveEvent.dates} — {liveEvent.location}</span>
+      <h2>Your Golden Tickets</h2>
+
+      <div className="gt-balance">
+        <div className="gt-ticket-icons">
+          {tickets.map((t, i) => (
+            <div key={t.id} className={`gt-ticket-icon ${t.status === 'available' ? 'gt-ticket-available' : 'gt-ticket-spent'}`}>
+              &#9733;
+            </div>
+          ))}
         </div>
-        <div className="golden-ticket-link">
-          <input type="text" readOnly value={inviteUrl} />
-          <button onClick={handleCopy} className="golden-ticket-copy">
-            {copied ? 'Copied!' : 'Copy Invite'}
+        <p className="gt-balance-text">
+          {balance} {balance === 1 ? 'ticket' : 'tickets'} remaining
+          {earnedBack > 0 && <span className="gt-earned"> (+{earnedBack} earned back)</span>}
+        </p>
+      </div>
+
+      {balance > 0 && !sendingTicket && (
+        <div className="gt-choose">
+          <p>Choose wisely. Each ticket is an invitation into something extraordinary.</p>
+          <button className="rsvp-btn" onClick={() => setSendingTicket(available[0])}>
+            Send a Golden Ticket
           </button>
         </div>
-        <p className="golden-ticket-hint">This copies a ready-to-send message with the invite link.</p>
-      </div>
+      )}
+
+      {sendingTicket && (
+        <SendTicketForm
+          ticket={sendingTicket}
+          user={user}
+          displayName={displayName}
+          onSent={() => { setSendingTicket(null); loadTickets(); }}
+        />
+      )}
+
+      {balance === 0 && (
+        <p className="gt-empty">You&apos;ve sent all your golden tickets. When someone you invited completes a show, you&apos;ll earn one back.</p>
+      )}
+
+      {spent.length > 0 && (
+        <div className="gt-sent-list">
+          <h3>Sent Tickets</h3>
+          {spent.map(t => (
+            <div key={t.id} className="gt-sent-item">
+              <div className="gt-sent-info">
+                <strong>{t.recipient_name}</strong>
+                <span className={`gt-sent-status gt-status-${t.status}`}>
+                  {t.status === 'sent' ? 'Pending' : t.status === 'redeemed' ? 'Redeemed' : 'Gifted'}
+                </span>
+              </div>
+              <div className="gt-sent-email">{t.recipient_email}</div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -230,7 +391,11 @@ function Dashboard() {
       </section>
 
       <section className="portal-section">
-        <GoldenTicket />
+        <GoldenTickets
+          user={user}
+          displayName={displayName}
+          hasCompletedShow={shows.some(s => s.rsvp.waiver_signed)}
+        />
       </section>
     </div>
   );
