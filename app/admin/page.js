@@ -433,6 +433,91 @@ function EventUrlRow({ eventId }) {
   );
 }
 
+function WaitlistSection() {
+  const [entries, setEntries] = useState([]);
+  const [filter, setFilter] = useState('waiting');
+  const [loading, setLoading] = useState(true);
+
+  async function loadWaitlist() {
+    const { data } = await supabase
+      .from('magic_show_leads')
+      .select('*')
+      .eq('interest_type', 'waitlist')
+      .order('created_at', { ascending: true });
+
+    if (data) {
+      // Sort: golden ticket holders first, then by date
+      data.sort((a, b) => {
+        if (a.source === 'golden_ticket' && b.source !== 'golden_ticket') return -1;
+        if (a.source !== 'golden_ticket' && b.source === 'golden_ticket') return 1;
+        return new Date(a.created_at) - new Date(b.created_at);
+      });
+    }
+    setEntries(data || []);
+    setLoading(false);
+  }
+
+  useEffect(() => { loadWaitlist(); }, []);
+
+  async function markInvited(id) {
+    await supabase.from('magic_show_leads')
+      .update({ invited_at: new Date().toISOString() })
+      .eq('id', id);
+    loadWaitlist();
+  }
+
+  const filtered = entries.filter(e =>
+    filter === 'waiting' ? !e.invited_at : !!e.invited_at
+  );
+
+  return (
+    <div className="admin-waitlist">
+      <h2>Waitlist ({entries.filter(e => !e.invited_at).length} waiting)</h2>
+      <div className="admin-waitlist-filters">
+        <button
+          className={`admin-waitlist-filter ${filter === 'waiting' ? 'active' : ''}`}
+          onClick={() => setFilter('waiting')}
+        >
+          Waiting
+        </button>
+        <button
+          className={`admin-waitlist-filter ${filter === 'invited' ? 'active' : ''}`}
+          onClick={() => setFilter('invited')}
+        >
+          Invited
+        </button>
+      </div>
+      {loading && <p className="admin-waitlist-empty">Loading...</p>}
+      {!loading && filtered.length === 0 && (
+        <p className="admin-waitlist-empty">
+          {filter === 'waiting' ? 'No one on the waitlist yet.' : 'No one invited yet.'}
+        </p>
+      )}
+      {filtered.map((entry, i) => (
+        <div key={entry.id} className="admin-waitlist-row">
+          <div className="admin-waitlist-info">
+            <div className="admin-waitlist-name">
+              {filter === 'waiting' && <span style={{ color: 'var(--muted)', marginRight: '0.5rem' }}>#{i + 1}</span>}
+              {entry.name}
+            </div>
+            <div className="admin-waitlist-email">{entry.email} {entry.phone && `· ${entry.phone}`}</div>
+          </div>
+          <div className="admin-waitlist-meta">
+            <span className={`admin-waitlist-source ${entry.source === 'golden_ticket' ? 'admin-waitlist-source-golden' : 'admin-waitlist-source-organic'}`}>
+              {entry.source === 'golden_ticket' ? 'Golden Ticket' : 'Organic'}
+            </span>
+            {filter === 'waiting' && (
+              <button className="admin-waitlist-invite" onClick={() => markInvited(entry.id)}>
+                Mark Invited
+              </button>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false);
   const [events, setEvents] = useState([]);
@@ -499,45 +584,48 @@ export default function AdminPage() {
       ) : viewingRoster ? (
         <RosterView event={viewingRoster} onClose={() => setViewingRoster(null)} />
       ) : (
-        <div className="admin-grid">
-          {events.map(ev => (
-            <div key={ev.id} className={`admin-card ${ev.is_live ? 'admin-card-live' : ''}`}>
-              <div className="admin-card-header">
-                <div>
-                  <h3>{ev.name}</h3>
-                  <p className="admin-card-id">{ev.id}</p>
+        <>
+          <div className="admin-grid">
+            {events.map(ev => (
+              <div key={ev.id} className={`admin-card ${ev.is_live ? 'admin-card-live' : ''}`}>
+                <div className="admin-card-header">
+                  <div>
+                    <h3>{ev.name}</h3>
+                    <p className="admin-card-id">{ev.id}</p>
+                  </div>
+                  {ev.is_live && <span className="admin-live-badge">LIVE</span>}
                 </div>
-                {ev.is_live && <span className="admin-live-badge">LIVE</span>}
+                <div className="admin-card-details">
+                  <span>{ev.dates}</span>
+                  <span>{ev.location}</span>
+                </div>
+                <EventUrlRow eventId={ev.id} />
+                <div className="admin-card-meta">
+                  {ev.venue_address && <span>Venue: {ev.venue_address}</span>}
+                  {ev.arrival && <span>Arrival: {ev.arrival}</span>}
+                  {ev.signal_group && <span>Signal: set</span>}
+                </div>
+                <div className="admin-card-actions">
+                  <button className="admin-edit-btn" onClick={() => setEditing(ev)}>Edit</button>
+                  <button className="admin-edit-btn" onClick={() => setViewingRoster(ev)}>Roster</button>
+                  {ev.is_live ? (
+                    <button className="admin-unlive-btn" onClick={() => setNotLive(ev.id)} disabled={toggling}>
+                      Take Offline
+                    </button>
+                  ) : (
+                    <button className="admin-live-btn" onClick={() => toggleLive(ev.id)} disabled={toggling}>
+                      Make Live
+                    </button>
+                  )}
+                </div>
               </div>
-              <div className="admin-card-details">
-                <span>{ev.dates}</span>
-                <span>{ev.location}</span>
-              </div>
-              <EventUrlRow eventId={ev.id} />
-              <div className="admin-card-meta">
-                {ev.venue_address && <span>Venue: {ev.venue_address}</span>}
-                {ev.arrival && <span>Arrival: {ev.arrival}</span>}
-                {ev.signal_group && <span>Signal: set</span>}
-              </div>
-              <div className="admin-card-actions">
-                <button className="admin-edit-btn" onClick={() => setEditing(ev)}>Edit</button>
-                <button className="admin-edit-btn" onClick={() => setViewingRoster(ev)}>Roster</button>
-                {ev.is_live ? (
-                  <button className="admin-unlive-btn" onClick={() => setNotLive(ev.id)} disabled={toggling}>
-                    Take Offline
-                  </button>
-                ) : (
-                  <button className="admin-live-btn" onClick={() => toggleLive(ev.id)} disabled={toggling}>
-                    Make Live
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
-          {events.length === 0 && (
-            <p className="admin-empty">No events yet. Create your first Magic Show.</p>
-          )}
-        </div>
+            ))}
+            {events.length === 0 && (
+              <p className="admin-empty">No events yet. Create your first Magic Show.</p>
+            )}
+          </div>
+          <WaitlistSection />
+        </>
       )}
     </div>
   );

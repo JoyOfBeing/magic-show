@@ -230,18 +230,39 @@ function GoldenTickets({ user, displayName, hasCompletedShow }) {
       .select('*')
       .eq('sender_user_id', user.id)
       .order('created_at', { ascending: true });
+
+    // Auto-expire and return sent tickets older than 90 days
+    if (data) {
+      for (const t of data) {
+        if (t.status === 'sent') {
+          const age = Date.now() - new Date(t.created_at).getTime();
+          if (age > 90 * 24 * 60 * 60 * 1000) {
+            await supabase.from('golden_tickets')
+              .update({
+                status: 'available',
+                recipient_name: null,
+                recipient_email: null,
+                note: null,
+                code: generateCode(),
+              })
+              .eq('id', t.id);
+            t.status = 'available';
+            t.recipient_name = null;
+          }
+        }
+      }
+    }
+
     setTickets(data || []);
     setLoading(false);
   }
 
   async function seedTickets() {
     // Check if user already has tickets
-    const { count, error: countError } = await supabase
+    const { count } = await supabase
       .from('golden_tickets')
       .select('*', { count: 'exact', head: true })
       .eq('sender_user_id', user.id);
-
-    console.log('GT seed check:', { count, countError, hasCompletedShow, userId: user.id });
 
     if ((count === 0 || count === null) && hasCompletedShow) {
       // Seed 3 available tickets
@@ -256,9 +277,7 @@ function GoldenTickets({ user, displayName, hasCompletedShow }) {
           type: 'invite',
         });
       }
-      console.log('GT seeding tickets:', newTickets);
-      const { error } = await supabase.from('golden_tickets').insert(newTickets);
-      console.log('GT seed result:', { error });
+      await supabase.from('golden_tickets').insert(newTickets);
     }
     await loadTickets();
   }

@@ -855,34 +855,34 @@ function IntegrationScreen({ event }) {
 function FacilitationScreen() {
   return (
     <div className="confirmed">
-      <h2>Go Deeper</h2>
-      <p className="confirmed-sub">The magic wants to move through you. Here are ways to carry it forward.</p>
+      <div className="facilitation-hero">
+        <div className="facilitation-hero-glow" />
+        <div className="facilitation-hero-stars">&#9733; &#9733; &#9733;</div>
+        <h2>You Have 3 Golden Tickets</h2>
+        <p>The magic doesn&apos;t end with you. You now hold 3 golden tickets — each one gives someone you choose priority access to the waitlist for the next Magic Show.</p>
+        <p className="facilitation-hero-sub">Choose wisely. When someone you invite completes a show, you earn a ticket back.</p>
+        <a href="/portal" className="ticket-landing-cta">Send a Golden Ticket</a>
+      </div>
 
-      <div className="next-steps">
-        <div className="next-step">
-          <div className="step-number">&rarr;</div>
-          <div className="step-content">
-            <h3>Host Your Own Magic Show</h3>
-            <p>Bring the experience to your community. We handle the facilitation, the ceremony, and the container — you bring the people and the place.</p>
-            <a href="mailto:omg@itsthejob.com?subject=Host%20a%20Magic%20Show" className="step-action">Plan Your Magic Show</a>
+      <div className="facilitation-secondary">
+        <h3 className="facilitation-secondary-label">Other Ways to Go Deeper</h3>
+        <div className="next-steps">
+          <div className="next-step">
+            <div className="step-number">&rarr;</div>
+            <div className="step-content">
+              <h3>Host Your Own Magic Show</h3>
+              <p>Bring the experience to your community. We handle the facilitation, the ceremony, and the container — you bring the people and the place.</p>
+              <a href="mailto:omg@itsthejob.com?subject=Host%20a%20Magic%20Show" className="step-action">Plan Your Magic Show</a>
+            </div>
           </div>
-        </div>
 
-        <div className="next-step">
-          <div className="step-number">&rarr;</div>
-          <div className="step-content">
-            <h3>Hold Space at a Magic Show</h3>
-            <p>Train as an ordained elder of Joy of Being to hold ceremonial space and facilitate Magic Shows. This is the path from participant to practitioner.</p>
-            <a href="mailto:omg@itsthejob.com?subject=Elder%20Training" className="step-action">Learn About Elder Initiation</a>
-          </div>
-        </div>
-
-        <div className="next-step">
-          <div className="step-number">&#9733;</div>
-          <div className="step-content">
-            <h3>Send a Friend a Golden Ticket</h3>
-            <p>You have golden tickets to share with people who need this. Manage them in your portal.</p>
-            <a href="/portal" className="step-action">Open My Portal</a>
+          <div className="next-step">
+            <div className="step-number">&rarr;</div>
+            <div className="step-content">
+              <h3>Hold Space at a Magic Show</h3>
+              <p>Train as an ordained elder of Joy of Being to hold ceremonial space and facilitate Magic Shows. This is the path from participant to practitioner.</p>
+              <a href="mailto:omg@itsthejob.com?subject=Elder%20Training" className="step-action">Learn About Elder Initiation</a>
+            </div>
           </div>
         </div>
       </div>
@@ -1123,21 +1123,6 @@ function HomeInner() {
         setHasInvite(true);
       }
 
-      // Check for golden ticket
-      const ticketCode = searchParams.get('ticket') || localStorage.getItem(`magic_show_ticket_${ev.id}`);
-      if (ticketCode && !codeValid) {
-        const { data: ticket } = await supabase
-          .from('golden_tickets')
-          .select('*')
-          .eq('code', ticketCode)
-          .in('status', ['sent', 'gifted'])
-          .single();
-        if (ticket) {
-          localStorage.setItem(`magic_show_ticket_${ev.id}`, ticketCode);
-          setHasInvite(true);
-        }
-      }
-
       // Check capacity — count waiver-signed RSVPs
       if (ev.capacity && !isReturning) {
         const { count } = await supabase
@@ -1198,36 +1183,6 @@ function HomeInner() {
   }
 
   async function handleWaiverComplete() {
-    // Mark golden ticket as redeemed if one was used
-    const ticketCode = event && localStorage.getItem(`magic_show_ticket_${event.id}`);
-    if (ticketCode) {
-      await supabase
-        .from('golden_tickets')
-        .update({
-          status: 'redeemed',
-          redeemed_by_user_id: authUser?.id || null,
-          redeemed_at: new Date().toISOString(),
-        })
-        .eq('code', ticketCode)
-        .in('status', ['sent', 'gifted']);
-
-      // Earn-back: give the sender a new ticket back
-      const { data: redeemedTicket } = await supabase
-        .from('golden_tickets')
-        .select('sender_user_id')
-        .eq('code', ticketCode)
-        .single();
-      if (redeemedTicket) {
-        await supabase
-          .from('golden_tickets')
-          .update({ earned_back: true })
-          .eq('sender_user_id', redeemedTicket.sender_user_id)
-          .eq('earned_back', false)
-          .in('status', ['sent', 'redeemed', 'gifted'])
-          .limit(1);
-      }
-    }
-
     if (authUser) {
       supabase.from('magic_show_rsvp').update({ user_id: authUser.id }).eq('id', rsvpData.id);
       setStep('preparation');

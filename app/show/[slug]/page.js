@@ -859,7 +859,7 @@ function FacilitationScreen() {
         <div className="facilitation-hero-glow" />
         <div className="facilitation-hero-stars">&#9733; &#9733; &#9733;</div>
         <h2>You Have 3 Golden Tickets</h2>
-        <p>The magic doesn&apos;t end with you. You now hold 3 golden tickets — each one an invitation into something extraordinary for someone you choose.</p>
+        <p>The magic doesn&apos;t end with you. You now hold 3 golden tickets — each one gives someone you choose priority access to the waitlist for the next Magic Show.</p>
         <p className="facilitation-hero-sub">Choose wisely. When someone you invite completes a show, you earn a ticket back.</p>
         <a href="/portal" className="ticket-landing-cta">Send a Golden Ticket</a>
       </div>
@@ -1123,21 +1123,6 @@ function ShowInner({ eventSlug }) {
         setHasInvite(true);
       }
 
-      // Check for golden ticket
-      const ticketCode = searchParams.get('ticket') || localStorage.getItem(`magic_show_ticket_${ev.id}`);
-      if (ticketCode && !codeValid) {
-        const { data: ticket } = await supabase
-          .from('golden_tickets')
-          .select('*')
-          .eq('code', ticketCode)
-          .in('status', ['sent', 'gifted'])
-          .single();
-        if (ticket) {
-          localStorage.setItem(`magic_show_ticket_${ev.id}`, ticketCode);
-          setHasInvite(true);
-        }
-      }
-
       // Check capacity — count waiver-signed RSVPs
       if (ev.capacity && !isReturning) {
         const { count } = await supabase
@@ -1198,34 +1183,6 @@ function ShowInner({ eventSlug }) {
   }
 
   async function handleWaiverComplete() {
-    const ticketCode = event && localStorage.getItem(`magic_show_ticket_${event.id}`);
-    if (ticketCode) {
-      await supabase
-        .from('golden_tickets')
-        .update({
-          status: 'redeemed',
-          redeemed_by_user_id: authUser?.id || null,
-          redeemed_at: new Date().toISOString(),
-        })
-        .eq('code', ticketCode)
-        .in('status', ['sent', 'gifted']);
-
-      const { data: redeemedTicket } = await supabase
-        .from('golden_tickets')
-        .select('sender_user_id')
-        .eq('code', ticketCode)
-        .single();
-      if (redeemedTicket) {
-        await supabase
-          .from('golden_tickets')
-          .update({ earned_back: true })
-          .eq('sender_user_id', redeemedTicket.sender_user_id)
-          .eq('earned_back', false)
-          .in('status', ['sent', 'redeemed', 'gifted'])
-          .limit(1);
-      }
-    }
-
     if (authUser) {
       supabase.from('magic_show_rsvp').update({ user_id: authUser.id }).eq('id', rsvpData.id);
       setStep('preparation');

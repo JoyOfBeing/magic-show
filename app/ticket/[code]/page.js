@@ -7,7 +7,7 @@ export default function TicketPage({ params }) {
   const { code } = use(params);
   const [ticket, setTicket] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [liveEvent, setLiveEvent] = useState(null);
+  const [expired, setExpired] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -16,16 +16,23 @@ export default function TicketPage({ params }) {
         .select('*')
         .eq('code', code)
         .single();
+
+      // Check expiration (90 days)
+      if (data && data.status === 'sent') {
+        const age = Date.now() - new Date(data.created_at).getTime();
+        if (age > 90 * 24 * 60 * 60 * 1000) {
+          await supabase
+            .from('golden_tickets')
+            .update({ status: 'expired' })
+            .eq('id', data.id);
+          setExpired(true);
+        }
+      }
+      if (data && data.status === 'expired') {
+        setExpired(true);
+      }
+
       setTicket(data);
-
-      // Also fetch the live event for redirect
-      const { data: ev } = await supabase
-        .from('magic_show_events')
-        .select('*')
-        .eq('is_live', true)
-        .single();
-      setLiveEvent(ev);
-
       setLoading(false);
     }
     load();
@@ -39,15 +46,29 @@ export default function TicketPage({ params }) {
     );
   }
 
+  if (expired) {
+    return (
+      <div className="page">
+        <div className="stars" />
+        <div className="ticket-landing">
+          <div className="ticket-landing-icon">&#10024;</div>
+          <h1>This ticket has expired</h1>
+          <p className="ticket-landing-sub">Golden tickets are valid for 3 months. This one has returned to the person who sent it. You can still join the waitlist.</p>
+          <a href="/waitlist" className="ticket-landing-cta">Join the Waitlist</a>
+        </div>
+      </div>
+    );
+  }
+
   if (!ticket || ticket.status === 'redeemed') {
     return (
       <div className="page">
         <div className="stars" />
         <div className="ticket-landing">
           <div className="ticket-landing-icon">&#10024;</div>
-          <h1>This ticket has already been redeemed</h1>
+          <h1>This ticket has already been claimed</h1>
           <p className="ticket-landing-sub">Golden tickets can only be used once. If you think this is an error, reach out to the person who sent it.</p>
-          <a href="/" className="ticket-landing-cta">Visit The Magic Show</a>
+          <a href="/waitlist" className="ticket-landing-cta">Join the Waitlist</a>
         </div>
       </div>
     );
@@ -67,8 +88,7 @@ export default function TicketPage({ params }) {
     );
   }
 
-  const isGift = ticket.type === 'gift' && ticket.stripe_payment_status === 'paid';
-  const registerUrl = liveEvent ? `/big-sky?ticket=${ticket.code}` : '/';
+  const firstName = ticket.sender_name.split(' ')[0];
 
   return (
     <div className="page">
@@ -85,28 +105,22 @@ export default function TicketPage({ params }) {
         <div className="ticket-landing-divider">&#10022;</div>
 
         <p className="ticket-landing-mystery">
-          Something extraordinary is waiting for you. We can&apos;t tell you what it is &mdash; that would ruin the whole thing. All we can say is: it changed {ticket.sender_name.split(' ')[0]}, and {ticket.sender_name.split(' ')[0]} wants it for you.
+          Something extraordinary is waiting for you. We can&apos;t tell you what it is &mdash; that would ruin the whole thing. All we can say is: it changed {firstName}, and {firstName} wants it for you.
         </p>
 
         {ticket.note && (
           <div className="ticket-landing-note">
-            <div className="ticket-landing-note-label">A note from {ticket.sender_name.split(' ')[0]}:</div>
+            <div className="ticket-landing-note-label">A note from {firstName}:</div>
             <p>&ldquo;{ticket.note}&rdquo;</p>
           </div>
         )}
 
-        {isGift && (
-          <div className="ticket-landing-gift">
-            Your seat has already been taken care of. All you have to do is show up.
-          </div>
-        )}
-
-        <a href={registerUrl} className="ticket-landing-cta">
-          Redeem Your Golden Ticket
+        <a href={`/waitlist?ticket=${ticket.code}`} className="ticket-landing-cta">
+          Claim Your Spot
         </a>
 
         <p className="ticket-landing-fine">
-          This is a one-time, non-transferable invitation. By redeeming, you&apos;re stepping into something you can&apos;t fully understand until you&apos;re inside it. That&apos;s the point.
+          This is a one-time invitation. By claiming your spot, you&apos;ll get priority access to the waitlist for the next Magic Show.
         </p>
       </div>
     </div>

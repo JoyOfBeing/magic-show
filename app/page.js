@@ -116,6 +116,7 @@ export default function Home() {
   const [liveEvent, setLiveEvent] = useState(null);
   const [pastEvents, setPastEvents] = useState([]);
   const [eventsLoading, setEventsLoading] = useState(true);
+  const [waitlistCount, setWaitlistCount] = useState(0);
 
   useEffect(() => {
     async function loadEvents() {
@@ -134,6 +135,14 @@ export default function Home() {
         .eq('is_live', false)
         .order('created_at', { ascending: false });
       setPastEvents(past || []);
+
+      // Fetch waitlist count
+      const { count } = await supabase
+        .from('magic_show_leads')
+        .select('*', { count: 'exact', head: true })
+        .eq('interest_type', 'waitlist')
+        .is('invited_at', null);
+      setWaitlistCount(count || 0);
 
       setEventsLoading(false);
     }
@@ -214,10 +223,15 @@ export default function Home() {
           <p>
             Magic Shows are invite-only. Get on the waitlist and we&apos;ll reach out when a door opens. You can also host your own.
           </p>
+          {waitlistCount > 0 && (
+            <p className="home-cta-social-proof">
+              {waitlistCount} {waitlistCount === 1 ? 'person is' : 'people are'} already waiting.
+            </p>
+          )}
           <div className="home-cta-buttons">
-            <button className="cta-btn cta-btn-primary" onClick={() => setOpenForm('waitlist')}>
+            <a href="/waitlist" className="cta-btn cta-btn-primary">
               Get on the Waitlist
-            </button>
+            </a>
             <button className="cta-btn cta-btn-secondary" onClick={() => setOpenForm('host')}>
               Host a Show
             </button>
