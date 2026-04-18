@@ -444,6 +444,7 @@ export default function AdminPage() {
     const { data } = await supabase
       .from('magic_show_events')
       .select('*')
+      .order('is_live', { ascending: false })
       .order('created_at', { ascending: false });
     setEvents(data || []);
   }, []);
