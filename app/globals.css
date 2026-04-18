@@ -2788,6 +2788,33 @@ a { color: inherit; text-decoration: none; }
   margin-bottom: 2rem;
 }
 
+/* Form toggle buttons */
+.form-toggle {
+  display: flex;
+  gap: 0.5rem;
+}
+.form-toggle-btn {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.form-toggle-btn:hover {
+  border-color: var(--muted);
+}
+.form-toggle-btn.active {
+  background: var(--gold-dark);
+  border-color: var(--gold-dark);
+  color: #1a1200;
+  font-weight: 600;
+}
+
 /* Homepage social proof */
 .home-cta-social-proof {
   color: var(--gold);

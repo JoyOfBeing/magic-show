@@ -46,18 +46,31 @@ const PAST_SHOWS_FALLBACK = [
   { id: 'minneapolis', city: 'Minneapolis', name: 'The Magic Show', image: '/minneapolis.jpg' },
 ];
 
-function LeadForm({ interestType, onClose }) {
-  const [form, setForm] = useState({ name: '', email: '', phone: '' });
+function HostForm({ onClose }) {
+  const [form, setForm] = useState({
+    name: '', email: '', phone: '',
+    guests: '', isCompany: '', budget: '',
+    hasLocation: '', location: '',
+  });
   const [status, setStatus] = useState('idle');
 
   async function handleSubmit(e) {
     e.preventDefault();
     setStatus('submitting');
+
+    const details = [
+      `Guests: ${form.guests}`,
+      `Company: ${form.isCompany}`,
+      form.budget ? `Budget: ${form.budget}` : null,
+      form.hasLocation === 'yes' ? `Location: ${form.location}` : 'Location: No preference',
+    ].filter(Boolean).join(' | ');
+
     const { error } = await supabase.from('magic_show_leads').insert([{
       name: form.name,
       email: form.email,
       phone: form.phone,
-      interest_type: interestType,
+      interest_type: 'host',
+      details,
     }]);
     if (error) {
       setStatus('error');
@@ -69,12 +82,8 @@ function LeadForm({ interestType, onClose }) {
   if (status === 'success') {
     return (
       <div className="lead-success">
-        <h3>Got it.</h3>
-        <p>
-          {interestType === 'waitlist'
-            ? "We'll be in touch when a door opens."
-            : "We'll reach out about hosting your own."}
-        </p>
+        <h3>We&apos;ll be in touch.</h3>
+        <p>We&apos;ll reach out to talk about bringing a Magic Show to your people.</p>
         <button className="lead-close" onClick={onClose}>Close</button>
       </div>
     );
@@ -82,12 +91,42 @@ function LeadForm({ interestType, onClose }) {
 
   return (
     <form className="lead-form" onSubmit={handleSubmit}>
-      <h3>{interestType === 'waitlist' ? 'Get on the Waitlist' : 'Host a Show'}</h3>
-      <p className="lead-sub">
-        {interestType === 'waitlist'
-          ? "Drop your info and we'll reach out when a door opens."
-          : 'Want to bring a Magic Show to your people, your company, or your community? Start here.'}
-      </p>
+      <h3>Host a Magic Show</h3>
+      <p className="lead-sub">Bring the magic to your people. Tell us a little about what you&apos;re imagining.</p>
+
+      <div className="form-field">
+        <label>How many people will you invite? *</label>
+        <input type="number" required min="5" value={form.guests} onChange={e => setForm(f => ({ ...f, guests: e.target.value }))} placeholder="Minimum 5" />
+      </div>
+
+      <div className="form-field">
+        <label>Is this for a company? *</label>
+        <div className="form-toggle">
+          <button type="button" className={`form-toggle-btn ${form.isCompany === 'yes' ? 'active' : ''}`} onClick={() => setForm(f => ({ ...f, isCompany: 'yes' }))}>Yes</button>
+          <button type="button" className={`form-toggle-btn ${form.isCompany === 'no' ? 'active' : ''}`} onClick={() => setForm(f => ({ ...f, isCompany: 'no' }))}>No</button>
+        </div>
+      </div>
+
+      <div className="form-field">
+        <label>Do you have a budget in mind?</label>
+        <input type="text" value={form.budget} onChange={e => setForm(f => ({ ...f, budget: e.target.value }))} placeholder="Optional" />
+      </div>
+
+      <div className="form-field">
+        <label>Do you have a preferred location? *</label>
+        <div className="form-toggle">
+          <button type="button" className={`form-toggle-btn ${form.hasLocation === 'yes' ? 'active' : ''}`} onClick={() => setForm(f => ({ ...f, hasLocation: 'yes' }))}>Yes</button>
+          <button type="button" className={`form-toggle-btn ${form.hasLocation === 'no' ? 'active' : ''}`} onClick={() => setForm(f => ({ ...f, hasLocation: 'no' }))}>No</button>
+        </div>
+      </div>
+
+      {form.hasLocation === 'yes' && (
+        <div className="form-field">
+          <label>Where?</label>
+          <input type="text" value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="City, venue, or general area" />
+        </div>
+      )}
+
       <div className="form-field">
         <label>Name *</label>
         <input type="text" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="First and Last" />
@@ -100,9 +139,10 @@ function LeadForm({ interestType, onClose }) {
         <label>Phone *</label>
         <input type="tel" required value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="(555) 555-5555" />
       </div>
+
       <div className="lead-actions">
-        <button type="submit" className="rsvp-btn" disabled={status === 'submitting'}>
-          {status === 'submitting' ? 'Sending...' : status === 'error' ? 'Try again' : 'Send'}
+        <button type="submit" className="rsvp-btn" disabled={status === 'submitting' || !form.isCompany || !form.hasLocation}>
+          {status === 'submitting' ? 'Sending...' : status === 'error' ? 'Try again' : 'Submit'}
         </button>
         <button type="button" className="lead-cancel" onClick={onClose}>Cancel</button>
       </div>
@@ -234,10 +274,10 @@ export default function Home() {
         </section>
       )}
 
-      {openForm && (
+      {openForm === 'host' && (
         <div className="lead-modal" onClick={() => setOpenForm(null)}>
           <div className="lead-modal-inner" onClick={e => e.stopPropagation()}>
-            <LeadForm interestType={openForm} onClose={() => setOpenForm(null)} />
+            <HostForm onClose={() => setOpenForm(null)} />
           </div>
         </div>
       )}
