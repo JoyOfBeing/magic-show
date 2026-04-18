@@ -4,6 +4,11 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../components/AuthProvider';
 
+const PAST_SHOWS_FALLBACK = [
+  { id: 'nashville', city: 'Nashville', name: 'The Magic Show', image: '/nashville.jpeg' },
+  { id: 'minneapolis', city: 'Minneapolis', name: 'The Magic Show', image: '/minneapolis.jpg' },
+];
+
 function LeadForm({ interestType, onClose }) {
   const [form, setForm] = useState({ name: '', email: '', phone: '' });
   const [status, setStatus] = useState('idle');
@@ -128,12 +133,8 @@ export default function Home() {
       {!eventsLoading && liveEvent && (
         <section className="home-section">
           <div className="home-section-label">Currently Open</div>
-          <a href={`/show/${liveEvent.id}`} className="show-card show-card-open">
-            {liveEvent.venue_image ? (
-              <img src={liveEvent.venue_image} alt={liveEvent.location} className="show-card-image" />
-            ) : (
-              <div className="show-card-image show-card-placeholder" />
-            )}
+          <a href="/big-sky" className="show-card show-card-open">
+            <img src={liveEvent.card_image || `/big-sky.jpg`} alt={liveEvent.location} className="show-card-image" />
             <div className="show-card-body">
               <div className="show-card-city">{liveEvent.location}</div>
               <div className="show-card-name">{liveEvent.name}</div>
@@ -144,27 +145,32 @@ export default function Home() {
         </section>
       )}
 
-      {!eventsLoading && pastEvents.length > 0 && (
-        <section className="home-section">
-          <div className="home-section-label">Past Shows</div>
-          <div className="show-grid">
-            {pastEvents.map(show => (
-              <div key={show.id} className="show-card show-card-past">
-                {show.venue_image ? (
-                  <img src={show.venue_image} alt={show.location} className="show-card-image" />
-                ) : (
-                  <div className="show-card-image show-card-placeholder" />
-                )}
-                <div className="show-card-body">
-                  <div className="show-card-city">{show.location}</div>
-                  <div className="show-card-name">{show.name}</div>
-                  {show.dates && <div className="show-card-dates">{show.dates}</div>}
+      <section className="home-section">
+        <div className="home-section-label">Past Shows</div>
+        <div className="show-grid">
+          {pastEvents.length > 0
+            ? pastEvents.map(show => (
+                <div key={show.id} className="show-card show-card-past">
+                  <img src={show.card_image || show.venue_image || ''} alt={show.location} className="show-card-image" />
+                  <div className="show-card-body">
+                    <div className="show-card-city">{show.location}</div>
+                    <div className="show-card-name">{show.name}</div>
+                    {show.dates && <div className="show-card-dates">{show.dates}</div>}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+              ))
+            : PAST_SHOWS_FALLBACK.map(show => (
+                <div key={show.id} className="show-card show-card-past">
+                  <img src={show.image} alt={show.city} className="show-card-image" />
+                  <div className="show-card-body">
+                    <div className="show-card-city">{show.city}</div>
+                    <div className="show-card-name">{show.name}</div>
+                  </div>
+                </div>
+              ))
+          }
+        </div>
+      </section>
 
       {!user && (
         <section className="home-cta">
