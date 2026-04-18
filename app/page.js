@@ -4,6 +4,27 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../components/AuthProvider';
 
+function PastShowCard({ image, city, name, dates, secret }) {
+  const [revealed, setRevealed] = useState(false);
+
+  return (
+    <div
+      className={`show-card show-card-past ${secret ? 'show-card-clickable' : ''}`}
+      onClick={() => secret && setRevealed(r => !r)}
+    >
+      <img src={image} alt={city} className="show-card-image" />
+      <div className="show-card-body">
+        <div className="show-card-city">{city}</div>
+        <div className="show-card-name">{name}</div>
+        {dates && <div className="show-card-dates">{dates}</div>}
+        {revealed && secret && (
+          <div className="show-card-secret">{secret}</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 const PAST_SHOWS_FALLBACK = [
   { id: 'nashville', city: 'Nashville', name: 'The Magic Show', image: '/nashville.jpeg' },
   { id: 'minneapolis', city: 'Minneapolis', name: 'The Magic Show', image: '/minneapolis.jpg' },
@@ -150,23 +171,22 @@ export default function Home() {
         <div className="show-grid">
           {pastEvents.length > 0
             ? pastEvents.map(show => (
-                <div key={show.id} className="show-card show-card-past">
-                  <img src={show.card_image || show.venue_image || ''} alt={show.location} className="show-card-image" />
-                  <div className="show-card-body">
-                    <div className="show-card-city">{show.location}</div>
-                    <div className="show-card-name">{show.name}</div>
-                    {show.dates && <div className="show-card-dates">{show.dates}</div>}
-                  </div>
-                </div>
+                <PastShowCard
+                  key={show.id}
+                  image={show.card_image || show.venue_image || ''}
+                  city={show.location}
+                  name={show.name}
+                  dates={show.dates}
+                  secret={show.secret}
+                />
               ))
             : PAST_SHOWS_FALLBACK.map(show => (
-                <div key={show.id} className="show-card show-card-past">
-                  <img src={show.image} alt={show.city} className="show-card-image" />
-                  <div className="show-card-body">
-                    <div className="show-card-city">{show.city}</div>
-                    <div className="show-card-name">{show.name}</div>
-                  </div>
-                </div>
+                <PastShowCard
+                  key={show.id}
+                  image={show.image}
+                  city={show.city}
+                  name={show.name}
+                />
               ))
           }
         </div>

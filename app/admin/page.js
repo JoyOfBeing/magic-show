@@ -18,6 +18,7 @@ const EMPTY_EVENT = {
   invite_code: '',
   capacity: 12,
   is_live: false,
+  secret: '',
 };
 
 function RosterRow({ r, onDelete }) {
@@ -291,6 +292,7 @@ function EventForm({ event, isNew, onSave, onCancel }) {
           prep_notes: form.prep_notes,
           invite_code: form.invite_code ? form.invite_code.toUpperCase() : null,
           capacity: form.capacity ? Number(form.capacity) : null,
+          secret: form.secret || null,
           updated_at: new Date().toISOString(),
         })
         .eq('id', form.id);
@@ -389,6 +391,10 @@ function EventForm({ event, isNew, onSave, onCancel }) {
         <div className="admin-field full-width">
           <label>Additional Prep Notes</label>
           <textarea value={form.prep_notes} onChange={e => set('prep_notes', e.target.value)} placeholder="Anything else participants should know..." rows={3} />
+        </div>
+        <div className="admin-field full-width">
+          <label>Secret (easter egg on past show card)</label>
+          <input type="text" value={form.secret} onChange={e => set('secret', e.target.value)} placeholder="One line that only reveals when someone clicks..." />
         </div>
       </div>
 
