@@ -224,7 +224,7 @@ function GoldenTickets({ user, displayName, hasCompletedShow }) {
       .select('*', { count: 'exact', head: true })
       .eq('sender_user_id', user.id);
 
-    if (count === 0 && hasCompletedShow) {
+    if ((count === 0 || count === null) && hasCompletedShow) {
       // Seed 3 available tickets
       const newTickets = [];
       for (let i = 0; i < TICKETS_PER_SHOW; i++) {
