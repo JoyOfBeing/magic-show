@@ -237,7 +237,8 @@ function GoldenTickets({ user, displayName, hasCompletedShow }) {
           type: 'invite',
         });
       }
-      await supabase.from('golden_tickets').insert(newTickets);
+      const { error } = await supabase.from('golden_tickets').insert(newTickets);
+      if (error) console.error('Golden ticket seed error:', error);
     }
     await loadTickets();
   }
@@ -382,6 +383,14 @@ function Dashboard() {
       </div>
 
       <section className="portal-section">
+        <GoldenTickets
+          user={user}
+          displayName={displayName}
+          hasCompletedShow={shows.some(s => s.rsvp.waiver_signed)}
+        />
+      </section>
+
+      <section className="portal-section">
         <h2>Your Shows</h2>
         {loading && <p className="portal-loading">Loading your shows...</p>}
         {!loading && shows.length === 0 && (
@@ -392,14 +401,6 @@ function Dashboard() {
         {!loading && shows.map(({ rsvp, event }) => (
           <ShowCard key={rsvp.id} rsvp={rsvp} event={event} />
         ))}
-      </section>
-
-      <section className="portal-section">
-        <GoldenTickets
-          user={user}
-          displayName={displayName}
-          hasCompletedShow={shows.some(s => s.rsvp.waiver_signed)}
-        />
       </section>
     </div>
   );
