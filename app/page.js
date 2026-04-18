@@ -1,22 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-
-const PAST_SHOWS = [
-  {
-    id: 'nashville',
-    city: 'Nashville',
-    name: 'The Magic Show',
-    image: '/nashville.jpeg',
-  },
-  {
-    id: 'minneapolis',
-    city: 'Minneapolis',
-    name: 'The Magic Show',
-    image: '/minneapolis.jpg',
-  },
-];
+import { useAuth } from '../components/AuthProvider';
 
 function LeadForm({ interestType, onClose }) {
   const [form, setForm] = useState({ name: '', email: '', phone: '' });
@@ -43,8 +29,8 @@ function LeadForm({ interestType, onClose }) {
       <div className="lead-success">
         <h3>Got it.</h3>
         <p>
-          {interestType === 'invite'
-            ? "We'll be in touch when the next door opens."
+          {interestType === 'waitlist'
+            ? "We'll be in touch when a door opens."
             : "We'll reach out about hosting your own."}
         </p>
         <button className="lead-close" onClick={onClose}>Close</button>
@@ -54,10 +40,10 @@ function LeadForm({ interestType, onClose }) {
 
   return (
     <form className="lead-form" onSubmit={handleSubmit}>
-      <h3>{interestType === 'invite' ? 'Join the Lottery' : 'Host a Show'}</h3>
+      <h3>{interestType === 'waitlist' ? 'Get on the Waitlist' : 'Host a Show'}</h3>
       <p className="lead-sub">
-        {interestType === 'invite'
-          ? 'Drop your info for a chance to buy a golden ticket to the next Magic Show.'
+        {interestType === 'waitlist'
+          ? "Drop your info and we'll reach out when a door opens."
           : 'Want to bring a Magic Show to your people, your company, or your community? Start here.'}
       </p>
       <div className="form-field">
@@ -83,62 +69,119 @@ function LeadForm({ interestType, onClose }) {
 }
 
 export default function Home() {
-  const [openForm, setOpenForm] = useState(null); // 'invite' | 'host' | null
+  const { user, loading: authLoading } = useAuth();
+  const [openForm, setOpenForm] = useState(null);
+  const [liveEvent, setLiveEvent] = useState(null);
+  const [pastEvents, setPastEvents] = useState([]);
+  const [eventsLoading, setEventsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadEvents() {
+      // Fetch live event
+      const { data: live } = await supabase
+        .from('magic_show_events')
+        .select('*')
+        .eq('is_live', true)
+        .single();
+      setLiveEvent(live);
+
+      // Fetch past events (not live)
+      const { data: past } = await supabase
+        .from('magic_show_events')
+        .select('*')
+        .eq('is_live', false)
+        .order('created_at', { ascending: false });
+      setPastEvents(past || []);
+
+      setEventsLoading(false);
+    }
+    loadEvents();
+  }, []);
 
   return (
     <div className="page home-page">
       <div className="stars" />
 
+      <nav className="home-nav">
+        {!authLoading && (
+          user
+            ? <a href="/portal" className="home-nav-link">My Portal</a>
+            : <a href="/portal" className="home-nav-link">Sign In</a>
+        )}
+      </nav>
+
       <header className="home-hero">
         <div className="home-eyebrow">By invitation only</div>
         <h1 className="home-title">The Magic Show</h1>
-        <p className="home-tagline">Surprise, you’re the magic.</p>
+        <p className="home-tagline">Surprise, you&apos;re the magic.</p>
         <p className="home-sub">
           The Magic Show is a living, immersive experience you can&apos;t fully understand until you&apos;re inside it. Not knowing what it is is part of the trick. It either calls you or it doesn&apos;t.
         </p>
       </header>
 
-      <section className="home-section">
-        <div className="home-section-label">Currently Open</div>
-        <a href="/big-sky" className="show-card show-card-open">
-          <img src="/big-sky.jpg" alt="Big Sky" className="show-card-image" />
-          <div className="show-card-body">
-            <div className="show-card-city">Big Sky, Montana</div>
-            <div className="show-card-name">The Magic Show</div>
-            <div className="show-card-cta">Enter &rarr;</div>
-          </div>
-        </a>
-      </section>
+      {user && (
+        <section className="home-welcome">
+          <a href="/portal" className="cta-btn cta-btn-primary">Enter Your Portal</a>
+        </section>
+      )}
 
-      <section className="home-section">
-        <div className="home-section-label">Past Shows</div>
-        <div className="show-grid">
-          {PAST_SHOWS.map(show => (
-            <div key={show.id} className="show-card show-card-past">
-              <img src={show.image} alt={show.city} className="show-card-image" />
-              <div className="show-card-body">
-                <div className="show-card-city">{show.city}</div>
-                <div className="show-card-name">{show.name}</div>
-              </div>
+      {!eventsLoading && liveEvent && (
+        <section className="home-section">
+          <div className="home-section-label">Currently Open</div>
+          <a href={`/show/${liveEvent.id}`} className="show-card show-card-open">
+            {liveEvent.venue_image ? (
+              <img src={liveEvent.venue_image} alt={liveEvent.location} className="show-card-image" />
+            ) : (
+              <div className="show-card-image show-card-placeholder" />
+            )}
+            <div className="show-card-body">
+              <div className="show-card-city">{liveEvent.location}</div>
+              <div className="show-card-name">{liveEvent.name}</div>
+              <div className="show-card-dates">{liveEvent.dates}</div>
+              <div className="show-card-cta">Enter &rarr;</div>
             </div>
-          ))}
-        </div>
-      </section>
+          </a>
+        </section>
+      )}
 
-      <section className="home-cta">
-        <h2>Want in on a Magic Show?</h2>
-        <p>
-          We don&apos;t sell tickets — Magic Shows are invite only — but you can join the lottery for a chance to buy a golden ticket. You can also host your own Magic Show.
-        </p>
-        <div className="home-cta-buttons">
-          <button className="cta-btn cta-btn-primary" onClick={() => setOpenForm('invite')}>
-            Join the Lottery
-          </button>
-          <button className="cta-btn cta-btn-secondary" onClick={() => setOpenForm('host')}>
-            Host a Show
-          </button>
-        </div>
-      </section>
+      {!eventsLoading && pastEvents.length > 0 && (
+        <section className="home-section">
+          <div className="home-section-label">Past Shows</div>
+          <div className="show-grid">
+            {pastEvents.map(show => (
+              <div key={show.id} className="show-card show-card-past">
+                {show.venue_image ? (
+                  <img src={show.venue_image} alt={show.location} className="show-card-image" />
+                ) : (
+                  <div className="show-card-image show-card-placeholder" />
+                )}
+                <div className="show-card-body">
+                  <div className="show-card-city">{show.location}</div>
+                  <div className="show-card-name">{show.name}</div>
+                  {show.dates && <div className="show-card-dates">{show.dates}</div>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {!user && (
+        <section className="home-cta">
+          <h2>Want in on the magic?</h2>
+          <p>
+            Magic Shows are invite-only. Get on the waitlist and we&apos;ll reach out when a door opens. You can also host your own.
+          </p>
+          <div className="home-cta-buttons">
+            <button className="cta-btn cta-btn-primary" onClick={() => setOpenForm('waitlist')}>
+              Get on the Waitlist
+            </button>
+            <button className="cta-btn cta-btn-secondary" onClick={() => setOpenForm('host')}>
+              Host a Show
+            </button>
+          </div>
+        </section>
+      )}
 
       {openForm && (
         <div className="lead-modal" onClick={() => setOpenForm(null)}>
@@ -149,7 +192,7 @@ export default function Home() {
       )}
 
       <footer className="footer">
-        <a href="/portal">My Portal</a>
+        <a href="/portal">{user ? 'My Portal' : 'Sign In'}</a>
         <span className="footer-sep">&middot;</span>
         <a href="https://itsthejob.vercel.app" target="_blank" rel="noopener noreferrer">J.O.B.</a>
       </footer>
