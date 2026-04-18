@@ -223,11 +223,6 @@ export default function Home() {
           <p>
             Magic Shows are invite-only. Get on the waitlist and we&apos;ll reach out when a door opens. You can also host your own.
           </p>
-          {waitlistCount > 0 && (
-            <p className="home-cta-social-proof">
-              {waitlistCount} {waitlistCount === 1 ? 'person is' : 'people are'} already waiting.
-            </p>
-          )}
           <div className="home-cta-buttons">
             <a href="/waitlist" className="cta-btn cta-btn-primary">
               Get on the Waitlist
