@@ -164,12 +164,22 @@ function Dashboard() {
         .eq('email', user.email)
         .is('user_id', null);
 
-      // Fetch all RSVPs for this user
-      const { data: rsvps } = await supabase
+      // Fetch RSVPs by user_id first, fall back to email
+      let { data: rsvps } = await supabase
         .from('magic_show_rsvp')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
+
+      if (!rsvps || rsvps.length === 0) {
+        // Fallback: query by email if user_id linking hasn't taken effect
+        const { data: emailRsvps } = await supabase
+          .from('magic_show_rsvp')
+          .select('*')
+          .eq('email', user.email)
+          .order('created_at', { ascending: false });
+        rsvps = emailRsvps;
+      }
 
       if (!rsvps || rsvps.length === 0) {
         setLoading(false);
