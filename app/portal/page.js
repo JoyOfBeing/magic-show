@@ -9,12 +9,15 @@ function LoginForm() {
   const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('idle');
+  const [errorMsg, setErrorMsg] = useState('');
 
   async function handleSubmit(e) {
     e.preventDefault();
     setStatus('sending');
+    setErrorMsg('');
     const { error } = await signIn(email.trim().toLowerCase());
     if (error) {
+      setErrorMsg(error.message || 'Something went wrong');
       setStatus('error');
     } else {
       setStatus('sent');
@@ -52,6 +55,7 @@ function LoginForm() {
         <button type="submit" className="rsvp-btn" disabled={status === 'sending'}>
           {status === 'sending' ? 'Sending...' : status === 'error' ? 'Try again' : 'Send Magic Link'}
         </button>
+        {errorMsg && <p style={{ color: '#e57373', fontSize: '0.85rem', marginTop: '0.75rem' }}>{errorMsg}</p>}
       </form>
       <p className="portal-register-note">
         Don&apos;t have an account? <Link href="/">Register for a show first</Link>.

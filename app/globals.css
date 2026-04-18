@@ -1881,6 +1881,66 @@ a { color: inherit; text-decoration: none; }
 .lead-success { text-align: center; }
 .lead-success p { color: var(--muted); margin-bottom: 1.5rem; }
 
+/* ===== FACILITATION HERO (Golden Tickets) ===== */
+.facilitation-hero {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  position: relative;
+  margin-bottom: 2.5rem;
+  background: var(--surface);
+  border: 1px solid var(--gold-dark);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.facilitation-hero-glow {
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(212, 168, 67, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.facilitation-hero-stars {
+  font-size: 2rem;
+  color: var(--gold);
+  letter-spacing: 0.5em;
+  margin-bottom: 1.25rem;
+}
+.facilitation-hero h2 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 1rem;
+}
+.facilitation-hero > p {
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1.7;
+  max-width: 440px;
+  margin: 0 auto 0.75rem;
+}
+.facilitation-hero-sub {
+  color: var(--muted) !important;
+  font-size: 0.85rem !important;
+  font-style: italic;
+  margin-bottom: 1.5rem !important;
+}
+.facilitation-secondary {
+  margin-top: 0;
+}
+.facilitation-secondary-label {
+  font-size: 0.8rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted) !important;
+  margin-bottom: 1rem;
+}
+
 /* Mobile */
 @media (max-width: 600px) {
   .page { padding: 2rem 1rem; }
