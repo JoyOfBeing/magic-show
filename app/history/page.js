@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import Link from 'next/link';
+import { useAuth } from '../../components/AuthProvider';
 
 function ShowCard({ rsvp, event }) {
   const isConfirmed = rsvp.waiver_signed;
@@ -56,9 +57,16 @@ function ShowCard({ rsvp, event }) {
 }
 
 export default function HistoryPage() {
+  const { user, loading: authLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [results, setResults] = useState(null);
   const [status, setStatus] = useState('idle');
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      window.location.href = '/portal';
+    }
+  }, [user, authLoading]);
 
   async function handleSubmit(e) {
     e.preventDefault();

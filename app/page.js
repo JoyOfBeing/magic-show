@@ -149,7 +149,7 @@ export default function Home() {
       )}
 
       <footer className="footer">
-        <a href="/history">My History</a>
+        <a href="/portal">My Portal</a>
         <span className="footer-sep">&middot;</span>
         <a href="https://itsthejob.vercel.app" target="_blank" rel="noopener noreferrer">J.O.B.</a>
       </footer>

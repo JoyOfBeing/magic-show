@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, Suspense, use } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '../../../lib/supabase';
+import { useAuth } from '../../../components/AuthProvider';
 
 function InviteGate({ event, onValid }) {
   const [code, setCode] = useState('');
@@ -890,7 +891,7 @@ function InviteAFriend({ event, rsvpData }) {
     <div className="next-step">
       <div className="step-number">&hearts;</div>
       <div className="step-content">
-        <h3>Invite a Friend</h3>
+        <h3>Send a Friend a Golden Ticket</h3>
         <p>Know someone who should experience this? Refer them for a future Magic Show.</p>
         <form className="referral-form" onSubmit={handleSubmit}>
           <div className="form-field">
@@ -924,7 +925,7 @@ function FacilitationScreen({ event, rsvpData }) {
         <div className="next-step">
           <div className="step-number">&rarr;</div>
           <div className="step-content">
-            <h3>Host a Magic Show</h3>
+            <h3>Host Your Own Magic Show</h3>
             <p>Bring the experience to your community. We handle the facilitation, the ceremony, and the container — you bring the people and the place.</p>
             <a href="mailto:omg@itsthejob.com?subject=Host%20a%20Magic%20Show" className="step-action">Plan Your Magic Show</a>
           </div>
@@ -933,7 +934,7 @@ function FacilitationScreen({ event, rsvpData }) {
         <div className="next-step">
           <div className="step-number">&rarr;</div>
           <div className="step-content">
-            <h3>Become a Church Elder</h3>
+            <h3>Hold Space at a Magic Show</h3>
             <p>Train as an ordained elder of Joy of Being to hold ceremonial space and facilitate Magic Shows. This is the path from participant to practitioner.</p>
             <a href="mailto:omg@itsthejob.com?subject=Elder%20Training" className="step-action">Learn About Elder Initiation</a>
           </div>
@@ -1103,6 +1104,44 @@ function StepIndicator({ step, onNavigate }) {
   );
 }
 
+function CreateAccountPrompt({ email, onSkip }) {
+  const { signIn } = useAuth();
+  const [status, setStatus] = useState('idle');
+
+  async function handleCreate() {
+    setStatus('sending');
+    const { error } = await signIn(email);
+    if (error) {
+      setStatus('error');
+    } else {
+      setStatus('sent');
+    }
+  }
+
+  if (status === 'sent') {
+    return (
+      <div className="account-prompt">
+        <h3>Check your email</h3>
+        <p>We sent a magic link to <strong>{email}</strong>. Click it anytime to access your portal.</p>
+        <button className="rsvp-btn" onClick={onSkip}>Continue to Portal</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="account-prompt">
+      <h3>Create Your Portal Account</h3>
+      <p>Access your show portal from any device — no passwords, just a magic link to your email.</p>
+      <div className="account-prompt-actions">
+        <button className="rsvp-btn" onClick={handleCreate} disabled={status === 'sending'}>
+          {status === 'sending' ? 'Sending...' : status === 'error' ? 'Try again' : 'Create Account'}
+        </button>
+        <button className="account-prompt-skip" onClick={onSkip}>Skip for now</button>
+      </div>
+    </div>
+  );
+}
+
 function ShowInner({ eventSlug }) {
   const searchParams = useSearchParams();
   const [event, setEvent] = useState(null);
@@ -1111,6 +1150,8 @@ function ShowInner({ eventSlug }) {
   const [rsvpData, setRsvpData] = useState(null);
   const [hasInvite, setHasInvite] = useState(false);
   const [isFull, setIsFull] = useState(false);
+  const [showAccountPrompt, setShowAccountPrompt] = useState(false);
+  const { user: authUser } = useAuth();
 
   useEffect(() => {
     async function load() {
@@ -1198,7 +1239,12 @@ function ShowInner({ eventSlug }) {
   }
 
   function handleWaiverComplete() {
-    setStep('preparation');
+    if (authUser) {
+      supabase.from('magic_show_rsvp').update({ user_id: authUser.id }).eq('id', rsvpData.id);
+      setStep('preparation');
+    } else {
+      setShowAccountPrompt(true);
+    }
   }
 
   if (loading) {
@@ -1230,7 +1276,7 @@ function ShowInner({ eventSlug }) {
         <footer className="footer">
           <a href="/" className="footer-home">Home</a>
           <span className="footer-sep">&middot;</span>
-          <a href="/history">My Shows</a>
+          <a href="/portal">My Portal</a>
           <span className="footer-sep">&middot;</span>
           <a href="https://itsthejob.vercel.app" target="_blank" rel="noopener noreferrer">J.O.B.</a>
         </footer>
@@ -1246,7 +1292,7 @@ function ShowInner({ eventSlug }) {
         <footer className="footer">
           <a href="/" className="footer-home">Home</a>
           <span className="footer-sep">&middot;</span>
-          <a href="/history">My Shows</a>
+          <a href="/portal">My Portal</a>
           <span className="footer-sep">&middot;</span>
           <a href="https://itsthejob.vercel.app" target="_blank" rel="noopener noreferrer">J.O.B.</a>
         </footer>
@@ -1312,9 +1358,13 @@ function ShowInner({ eventSlug }) {
 
       {step === 'intake' && <IntakeForm rsvpData={rsvpData} onComplete={handleIntakeComplete} />}
 
-      {step === 'waiver' && <WaiverForm event={event} rsvpData={rsvpData} onComplete={handleWaiverComplete} />}
+      {step === 'waiver' && !showAccountPrompt && <WaiverForm event={event} rsvpData={rsvpData} onComplete={handleWaiverComplete} />}
 
-      {step === 'preparation' && (
+      {showAccountPrompt && (
+        <CreateAccountPrompt email={rsvpData.email} onSkip={() => { setShowAccountPrompt(false); setStep('preparation'); }} />
+      )}
+
+      {step === 'preparation' && !showAccountPrompt && (
         <>
           <PreparationScreen event={event} />
           <div className="step-nav">
@@ -1345,7 +1395,7 @@ function ShowInner({ eventSlug }) {
       <footer className="footer">
         <a href="/" className="footer-home">Home</a>
         <span className="footer-sep">&middot;</span>
-        <a href="/history">My Shows</a>
+        <a href="/portal">My Portal</a>
         <span className="footer-sep">&middot;</span>
         <a href="https://itsthejob.vercel.app" target="_blank" rel="noopener noreferrer">J.O.B.</a>
       </footer>
