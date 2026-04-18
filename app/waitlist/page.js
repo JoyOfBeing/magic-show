@@ -25,7 +25,8 @@ function WaitlistContent() {
         .select('*', { count: 'exact', head: true })
         .eq('interest_type', 'waitlist')
         .is('invited_at', null);
-      setTotalWaiting(count || 0);
+      const OFFSET = 32;
+      setTotalWaiting((count || 0) + OFFSET);
     }
     loadCount();
   }, []);
@@ -120,9 +121,10 @@ function WaitlistContent() {
         return new Date(a.created_at) - new Date(b.created_at);
       });
 
+      const OFFSET = 32;
       const idx = sorted.findIndex(w => w.email === form.email.trim().toLowerCase());
-      setPosition(idx + 1);
-      setTotalWaiting(sorted.length);
+      setPosition(idx + 1 + OFFSET);
+      setTotalWaiting(sorted.length + OFFSET);
     }
 
     setStatus('success');
