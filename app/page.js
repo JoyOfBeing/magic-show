@@ -221,7 +221,7 @@ export default function Home() {
         <section className="home-cta">
           <h2>Want in on the magic?</h2>
           <p>
-            Magic Shows are invite-only. Get on the waitlist and we&apos;ll reach out when a door opens. You can also host your own.
+            The only way in is a Golden Ticket from someone who&apos;s been. Don&apos;t know anyone? Join the waitlist &mdash; if it&apos;s meant to be, the magic will find you.
           </p>
           <div className="home-cta-buttons">
             <a href="/waitlist" className="cta-btn cta-btn-primary">
