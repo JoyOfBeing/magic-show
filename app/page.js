@@ -166,7 +166,7 @@ export default function Home() {
         <h1 className="home-title">The Magic Show</h1>
         <p className="home-tagline">Surprise, you&apos;re the magic.</p>
         <p className="home-sub">
-          The Magic Show is a living, immersive experience you can&apos;t fully understand until you&apos;re inside it. Not knowing what it is is part of the trick. It either calls you or it doesn&apos;t.
+          The Magic Show is a living, immersive experience you can&apos;t fully understand until you&apos;re inside it. We can&apos;t tell you what it is &mdash; that&apos;s the whole point.
         </p>
       </header>
 
