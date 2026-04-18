@@ -64,8 +64,25 @@ function LoginForm() {
   );
 }
 
+const LOCAL_IMAGES = {
+  'nashville': '/nashville.jpeg',
+  'minneapolis': '/minneapolis.jpg',
+  'big sky': '/big-sky.jpg',
+};
+
+function getShowImage(event) {
+  if (!event) return '';
+  if (event.card_image) return event.card_image;
+  const loc = (event.location || '').toLowerCase();
+  for (const [key, path] of Object.entries(LOCAL_IMAGES)) {
+    if (loc.includes(key)) return path;
+  }
+  return event.venue_image || '';
+}
+
 function ShowCard({ rsvp, event }) {
   const isConfirmed = rsvp.waiver_signed;
+  const image = getShowImage(event);
 
   let timeStatus = 'upcoming';
   if (event && event.dates) {
@@ -84,9 +101,9 @@ function ShowCard({ rsvp, event }) {
 
   return (
     <div className="history-show-card">
-      {event && event.venue_image && (
+      {image && (
         <div className="history-show-image">
-          <img src={event.venue_image} alt={event.name || 'Magic Show venue'} />
+          <img src={image} alt={event?.name || 'Magic Show venue'} />
         </div>
       )}
       <div className="history-show-body">
