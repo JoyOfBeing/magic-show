@@ -990,7 +990,9 @@ function WaiverForm({ event, rsvpData, onComplete }) {
 
 const STEP_LABELS = ['Agreement', 'Health & Safety', 'Ceremony', 'Preparation', 'Integration', 'Facilitation'];
 
-function StepIndicator({ step }) {
+const STEP_KEYS = [null, null, null, 'preparation', 'integration', 'facilitation'];
+
+function StepIndicator({ step, onNavigate }) {
   const stepMap = {
     program_agreement: 1,
     membership: 1,
@@ -1001,6 +1003,7 @@ function StepIndicator({ step }) {
     facilitation: 6,
   };
   const current = stepMap[step] || 1;
+  const isPostRegistration = current >= 4;
 
   return (
     <div className="step-indicator">
@@ -1009,14 +1012,23 @@ function StepIndicator({ step }) {
           const num = i + 1;
           const isDone = current > num;
           const isActive = current === num;
+          const isClickable = isPostRegistration && num >= 4 && STEP_KEYS[i];
           return (
             <div key={num} className="step-indicator-item">
               {i > 0 && <div className="step-line" />}
               <div className="step-dot-col">
-                <div className={`step-dot ${isDone ? 'done' : isActive ? 'active' : ''}`}>
+                <div
+                  className={`step-dot ${isDone ? 'done' : isActive ? 'active' : ''} ${isClickable ? 'step-dot-clickable' : ''}`}
+                  onClick={isClickable ? () => onNavigate(STEP_KEYS[i]) : undefined}
+                >
                   <span>{num}</span>
                 </div>
-                <div className={`step-label ${isDone ? 'step-label-done' : isActive ? 'step-label-active' : ''}`}>{label}</div>
+                <div
+                  className={`step-label ${isDone ? 'step-label-done' : isActive ? 'step-label-active' : ''} ${isClickable ? 'step-label-clickable' : ''}`}
+                  onClick={isClickable ? () => onNavigate(STEP_KEYS[i]) : undefined}
+                >
+                  {label}
+                </div>
               </div>
             </div>
           );
@@ -1168,9 +1180,15 @@ function HomeInner() {
     );
   }
 
+  const isPortal = ['preparation', 'integration', 'facilitation'].includes(step);
+
   return (
     <div className="page">
       <div className="stars" />
+
+      {isPortal && (
+        <a href="/" className="portal-home-link">&larr; Home</a>
+      )}
 
       {step === 'rsvp' && (
         <div className="ticket-wrapper">
@@ -1198,7 +1216,7 @@ function HomeInner() {
       )}
 
       {step !== 'rsvp' && (
-        <StepIndicator step={step} />
+        <StepIndicator step={step} onNavigate={setStep} />
       )}
 
       {step === 'rsvp' && (
