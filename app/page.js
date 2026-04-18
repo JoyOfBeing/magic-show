@@ -25,6 +25,22 @@ function PastShowCard({ image, city, name, dates, secret }) {
   );
 }
 
+const LOCAL_IMAGES = {
+  'nashville': '/nashville.jpeg',
+  'minneapolis': '/minneapolis.jpg',
+  'big sky': '/big-sky.jpg',
+};
+
+function getShowImage(show) {
+  if (show.card_image) return show.card_image;
+  // Match location to local images
+  const loc = (show.location || '').toLowerCase();
+  for (const [key, path] of Object.entries(LOCAL_IMAGES)) {
+    if (loc.includes(key)) return path;
+  }
+  return show.venue_image || '';
+}
+
 const PAST_SHOWS_FALLBACK = [
   { id: 'nashville', city: 'Nashville', name: 'The Magic Show', image: '/nashville.jpeg' },
   { id: 'minneapolis', city: 'Minneapolis', name: 'The Magic Show', image: '/minneapolis.jpg' },
@@ -155,7 +171,7 @@ export default function Home() {
         <section className="home-section">
           <div className="home-section-label">Currently Open</div>
           <a href="/big-sky" className="show-card show-card-open">
-            <img src={liveEvent.card_image || `/big-sky.jpg`} alt={liveEvent.location} className="show-card-image" />
+            <img src={getShowImage(liveEvent)} alt={liveEvent.location} className="show-card-image" />
             <div className="show-card-body">
               <div className="show-card-city">{liveEvent.location}</div>
               <div className="show-card-name">{liveEvent.name}</div>
@@ -173,7 +189,7 @@ export default function Home() {
             ? pastEvents.map(show => (
                 <PastShowCard
                   key={show.id}
-                  image={show.card_image || show.venue_image || ''}
+                  image={getShowImage(show)}
                   city={show.location}
                   name={show.name}
                   dates={show.dates}

@@ -19,6 +19,7 @@ const EMPTY_EVENT = {
   capacity: 12,
   is_live: false,
   secret: '',
+  card_image: '',
 };
 
 function RosterRow({ r, onDelete }) {
@@ -293,6 +294,7 @@ function EventForm({ event, isNew, onSave, onCancel }) {
           invite_code: form.invite_code ? form.invite_code.toUpperCase() : null,
           capacity: form.capacity ? Number(form.capacity) : null,
           secret: form.secret || null,
+          card_image: form.card_image || null,
           updated_at: new Date().toISOString(),
         })
         .eq('id', form.id);
@@ -365,6 +367,10 @@ function EventForm({ event, isNew, onSave, onCancel }) {
         <div className="admin-field full-width">
           <label>Venue Link (Airbnb, Inspirato, etc.)</label>
           <input type="text" value={form.venue_image} onChange={e => set('venue_image', e.target.value)} placeholder="https://www.airbnb.com/rooms/..." />
+        </div>
+        <div className="admin-field full-width">
+          <label>Card Image URL (for homepage — direct image link)</label>
+          <input type="text" value={form.card_image} onChange={e => set('card_image', e.target.value)} placeholder="https://example.com/photo.jpg" />
         </div>
       </div>
 
