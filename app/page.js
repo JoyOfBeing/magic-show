@@ -158,6 +158,13 @@ export default function Home() {
   const [eventsLoading, setEventsLoading] = useState(true);
   const [waitlistCount, setWaitlistCount] = useState(0);
 
+  // Auto-open host form if ?host=true
+  useEffect(() => {
+    if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('host') === 'true') {
+      setOpenForm('host');
+    }
+  }, []);
+
   useEffect(() => {
     async function loadEvents() {
       // Fetch live event

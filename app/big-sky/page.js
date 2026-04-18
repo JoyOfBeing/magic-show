@@ -872,7 +872,7 @@ function FacilitationScreen() {
             <div className="step-content">
               <h3>Host Your Own Magic Show</h3>
               <p>Bring the experience to your community. We handle the facilitation, the ceremony, and the container — you bring the people and the place.</p>
-              <a href="mailto:omg@itsthejob.com?subject=Host%20a%20Magic%20Show" className="step-action">Plan Your Magic Show</a>
+              <a href="/?host=true" className="step-action">Plan Your Magic Show</a>
             </div>
           </div>
 
