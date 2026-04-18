@@ -2,52 +2,54 @@
 
 import { useState } from 'react';
 import { supabase } from '../../lib/supabase';
-
-function StatusBadge({ label, done, date }) {
-  return (
-    <div className={`history-badge ${done ? 'history-badge-done' : 'history-badge-pending'}`}>
-      <span className="history-badge-icon">{done ? '\u2713' : '\u2013'}</span>
-      <span className="history-badge-label">{label}</span>
-      {done && date && <span className="history-badge-date">{new Date(date).toLocaleDateString()}</span>}
-    </div>
-  );
-}
+import Link from 'next/link';
 
 function ShowCard({ rsvp, event }) {
-  let overallStatus = 'In Progress';
-  if (rsvp.waiver_signed) overallStatus = 'Confirmed';
-  else if (rsvp.intake_complete) overallStatus = 'Intake Complete';
-  else if (rsvp.program_agreement_signed) overallStatus = 'Agreement Signed';
+  const isConfirmed = rsvp.waiver_signed;
+
+  // Determine time-based status
+  let timeStatus = 'upcoming';
+  if (event && event.dates) {
+    // Simple heuristic: if the dates string contains a year in the past, mark as completed
+    const now = new Date();
+    const dateStr = event.dates;
+    // Try to parse the end date (after the dash/hyphen)
+    const parts = dateStr.split(/[–—-]/);
+    const lastPart = parts[parts.length - 1].trim();
+    // Add year if not present
+    const tryDate = lastPart.match(/\d{4}/) ? new Date(lastPart) : new Date(lastPart + ', ' + now.getFullYear());
+    if (!isNaN(tryDate) && tryDate < now) {
+      timeStatus = 'completed';
+    }
+  }
+
+  const statusLabel = !isConfirmed ? 'Registration In Progress' : timeStatus === 'completed' ? 'Completed' : 'Upcoming';
+  const statusClass = !isConfirmed ? 'history-status-progress' : timeStatus === 'completed' ? 'history-status-completed' : 'history-status-upcoming';
+
+  // Determine the portal link
+  const portalHref = event ? `/show/${event.id}` : '/big-sky';
 
   return (
-    <div className="history-card">
-      <div className="history-card-header">
-        <div>
-          <h3>{event ? event.name : 'Magic Show'}</h3>
-          {event && <p className="history-card-meta">{event.dates} &mdash; {event.location}</p>}
-          {!event && <p className="history-card-meta">{rsvp.event}</p>}
+    <div className="history-show-card">
+      {event && event.venue_image && (
+        <div className="history-show-image">
+          <img src={event.venue_image} alt={event.name || 'Magic Show venue'} />
         </div>
-        <span className={`history-status ${overallStatus === 'Confirmed' ? 'history-status-confirmed' : 'history-status-progress'}`}>
-          {overallStatus}
-        </span>
-      </div>
-
-      <div className="history-badges">
-        <StatusBadge
-          label="Program Agreement"
-          done={rsvp.program_agreement_signed}
-          date={rsvp.program_agreement_signed_at}
-        />
-        <StatusBadge
-          label="Church Waiver"
-          done={rsvp.waiver_signed}
-          date={rsvp.waiver_signed_at}
-        />
-        <StatusBadge
-          label="Health Intake"
-          done={rsvp.intake_complete}
-          date={null}
-        />
+      )}
+      <div className="history-show-body">
+        <div className="history-show-top">
+          <div>
+            <h3>{event ? event.name : 'The Magic Show'}</h3>
+            {event && <p className="history-show-dates">{event.dates}</p>}
+            {event && event.location && <p className="history-show-location">{event.location}</p>}
+          </div>
+          <span className={`history-status ${statusClass}`}>
+            {statusLabel}
+          </span>
+        </div>
+        <Link href={portalHref} className="history-portal-btn">
+          {isConfirmed ? 'Enter Portal' : 'Continue Registration'}
+        </Link>
       </div>
     </div>
   );
@@ -101,8 +103,8 @@ export default function HistoryPage() {
 
       <div className="history-header">
         <a href="/" className="portal-home-link">&larr; Home</a>
-        <h1>My History</h1>
-        <p className="history-sub">Look up your Magic Show participation history.</p>
+        <h1>My Shows</h1>
+        <p className="history-sub">Look up your Magic Show history and re-enter your portal.</p>
       </div>
 
       <form className="history-lookup" onSubmit={handleSubmit}>
@@ -124,7 +126,7 @@ export default function HistoryPage() {
 
       {status === 'done' && results && results.length === 0 && (
         <div className="history-empty">
-          <p>No registrations found for that email.</p>
+          <p>No shows found for that email.</p>
         </div>
       )}
 

@@ -1229,7 +1229,7 @@ function HomeInner() {
         <footer className="footer">
           <a href="/" className="footer-home">Home</a>
           <span className="footer-sep">&middot;</span>
-          <a href="/history">My History</a>
+          <a href="/history">My Shows</a>
           <span className="footer-sep">&middot;</span>
           <a href="https://itsthejob.vercel.app" target="_blank" rel="noopener noreferrer">J.O.B.</a>
         </footer>
@@ -1245,7 +1245,7 @@ function HomeInner() {
         <footer className="footer">
           <a href="/" className="footer-home">Home</a>
           <span className="footer-sep">&middot;</span>
-          <a href="/history">My History</a>
+          <a href="/history">My Shows</a>
           <span className="footer-sep">&middot;</span>
           <a href="https://itsthejob.vercel.app" target="_blank" rel="noopener noreferrer">J.O.B.</a>
         </footer>
@@ -1344,7 +1344,7 @@ function HomeInner() {
       <footer className="footer">
         <a href="/" className="footer-home">Home</a>
         <span className="footer-sep">&middot;</span>
-        <a href="/history">My History</a>
+        <a href="/history">My Shows</a>
         <span className="footer-sep">&middot;</span>
         <a href="https://itsthejob.vercel.app" target="_blank" rel="noopener noreferrer">J.O.B.</a>
       </footer>
