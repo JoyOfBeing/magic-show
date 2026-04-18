@@ -863,7 +863,7 @@ function FacilitationScreen() {
           <div className="step-content">
             <h3>Host a Magic Show</h3>
             <p>Bring the experience to your community. We handle the facilitation, the ceremony, and the container — you bring the people and the place.</p>
-            <a href="mailto:omg@itsthejob.com?subject=Host%20a%20Magic%20Show" className="step-action">Inquire About Hosting</a>
+            <a href="mailto:omg@itsthejob.com?subject=Host%20a%20Magic%20Show" className="step-action">Plan Your Magic Show</a>
           </div>
         </div>
 
@@ -872,7 +872,7 @@ function FacilitationScreen() {
           <div className="step-content">
             <h3>Become a Church Elder</h3>
             <p>Train as an ordained elder of Joy of Being to hold ceremonial space and facilitate Magic Shows. This is the path from participant to practitioner.</p>
-            <a href="mailto:omg@itsthejob.com?subject=Elder%20Training" className="step-action">Learn About Elder Training</a>
+            <a href="mailto:omg@itsthejob.com?subject=Elder%20Training" className="step-action">Learn About Elder Initiation</a>
           </div>
         </div>
       </div>
