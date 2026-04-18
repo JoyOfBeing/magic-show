@@ -940,6 +940,11 @@ a { color: inherit; text-decoration: none; }
 .footer a:hover {
   color: var(--text);
 }
+.footer-sep {
+  color: var(--border);
+  margin: 0 0.5rem;
+  font-size: 0.8rem;
+}
 
 /* Animation */
 @keyframes fadeIn {
@@ -1848,4 +1853,208 @@ a { color: inherit; text-decoration: none; }
   .home-cta { padding: 2rem 1rem; }
   .home-cta h2 { font-size: 1.5rem; }
   .cta-btn { width: 100%; }
+}
+
+/* ===== HISTORY PAGE ===== */
+.history-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.history-header h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+}
+.history-sub {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.history-lookup {
+  max-width: 400px;
+  margin: 0 auto 2rem;
+}
+.history-empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 2rem 0;
+  font-style: italic;
+}
+.history-results {
+  animation: fadeIn 0.4s ease;
+}
+.history-results h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+}
+.history-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+.history-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+.history-card-header h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gold-light);
+}
+.history-card-meta {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 0.25rem;
+}
+.history-status {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.history-status-confirmed {
+  background: var(--gold);
+  color: #1a1200;
+}
+.history-status-progress {
+  background: var(--border);
+  color: var(--muted);
+}
+.history-badges {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.history-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  padding: 0.4rem 0;
+}
+.history-badge-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.history-badge-done .history-badge-icon {
+  background: var(--iridescent-2);
+  color: #0a0a0f;
+}
+.history-badge-pending .history-badge-icon {
+  background: var(--border);
+  color: var(--muted);
+}
+.history-badge-label {
+  color: var(--text);
+}
+.history-badge-date {
+  color: var(--muted);
+  font-size: 0.75rem;
+  margin-left: auto;
+}
+
+/* ===== REFERRAL FORM ===== */
+.referral-form {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.referral-form .form-field {
+  margin-bottom: 0;
+}
+
+/* ===== ADMIN EVENT URL ===== */
+.admin-card-url {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding: 0.4rem 0.6rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.admin-card-url code {
+  flex: 1;
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: var(--muted);
+  word-break: break-all;
+}
+.admin-card-url button {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.admin-card-url button:hover {
+  color: var(--gold-light);
+  border-color: var(--gold-dark);
+}
+
+/* ===== ADMIN REFERRALS ===== */
+.referral-section {
+  margin-top: 1.5rem;
+}
+.referral-section h3 {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+.referral-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.referral-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0.6rem 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+}
+.referral-row-friend {
+  color: var(--gold-light);
+}
+.referral-row-from {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.referral-row-note {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-style: italic;
+  margin-top: 0.25rem;
 }

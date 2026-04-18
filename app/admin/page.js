@@ -64,6 +64,44 @@ function RosterRow({ r, onDelete }) {
   );
 }
 
+function ReferralsSection({ event }) {
+  const [referrals, setReferrals] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      const { data } = await supabase
+        .from('magic_show_referrals')
+        .select('*')
+        .eq('event', event.id)
+        .order('created_at', { ascending: false });
+      setReferrals(data || []);
+      setLoading(false);
+    }
+    load();
+  }, [event.id]);
+
+  if (loading) return <p>Loading referrals...</p>;
+  if (referrals.length === 0) return null;
+
+  return (
+    <div className="referral-section">
+      <h3 className="roster-section-title">Referrals ({referrals.length})</h3>
+      <div className="referral-list">
+        {referrals.map(r => (
+          <div key={r.id} className="referral-row">
+            <div>
+              <div className="referral-row-friend">{r.friend_name} &mdash; {r.friend_email}</div>
+              <div className="referral-row-from">Referred by {r.referrer_name} ({r.referrer_email})</div>
+              {r.note && <div className="referral-row-note">&ldquo;{r.note}&rdquo;</div>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function RosterView({ event, onClose }) {
   const [rsvps, setRsvps] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -177,6 +215,8 @@ function RosterView({ event, onClose }) {
           </div>
         </>
       )}
+
+      <ReferralsSection event={event} />
     </div>
   );
 }
@@ -362,6 +402,25 @@ function EventForm({ event, isNew, onSave, onCancel }) {
   );
 }
 
+function EventUrlRow({ eventId }) {
+  const [copied, setCopied] = useState(false);
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+  const url = `${baseUrl}/show/${eventId}`;
+
+  function copy() {
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }
+
+  return (
+    <div className="admin-card-url">
+      <code>{url}</code>
+      <button onClick={copy}>{copied ? 'Copied!' : 'Copy'}</button>
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false);
   const [events, setEvents] = useState([]);
@@ -441,6 +500,7 @@ export default function AdminPage() {
                 <span>{ev.dates}</span>
                 <span>{ev.location}</span>
               </div>
+              <EventUrlRow eventId={ev.id} />
               <div className="admin-card-meta">
                 {ev.venue_address && <span>Venue: {ev.venue_address}</span>}
                 {ev.arrival && <span>Arrival: {ev.arrival}</span>}

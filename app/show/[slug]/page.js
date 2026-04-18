@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense, use } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../../../lib/supabase';
 
 function InviteGate({ event, onValid }) {
   const [code, setCode] = useState('');
@@ -1103,7 +1103,7 @@ function StepIndicator({ step, onNavigate }) {
   );
 }
 
-function HomeInner() {
+function ShowInner({ eventSlug }) {
   const searchParams = useSearchParams();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -1114,11 +1114,11 @@ function HomeInner() {
 
   useEffect(() => {
     async function load() {
-      // Fetch the live event
+      // Fetch the event by slug/id
       const { data: ev } = await supabase
         .from('magic_show_events')
         .select('*')
-        .eq('is_live', true)
+        .eq('id', eventSlug)
         .single();
       setEvent(ev);
 
@@ -1175,7 +1175,7 @@ function HomeInner() {
       setLoading(false);
     }
     load();
-  }, []);
+  }, [eventSlug]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleRSVP(data) {
     setRsvpData(data);
@@ -1214,8 +1214,9 @@ function HomeInner() {
       <div className="page">
         <div className="stars" />
         <div className="no-event">
-          <h2>No show currently scheduled.</h2>
-          <p>Check back soon.</p>
+          <h2>Show not found.</h2>
+          <p>This show doesn&apos;t exist or has been removed.</p>
+          <a href="/" className="invite-gate-home">&larr; Back to homepage</a>
         </div>
       </div>
     );
@@ -1352,10 +1353,12 @@ function HomeInner() {
   );
 }
 
-export default function Home() {
+export default function ShowPage({ params }) {
+  const { slug } = use(params);
+
   return (
     <Suspense fallback={<div className="page"><div className="stars" /></div>}>
-      <HomeInner />
+      <ShowInner eventSlug={slug} />
     </Suspense>
   );
 }
