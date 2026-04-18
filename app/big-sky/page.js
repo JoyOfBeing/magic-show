@@ -871,7 +871,7 @@ function FacilitationScreen() {
           <div className="step-number">&rarr;</div>
           <div className="step-content">
             <h3>Become a Church Elder</h3>
-            <p>Train as an ordained elder of J.O.B. Church to hold ceremonial space and facilitate Magic Shows. This is the path from participant to practitioner.</p>
+            <p>Train as an ordained elder of Joy of Being to hold ceremonial space and facilitate Magic Shows. This is the path from participant to practitioner.</p>
             <a href="mailto:omg@itsthejob.com?subject=Elder%20Training" className="step-action">Learn About Elder Training</a>
           </div>
         </div>

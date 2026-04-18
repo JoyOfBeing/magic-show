@@ -8,7 +8,7 @@ const EMPTY_EVENT = {
   name: 'The Magic Show',
   dates: '',
   location: '',
-  church: 'J.O.B. Church',
+  church: 'Joy of Being',
   venue_address: '',
   venue_image: '',
   arrival: '',
@@ -294,7 +294,7 @@ function EventForm({ event, isNew, onSave, onCancel }) {
         </div>
         <div className="admin-field">
           <label>Church Partner</label>
-          <input type="text" value={form.church} onChange={e => set('church', e.target.value)} placeholder="J.O.B. Church" />
+          <input type="text" value={form.church} onChange={e => set('church', e.target.value)} placeholder="Joy of Being" />
         </div>
       </div>
 
