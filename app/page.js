@@ -223,10 +223,13 @@ export default function Home() {
       <header className="home-hero">
         <div className="home-eyebrow">By invitation only</div>
         <h1 className="home-title">The Magic Show</h1>
-        <p className="home-tagline">Surprise, you&apos;re the magic.</p>
         <p className="home-sub">
-          The Magic Show is a living, immersive experience you can&apos;t fully understand until you&apos;re inside it. We can&apos;t tell you what it is &mdash; that&apos;s the whole point.
+          The Magic Show is an immersive, transformational container. You must have a Golden Ticket to enter.
         </p>
+        <div className="home-hero-ctas">
+          <a href="/request" className="cta-btn cta-btn-primary">Request a Golden Ticket</a>
+          <a href="/redeem" className="cta-btn cta-btn-secondary">Redeem Your Golden Ticket</a>
+        </div>
       </header>
 
       {user && (
