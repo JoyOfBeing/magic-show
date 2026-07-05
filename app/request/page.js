@@ -53,7 +53,7 @@ export default function RequestPage() {
       <div className="pregate">
         <div className="pregate-form-section">
           <h2>Request a Golden Ticket</h2>
-          <p>The Magic Show is invite-only. Tell us a little about yourself and who told you about us.</p>
+          <p>The Magic Show is invite-only. Tell us a little about yourself and we&apos;ll be in touch if a spot opens up.</p>
           <form onSubmit={handleSubmit} className="pregate-form">
             <div className="form-field">
               <label>Name *</label>
