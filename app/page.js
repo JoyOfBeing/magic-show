@@ -168,12 +168,12 @@ export default function Home() {
   useEffect(() => {
     async function loadEvents() {
       // Fetch live event
-      const { data: live } = await supabase
+      const { data: liveArr } = await supabase
         .from('magic_show_events')
         .select('*')
         .eq('is_live', true)
-        .single();
-      setLiveEvent(live);
+        .limit(1);
+      setLiveEvent(liveArr?.[0] || null);
 
       // Fetch past events (not live), sorted most recent first by actual event date
       const { data: past } = await supabase
