@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { supabase } from '../../lib/supabase';
 
 export default function RequestPage() {
-  const [form, setForm] = useState({ name: '', email: '', phone: '', heard: '' });
+  const [form, setForm] = useState({ name: '', email: '', phone: '', heard: '', guess: '' });
   const [status, setStatus] = useState('idle');
 
   async function handleSubmit(e) {
@@ -17,7 +17,10 @@ export default function RequestPage() {
       phone: form.phone,
       interest_type: 'waitlist',
       source: 'organic',
-      details: form.heard ? `How they heard: ${form.heard}` : null,
+      details: [
+        form.heard && `How they heard: ${form.heard}`,
+        form.guess && `What they think it is: ${form.guess}`,
+      ].filter(Boolean).join(' | ') || null,
     }]);
 
     if (error) {
@@ -50,7 +53,7 @@ export default function RequestPage() {
       <div className="pregate">
         <div className="pregate-form-section">
           <h2>Request a Golden Ticket</h2>
-          <p>The Magic Show is invite-only. Tell us a little about yourself and we&apos;ll be in touch if a spot opens up.</p>
+          <p>The Magic Show is invite-only. Tell us a little about yourself and who told you about us.</p>
           <form onSubmit={handleSubmit} className="pregate-form">
             <div className="form-field">
               <label>Name *</label>
@@ -89,6 +92,15 @@ export default function RequestPage() {
                 value={form.heard}
                 onChange={e => setForm(f => ({ ...f, heard: e.target.value }))}
                 placeholder="A friend, social media, etc."
+              />
+            </div>
+            <div className="form-field">
+              <label>What do you think the show even is?</label>
+              <input
+                type="text"
+                value={form.guess}
+                onChange={e => setForm(f => ({ ...f, guess: e.target.value }))}
+                placeholder=""
               />
             </div>
             <button type="submit" className="rsvp-btn" disabled={status === 'submitting'}>
