@@ -40,6 +40,241 @@ function InviteGate({ event, onValid }) {
   );
 }
 
+function PreGate({ event, onInviteValid }) {
+  const [view, setView] = useState('landing');
+  const [gtCode, setGtCode] = useState('');
+  const [gtStatus, setGtStatus] = useState('idle');
+  const [gtError, setGtError] = useState('');
+  const [requestForm, setRequestForm] = useState({ name: '', email: '', phone: '' });
+  const [requestStatus, setRequestStatus] = useState('idle');
+
+  async function handleReserve(e) {
+    e.preventDefault();
+    const trimmed = gtCode.trim().toUpperCase();
+    if (!trimmed) return;
+    setGtStatus('checking');
+    setGtError('');
+
+    const { data } = await supabase
+      .from('golden_tickets')
+      .select('*')
+      .eq('code', trimmed)
+      .single();
+
+    if (!data) {
+      setGtStatus('idle');
+      setGtError('That code wasn\u2019t found. Double-check and try again.');
+      return;
+    }
+
+    if (data.status === 'redeemed') {
+      setGtStatus('idle');
+      setGtError('This golden ticket has already been used.');
+      return;
+    }
+
+    if (data.status === 'expired') {
+      setGtStatus('idle');
+      setGtError('This golden ticket has expired.');
+      return;
+    }
+
+    if (data.status === 'available') {
+      setGtStatus('idle');
+      setGtError('This golden ticket hasn\u2019t been activated yet.');
+      return;
+    }
+
+    // Check 90-day expiration
+    const age = Date.now() - new Date(data.created_at).getTime();
+    if (age > 90 * 24 * 60 * 60 * 1000) {
+      await supabase
+        .from('golden_tickets')
+        .update({ status: 'expired' })
+        .eq('id', data.id);
+      setGtStatus('idle');
+      setGtError('This golden ticket has expired.');
+      return;
+    }
+
+    // Valid ticket — create lead and redeem
+    await supabase.from('magic_show_leads').insert([{
+      name: data.recipient_name || '',
+      email: data.recipient_email || '',
+      interest_type: 'reservation',
+      source: 'golden_ticket',
+      ticket_code: data.code,
+      details: `event_id: ${event.id}`,
+    }]);
+
+    await supabase
+      .from('golden_tickets')
+      .update({
+        status: 'redeemed',
+        redeemed_at: new Date().toISOString(),
+      })
+      .eq('id', data.id);
+
+    setView('reserved');
+  }
+
+  async function handleRequest(e) {
+    e.preventDefault();
+    setRequestStatus('submitting');
+
+    const { error } = await supabase.from('magic_show_leads').insert([{
+      name: requestForm.name,
+      email: requestForm.email.trim().toLowerCase(),
+      phone: requestForm.phone,
+      interest_type: 'waitlist',
+      source: 'organic',
+      details: `event_id: ${event.id}`,
+    }]);
+
+    if (error) {
+      setRequestStatus('error');
+      return;
+    }
+    setView('requested');
+  }
+
+  if (view === 'reserved') {
+    return (
+      <div className="pregate">
+        <div className="pregate-success">
+          <h2>Your spot is reserved.</h2>
+          <p>We&apos;ll be in touch to confirm your place.</p>
+          <a href="/" className="pregate-home-link">&larr; Back to homepage</a>
+        </div>
+      </div>
+    );
+  }
+
+  if (view === 'requested') {
+    return (
+      <div className="pregate">
+        <div className="pregate-success">
+          <h2>Request received.</h2>
+          <p>If it&apos;s meant to be, the magic will find you.</p>
+          <a href="/" className="pregate-home-link">&larr; Back to homepage</a>
+        </div>
+      </div>
+    );
+  }
+
+  if (view === 'gate') {
+    return <InviteGate event={event} onValid={onInviteValid} />;
+  }
+
+  if (view === 'reserve') {
+    return (
+      <div className="pregate">
+        <button className="pregate-back" onClick={() => setView('landing')}>&larr; Back</button>
+        <div className="pregate-form-section">
+          <h2>Reserve with a Golden Ticket</h2>
+          <p>Enter the code from your golden ticket to reserve your spot.</p>
+          <form onSubmit={handleReserve} className="pregate-form">
+            <div className="form-field">
+              <input
+                type="text"
+                required
+                value={gtCode}
+                onChange={e => { setGtCode(e.target.value); setGtError(''); }}
+                placeholder="GT-XXXXXX"
+                autoFocus
+                style={{ textTransform: 'uppercase', letterSpacing: '0.1em' }}
+              />
+            </div>
+            <button type="submit" className="rsvp-btn" disabled={gtStatus === 'checking'}>
+              {gtStatus === 'checking' ? 'Checking...' : 'Reserve My Spot'}
+            </button>
+            {gtError && <p className="pregate-error">{gtError}</p>}
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  if (view === 'request') {
+    return (
+      <div className="pregate">
+        <button className="pregate-back" onClick={() => setView('landing')}>&larr; Back</button>
+        <div className="pregate-form-section">
+          <h2>Request a Golden Ticket</h2>
+          <p>Tell us a little about yourself and we&apos;ll be in touch if a spot opens up.</p>
+          <form onSubmit={handleRequest} className="pregate-form">
+            <div className="form-field">
+              <label>Name</label>
+              <input
+                type="text"
+                required
+                value={requestForm.name}
+                onChange={e => setRequestForm(f => ({ ...f, name: e.target.value }))}
+                placeholder="Your name"
+              />
+            </div>
+            <div className="form-field">
+              <label>Email</label>
+              <input
+                type="email"
+                required
+                value={requestForm.email}
+                onChange={e => setRequestForm(f => ({ ...f, email: e.target.value }))}
+                placeholder="your@email.com"
+              />
+            </div>
+            <div className="form-field">
+              <label>Phone</label>
+              <input
+                type="tel"
+                value={requestForm.phone}
+                onChange={e => setRequestForm(f => ({ ...f, phone: e.target.value }))}
+                placeholder="(optional)"
+              />
+            </div>
+            <button type="submit" className="rsvp-btn" disabled={requestStatus === 'submitting'}>
+              {requestStatus === 'submitting' ? 'Submitting...' : requestStatus === 'error' ? 'Try again' : 'Request a Ticket'}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // Landing view
+  return (
+    <div className="pregate">
+      <div className="pregate-landing">
+        <div className="pregate-eyebrow">The Magic Show</div>
+        <h1 className="pregate-title">{event.name}</h1>
+        <div className="pregate-details">
+          <div className="pregate-detail">
+            <span className="pregate-detail-label">When</span>
+            <span className="pregate-detail-value">{event.dates}</span>
+          </div>
+          <div className="pregate-detail">
+            <span className="pregate-detail-label">Where</span>
+            <span className="pregate-detail-value">{event.location}</span>
+          </div>
+        </div>
+
+        <div className="pregate-actions">
+          <button className="cta-btn cta-btn-primary" onClick={() => setView('reserve')}>
+            Reserve with a Golden Ticket
+          </button>
+          <button className="cta-btn" onClick={() => setView('request')}>
+            Request a Golden Ticket
+          </button>
+        </div>
+
+        <button className="pregate-gate-link" onClick={() => setView('gate')}>
+          Already confirmed? Enter your invite code
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function FullScreen() {
   return (
     <div className="invite-gate">
@@ -1216,7 +1451,7 @@ function ShowInner({ eventSlug }) {
     return (
       <div className="page">
         <div className="stars" />
-        {isFull ? <FullScreen /> : <InviteGate event={event} onValid={() => setHasInvite(true)} />}
+        {isFull ? <FullScreen /> : <PreGate event={event} onInviteValid={() => setHasInvite(true)} />}
         <footer className="footer">
           <a href="/" className="footer-home">Home</a>
           <span className="footer-sep">&middot;</span>
