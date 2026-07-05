@@ -1763,8 +1763,13 @@ a { color: inherit; text-decoration: none; }
   gap: 1rem;
 }
 .show-card-past {
-  cursor: default;
+  cursor: pointer;
   opacity: 0.85;
+  transition: opacity 0.3s, border-color 0.3s;
+}
+.show-card-past:hover {
+  opacity: 1;
+  border-color: var(--gold-dark);
 }
 .show-card-past .show-card-image {
   height: 220px;
