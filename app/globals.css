@@ -1944,7 +1944,7 @@ a { color: inherit; text-decoration: none; }
 }
 .home-title {
   font-size: 3rem;
-  font-weight: 300;
+  font-weight: 800;
   letter-spacing: -0.02em;
   background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--gold-dark));
   -webkit-background-clip: text;
