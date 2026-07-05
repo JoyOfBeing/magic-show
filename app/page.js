@@ -214,9 +214,7 @@ export default function Home() {
 
       <nav className="home-nav">
         {!authLoading && (
-          user
-            ? <a href="/portal" className="home-nav-link">My Portal</a>
-            : <a href="/portal" className="home-nav-link">Sign In</a>
+          <a href="/portal" className="home-nav-link">Enter</a>
         )}
       </nav>
 
@@ -232,11 +230,7 @@ export default function Home() {
         </div>
       </header>
 
-      {user && (
-        <section className="home-welcome">
-          <a href="/portal" className="cta-btn cta-btn-primary">Enter Your Portal</a>
-        </section>
-      )}
+
 
       {!eventsLoading && liveEvent && (
         <section className="home-section">
@@ -305,7 +299,7 @@ export default function Home() {
       )}
 
       <footer className="footer">
-        <a href="/portal">{user ? 'My Portal' : 'Sign In'}</a>
+        <a href="/portal">Enter</a>
         <span className="footer-sep">&middot;</span>
         <a href="https://itsthejob.vercel.app" target="_blank" rel="noopener noreferrer">J.O.B.</a>
       </footer>
