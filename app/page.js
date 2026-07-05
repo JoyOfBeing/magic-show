@@ -225,8 +225,8 @@ export default function Home() {
           The Magic Show is an immersive, transformational container. You must have a Golden Ticket to enter.
         </p>
         <div className="home-hero-ctas">
-          <a href="/request" className="cta-btn cta-btn-primary">Request a Golden Ticket</a>
-          <a href="/redeem" className="cta-btn cta-btn-secondary">Redeem Your Golden Ticket</a>
+          <a href="/request" className="cta-btn cta-btn-secondary">Request a Golden Ticket</a>
+          <a href="/redeem" className="cta-btn cta-btn-primary">Redeem Your Golden Ticket</a>
         </div>
       </header>
 
