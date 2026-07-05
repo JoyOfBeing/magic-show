@@ -167,7 +167,7 @@ export default function Home() {
 
   useEffect(() => {
     function parseEventDate(d) {
-      if (!d) return 0;
+      if (!d || typeof d !== 'string') return 0;
       const m = d.match(/([A-Za-z]+)\s+(\d+)/);
       const y = d.match(/(\d{4})/);
       if (m && y) return new Date(`${m[1]} ${m[2]}, ${y[1]}`).getTime();
