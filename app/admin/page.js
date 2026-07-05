@@ -111,7 +111,7 @@ function RosterView({ event, onClose }) {
   const [providerCopied, setProviderCopied] = useState(false);
 
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-  const inviteLink = event.invite_code ? `${baseUrl}/big-sky?code=${event.invite_code}` : null;
+  const inviteLink = event.invite_code ? `${baseUrl}/show/${event.id}?code=${event.invite_code}` : null;
 
   async function load() {
     const { data } = await supabase
@@ -433,6 +433,26 @@ function EventUrlRow({ eventId }) {
   );
 }
 
+function InviteLinkRow({ eventId, inviteCode }) {
+  const [copied, setCopied] = useState(false);
+  if (!inviteCode) return null;
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+  const url = `${baseUrl}/show/${eventId}?code=${inviteCode}`;
+
+  function copy() {
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }
+
+  return (
+    <div className="admin-card-url">
+      <code>{url}</code>
+      <button onClick={copy}>{copied ? 'Copied!' : 'Copy invite link'}</button>
+    </div>
+  );
+}
+
 function WaitlistSection() {
   const [entries, setEntries] = useState([]);
   const [filter, setFilter] = useState('waiting');
@@ -569,7 +589,7 @@ export default function AdminPage() {
       <div className="admin-header">
         <div>
           <h1>Magic Show Admin</h1>
-          <a href="/big-sky" target="_blank" rel="noopener noreferrer" className="admin-preview-link">View live landing page &rarr;</a>
+          <a href="/" target="_blank" rel="noopener noreferrer" className="admin-preview-link">View live site &rarr;</a>
         </div>
         <button className="admin-new-btn" onClick={() => setEditing('new')}>+ New Show</button>
       </div>
@@ -600,6 +620,7 @@ export default function AdminPage() {
                   <span>{ev.location}</span>
                 </div>
                 <EventUrlRow eventId={ev.id} />
+                <InviteLinkRow eventId={ev.id} inviteCode={ev.invite_code} />
                 <div className="admin-card-meta">
                   {ev.venue_address && <span>Venue: {ev.venue_address}</span>}
                   {ev.arrival && <span>Arrival: {ev.arrival}</span>}
