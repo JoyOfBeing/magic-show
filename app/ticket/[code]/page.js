@@ -54,7 +54,7 @@ export default function TicketPage({ params }) {
           <div className="ticket-landing-icon">&#10024;</div>
           <h1>This ticket has expired</h1>
           <p className="ticket-landing-sub">Golden tickets are valid for 3 months. This one has returned to the person who sent it. You can still join the waitlist.</p>
-          <a href="/waitlist" className="ticket-landing-cta">Join the Waitlist</a>
+          <a href="/request" className="ticket-landing-cta">Request a Golden Ticket</a>
         </div>
       </div>
     );
@@ -68,7 +68,7 @@ export default function TicketPage({ params }) {
           <div className="ticket-landing-icon">&#10024;</div>
           <h1>This ticket has already been claimed</h1>
           <p className="ticket-landing-sub">Golden tickets can only be used once. If you think this is an error, reach out to the person who sent it.</p>
-          <a href="/waitlist" className="ticket-landing-cta">Join the Waitlist</a>
+          <a href="/request" className="ticket-landing-cta">Request a Golden Ticket</a>
         </div>
       </div>
     );
@@ -115,12 +115,12 @@ export default function TicketPage({ params }) {
           </div>
         )}
 
-        <a href={`/waitlist?ticket=${ticket.code}`} className="ticket-landing-cta">
-          Claim Your Spot
+        <a href={`/redeem?code=${ticket.code}`} className="ticket-landing-cta">
+          Use Your Golden Ticket
         </a>
 
         <p className="ticket-landing-fine">
-          This is a one-time invitation. By claiming your spot, you&apos;ll get priority access to the waitlist for the next Magic Show.
+          This is a one-time invitation. Your Golden Ticket gets you to the front of the line.
         </p>
       </div>
     </div>

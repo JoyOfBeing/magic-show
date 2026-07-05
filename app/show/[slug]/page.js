@@ -141,9 +141,44 @@ function PreGate({ event, onInviteValid }) {
   if (view === 'reserved') {
     return (
       <div className="pregate">
-        <div className="pregate-success">
+        <div className="stepper-success">
           <h2>Your spot is reserved.</h2>
-          <p>We&apos;ll be in touch to confirm your place.</p>
+          <p className="stepper-sub">Here&apos;s what happens next.</p>
+
+          <div className="stepper">
+            <div className="stepper-step stepper-step-done">
+              <div className="stepper-number">1</div>
+              <div className="stepper-content">
+                <div className="stepper-label">Get Your Golden Ticket</div>
+                <div className="stepper-desc">Done. You&apos;re in.</div>
+              </div>
+            </div>
+
+            <div className="stepper-step stepper-step-done">
+              <div className="stepper-number">2</div>
+              <div className="stepper-content">
+                <div className="stepper-label">Choose Your Show</div>
+                <div className="stepper-desc">{event.location} &mdash; {event.dates}</div>
+              </div>
+            </div>
+
+            <div className="stepper-step stepper-step-active">
+              <div className="stepper-number">3</div>
+              <div className="stepper-content">
+                <div className="stepper-label">Get Approved</div>
+                <div className="stepper-desc">We&apos;ll reach out to confirm your spot and contribution.</div>
+              </div>
+            </div>
+
+            <div className="stepper-step stepper-step-upcoming">
+              <div className="stepper-number">4</div>
+              <div className="stepper-content">
+                <div className="stepper-label">Enter the Show</div>
+                <div className="stepper-desc">Complete your registration and prepare for the experience.</div>
+              </div>
+            </div>
+          </div>
+
           <a href="/" className="pregate-home-link">&larr; Back to homepage</a>
         </div>
       </div>
@@ -153,9 +188,44 @@ function PreGate({ event, onInviteValid }) {
   if (view === 'requested') {
     return (
       <div className="pregate">
-        <div className="pregate-success">
+        <div className="stepper-success">
           <h2>Request received.</h2>
-          <p>If it&apos;s meant to be, the magic will find you.</p>
+          <p className="stepper-sub">Here&apos;s how the magic unfolds.</p>
+
+          <div className="stepper">
+            <div className="stepper-step stepper-step-done">
+              <div className="stepper-number">1</div>
+              <div className="stepper-content">
+                <div className="stepper-label">Get Your Golden Ticket</div>
+                <div className="stepper-desc">We&apos;ll be in touch when a spot opens up.</div>
+              </div>
+            </div>
+
+            <div className="stepper-step stepper-step-done">
+              <div className="stepper-number">2</div>
+              <div className="stepper-content">
+                <div className="stepper-label">Choose Your Show</div>
+                <div className="stepper-desc">{event.location} &mdash; {event.dates}</div>
+              </div>
+            </div>
+
+            <div className="stepper-step stepper-step-upcoming">
+              <div className="stepper-number">3</div>
+              <div className="stepper-content">
+                <div className="stepper-label">Get Approved</div>
+                <div className="stepper-desc">We&apos;ll reach out to confirm your spot and contribution.</div>
+              </div>
+            </div>
+
+            <div className="stepper-step stepper-step-upcoming">
+              <div className="stepper-number">4</div>
+              <div className="stepper-content">
+                <div className="stepper-label">Enter the Show</div>
+                <div className="stepper-desc">Complete your registration and prepare for the experience.</div>
+              </div>
+            </div>
+          </div>
+
           <a href="/" className="pregate-home-link">&larr; Back to homepage</a>
         </div>
       </div>

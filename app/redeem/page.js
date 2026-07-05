@@ -1,16 +1,43 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { supabase } from '../../lib/supabase';
 
-export default function RedeemPage() {
-  const [code, setCode] = useState('');
+function RedeemContent() {
+  const searchParams = useSearchParams();
+  const prefillCode = searchParams.get('code') || '';
+
+  const [code, setCode] = useState(prefillCode);
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
+  const [ticket, setTicket] = useState(null);
+  const [upcomingShows, setUpcomingShows] = useState([]);
+  const [selectedShow, setSelectedShow] = useState(null);
+  const [showInterestSaved, setShowInterestSaved] = useState(false);
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    const trimmed = code.trim().toUpperCase();
+  // Auto-submit if code came from URL
+  useEffect(() => {
+    if (prefillCode) {
+      validateCode(prefillCode);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Load upcoming shows after validation
+  useEffect(() => {
+    if (!ticket) return;
+    async function loadShows() {
+      const { data } = await supabase
+        .from('magic_show_events')
+        .select('id, name, dates, location')
+        .eq('is_live', true);
+      setUpcomingShows(data || []);
+    }
+    loadShows();
+  }, [ticket]);
+
+  async function validateCode(codeVal) {
+    const trimmed = (codeVal || code).trim().toUpperCase();
     if (!trimmed) return;
     setStatus('checking');
     setError('');
@@ -57,10 +84,116 @@ export default function RedeemPage() {
       return;
     }
 
-    // Valid — redirect to the ticket landing page
-    window.location.href = `/ticket/${data.code}`;
+    // Valid — redeem ticket and show stepper
+    await supabase.from('magic_show_leads').insert([{
+      name: data.recipient_name || '',
+      email: data.recipient_email || '',
+      interest_type: 'reservation',
+      source: 'golden_ticket',
+      ticket_code: data.code,
+    }]);
+
+    await supabase
+      .from('golden_tickets')
+      .update({
+        status: 'redeemed',
+        redeemed_at: new Date().toISOString(),
+      })
+      .eq('id', data.id);
+
+    setTicket(data);
+    setStatus('validated');
   }
 
+  async function handleShowInterest(show) {
+    setSelectedShow(show.id);
+    await supabase.from('magic_show_leads').insert([{
+      name: ticket.recipient_name || '',
+      email: ticket.recipient_email || '',
+      interest_type: 'reservation',
+      source: 'golden_ticket',
+      ticket_code: ticket.code,
+      details: `event_id: ${show.id}`,
+    }]);
+    setShowInterestSaved(true);
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    validateCode();
+  }
+
+  // Stepper view after valid ticket
+  if (status === 'validated' && ticket) {
+    const firstName = ticket.sender_name ? ticket.sender_name.split(' ')[0] : 'Someone';
+    return (
+      <div className="page">
+        <div className="stars" />
+        <div className="pregate">
+          <div className="stepper-success">
+            <h2>{firstName} chose well.</h2>
+            <p className="stepper-sub">Your Golden Ticket is activated. Here&apos;s what happens next.</p>
+
+            <div className="stepper">
+              <div className="stepper-step stepper-step-done">
+                <div className="stepper-number">1</div>
+                <div className="stepper-content">
+                  <div className="stepper-label">Get Your Golden Ticket</div>
+                  <div className="stepper-desc">Done. You&apos;re in.</div>
+                </div>
+              </div>
+
+              <div className="stepper-step stepper-step-active">
+                <div className="stepper-number">2</div>
+                <div className="stepper-content">
+                  <div className="stepper-label">Choose Your Show</div>
+                  <div className="stepper-desc">Pick a date and location that calls to you.</div>
+                  {upcomingShows.length > 0 ? (
+                    <div className="stepper-shows">
+                      {upcomingShows.map(show => (
+                        <button
+                          key={show.id}
+                          className={`stepper-show-card ${selectedShow === show.id ? 'stepper-show-selected' : ''}`}
+                          onClick={() => !showInterestSaved && handleShowInterest(show)}
+                          disabled={showInterestSaved}
+                        >
+                          <div className="stepper-show-location">{show.location}</div>
+                          <div className="stepper-show-dates">{show.dates}</div>
+                          {selectedShow === show.id && <div className="stepper-show-check">Interested</div>}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="stepper-no-shows">No shows announced yet. We&apos;ll notify you when one opens.</div>
+                  )}
+                </div>
+              </div>
+
+              <div className="stepper-step stepper-step-upcoming">
+                <div className="stepper-number">3</div>
+                <div className="stepper-content">
+                  <div className="stepper-label">Get Approved</div>
+                  <div className="stepper-desc">We&apos;ll reach out to confirm your spot and contribution.</div>
+                </div>
+              </div>
+
+              <div className="stepper-step stepper-step-upcoming">
+                <div className="stepper-number">4</div>
+                <div className="stepper-content">
+                  <div className="stepper-label">Enter the Show</div>
+                  <div className="stepper-desc">Complete your registration and prepare for the experience.</div>
+                </div>
+              </div>
+            </div>
+
+            <a href="/" className="pregate-home-link">&larr; Back to homepage</a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Code entry view
   return (
     <div className="page">
       <div className="stars" />
@@ -68,7 +201,7 @@ export default function RedeemPage() {
 
       <div className="pregate">
         <div className="pregate-form-section">
-          <h2>Redeem Your Golden Ticket</h2>
+          <h2>Use Your Golden Ticket</h2>
           <p>Enter the code from your Golden Ticket.</p>
           <form onSubmit={handleSubmit} className="pregate-form">
             <div className="form-field">
@@ -83,12 +216,20 @@ export default function RedeemPage() {
               />
             </div>
             <button type="submit" className="rsvp-btn" disabled={status === 'checking'}>
-              {status === 'checking' ? 'Checking...' : 'Redeem'}
+              {status === 'checking' ? 'Checking...' : 'Use My Ticket'}
             </button>
             {error && <p className="pregate-error">{error}</p>}
           </form>
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RedeemPage() {
+  return (
+    <Suspense fallback={<div className="page"><div className="stars" /></div>}>
+      <RedeemContent />
+    </Suspense>
   );
 }
