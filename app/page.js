@@ -226,7 +226,7 @@ export default function Home() {
         </p>
         <div className="home-hero-ctas">
           <a href="/request" className="cta-btn cta-btn-secondary">Request a Golden Ticket</a>
-          <a href="/redeem" className="cta-btn cta-btn-primary">Redeem Your Golden Ticket</a>
+          <a href="/redeem" className="cta-btn cta-btn-primary">Use Your Golden Ticket</a>
         </div>
       </header>
 
