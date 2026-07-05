@@ -1,11 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 
 export default function RequestPage() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', heard: '', guess: '' });
   const [status, setStatus] = useState('idle');
+  const [upcomingShows, setUpcomingShows] = useState([]);
+  const [selectedShow, setSelectedShow] = useState(null);
+  const [showInterestSaved, setShowInterestSaved] = useState(false);
+
+  // Load upcoming shows for step 2
+  useEffect(() => {
+    if (status !== 'success') return;
+    async function loadShows() {
+      const { data } = await supabase
+        .from('magic_show_events')
+        .select('id, name, dates, location, card_image')
+        .eq('is_live', true);
+      setUpcomingShows(data || []);
+    }
+    loadShows();
+  }, [status]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -30,14 +46,72 @@ export default function RequestPage() {
     setStatus('success');
   }
 
+  async function handleShowInterest(show) {
+    setSelectedShow(show.id);
+    await supabase.from('magic_show_leads').insert([{
+      name: form.name,
+      email: form.email.trim().toLowerCase(),
+      phone: form.phone,
+      interest_type: 'waitlist',
+      source: 'organic',
+      details: `event_id: ${show.id} | Interested via request flow`,
+    }]);
+    setShowInterestSaved(true);
+  }
+
   if (status === 'success') {
     return (
       <div className="page">
         <div className="stars" />
         <div className="pregate">
-          <div className="pregate-success">
-            <h2>Request received.</h2>
-            <p>If it&apos;s meant to be, the magic will find you.</p>
+          <div className="stepper-success">
+            <h2>You&apos;re on your way.</h2>
+            <p className="stepper-sub">Here&apos;s how the magic unfolds.</p>
+
+            <div className="stepper">
+              <div className="stepper-step stepper-step-done">
+                <div className="stepper-number">1</div>
+                <div className="stepper-content">
+                  <div className="stepper-label">Get Your Golden Ticket</div>
+                  <div className="stepper-desc">We&apos;ll be in touch when a spot opens up.</div>
+                </div>
+              </div>
+
+              <div className="stepper-step stepper-step-active">
+                <div className="stepper-number">2</div>
+                <div className="stepper-content">
+                  <div className="stepper-label">Choose Your Show</div>
+                  <div className="stepper-desc">Pick a date and location that calls to you.</div>
+                  {upcomingShows.length > 0 ? (
+                    <div className="stepper-shows">
+                      {upcomingShows.map(show => (
+                        <button
+                          key={show.id}
+                          className={`stepper-show-card ${selectedShow === show.id ? 'stepper-show-selected' : ''}`}
+                          onClick={() => !showInterestSaved && handleShowInterest(show)}
+                          disabled={showInterestSaved}
+                        >
+                          <div className="stepper-show-location">{show.location}</div>
+                          <div className="stepper-show-dates">{show.dates}</div>
+                          {selectedShow === show.id && <div className="stepper-show-check">Interested</div>}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="stepper-no-shows">No shows announced yet. We&apos;ll notify you when one opens.</div>
+                  )}
+                </div>
+              </div>
+
+              <div className="stepper-step stepper-step-upcoming">
+                <div className="stepper-number">3</div>
+                <div className="stepper-content">
+                  <div className="stepper-label">Secure Your Spot</div>
+                  <div className="stepper-desc">Make your contribution and sign your commitment.</div>
+                </div>
+              </div>
+            </div>
+
             <a href="/" className="pregate-home-link">&larr; Back to homepage</a>
           </div>
         </div>
