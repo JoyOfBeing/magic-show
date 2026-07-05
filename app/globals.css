@@ -1717,7 +1717,6 @@ a { color: inherit; text-decoration: none; }
   height: 280px;
   object-fit: cover;
   display: block;
-  filter: brightness(0.55);
 }
 .show-card-image-bigsky {
   background: linear-gradient(135deg, #1a1a2e 0%, #2a2a4e 50%, #d4a843 100%);
