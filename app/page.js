@@ -175,13 +175,22 @@ export default function Home() {
         .single();
       setLiveEvent(live);
 
-      // Fetch past events (not live)
+      // Fetch past events (not live), sorted most recent first by actual event date
       const { data: past } = await supabase
         .from('magic_show_events')
         .select('*')
-        .eq('is_live', false)
-        .order('created_at', { ascending: false });
-      setPastEvents(past || []);
+        .eq('is_live', false);
+      const sorted = (past || []).sort((a, b) => {
+        const parseDate = (d) => {
+          if (!d) return 0;
+          // Extract the last date and year from strings like "May 1–3, 2026" or "June 25–28, 2025"
+          const m = d.match(/([A-Za-z]+)\s+\d+[–\-]\d+,?\s*(\d{4})/);
+          if (m) return new Date(`${m[1]} 1, ${m[2]}`).getTime() + parseInt(d.match(/\d+/)[0]);
+          return new Date(d).getTime() || 0;
+        };
+        return parseDate(b) - parseDate(a);
+      });
+      setPastEvents(sorted);
 
       // Fetch waitlist count
       const { count } = await supabase
