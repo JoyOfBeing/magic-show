@@ -80,7 +80,7 @@ export default function RequestPage() {
               <div className="stepper-step stepper-step-active">
                 <div className="stepper-number">2</div>
                 <div className="stepper-content">
-                  <div className="stepper-label">Choose Your Show</div>
+                  <div className="stepper-label">Choose an Upcoming Show</div>
                   <div className="stepper-desc">Pick a date and location that calls to you.</div>
                   {upcomingShows.length > 0 ? (
                     <div className="stepper-shows">
@@ -106,7 +106,7 @@ export default function RequestPage() {
               <div className="stepper-step stepper-step-upcoming">
                 <div className="stepper-number">3</div>
                 <div className="stepper-content">
-                  <div className="stepper-label">Get Approved</div>
+                  <div className="stepper-label">Grab a Spot</div>
                   <div className="stepper-desc">We&apos;ll reach out to confirm your spot and contribution.</div>
                 </div>
               </div>
@@ -114,8 +114,8 @@ export default function RequestPage() {
               <div className="stepper-step stepper-step-upcoming">
                 <div className="stepper-number">4</div>
                 <div className="stepper-content">
-                  <div className="stepper-label">Enter the Show</div>
-                  <div className="stepper-desc">Complete your registration and prepare for the experience.</div>
+                  <div className="stepper-label">Prepare for the Show</div>
+                  <div className="stepper-desc">Everything you need to prepare for the experience.</div>
                 </div>
               </div>
             </div>

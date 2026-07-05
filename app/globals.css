@@ -1631,11 +1631,75 @@ a { color: inherit; text-decoration: none; }
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
+.stepper-show-visual {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  text-align: left;
+  padding: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: inherit;
+  color: inherit;
+  transition: border-color 0.2s;
+  overflow: hidden;
+}
+.stepper-show-visual:hover {
+  border-color: var(--gold-dark);
+}
+.stepper-show-visual:disabled {
+  cursor: default;
+}
+.stepper-show-visual.stepper-show-selected {
+  border-color: var(--gold);
+}
+.stepper-show-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.stepper-show-info {
+  flex: 1;
+  padding: 0.5rem 0.75rem 0.5rem 0;
+}
+.stepper-show-notify {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 0.6rem 1rem;
+  background: none;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.8rem;
+  color: var(--muted);
+  transition: border-color 0.2s, color 0.2s;
+}
+.stepper-show-notify:hover {
+  border-color: var(--gold-dark);
+  color: var(--text);
+}
+.stepper-show-notify:disabled {
+  cursor: default;
+}
+.stepper-show-notify.stepper-show-selected {
+  border-color: var(--gold);
+  color: var(--gold);
+  border-style: solid;
+}
 .stepper-no-shows {
   font-size: 0.8rem;
   color: var(--muted);
-  font-style: italic;
   margin-top: 0.5rem;
+}
+.stepper-no-shows p {
+  margin-bottom: 0.5rem;
+  font-style: italic;
 }
 
 /* ===== INVITE GATE ===== */

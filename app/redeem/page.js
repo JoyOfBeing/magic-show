@@ -15,6 +15,7 @@ function RedeemContent() {
   const [upcomingShows, setUpcomingShows] = useState([]);
   const [selectedShow, setSelectedShow] = useState(null);
   const [showInterestSaved, setShowInterestSaved] = useState(false);
+  const [notifyMe, setNotifyMe] = useState(false);
 
   // Auto-submit if code came from URL
   useEffect(() => {
@@ -29,7 +30,7 @@ function RedeemContent() {
     async function loadShows() {
       const { data } = await supabase
         .from('magic_show_events')
-        .select('id, name, dates, location')
+        .select('id, name, dates, location, card_image')
         .eq('is_live', true);
       setUpcomingShows(data || []);
     }
@@ -118,6 +119,18 @@ function RedeemContent() {
     setShowInterestSaved(true);
   }
 
+  async function handleNotifyMe() {
+    setNotifyMe(true);
+    await supabase.from('magic_show_leads').insert([{
+      name: ticket.recipient_name || '',
+      email: ticket.recipient_email || '',
+      interest_type: 'waitlist',
+      source: 'golden_ticket',
+      ticket_code: ticket.code,
+      details: 'Notify when new shows announced',
+    }]);
+  }
+
   function handleSubmit(e) {
     e.preventDefault();
     validateCode();
@@ -125,46 +138,69 @@ function RedeemContent() {
 
   // Stepper view after valid ticket
   if (status === 'validated' && ticket) {
-    const firstName = ticket.sender_name ? ticket.sender_name.split(' ')[0] : 'Someone';
+    const recipientFirst = ticket.recipient_name ? ticket.recipient_name.split(' ')[0] : '';
     return (
       <div className="page">
         <div className="stars" />
         <div className="pregate">
           <div className="stepper-success">
-            <h2>{firstName} chose well.</h2>
-            <p className="stepper-sub">Your Golden Ticket is activated. Here&apos;s what happens next.</p>
+            <h2>Hi{recipientFirst ? ` ${recipientFirst}` : ''}.</h2>
+            <p className="stepper-sub">Surprise, you&apos;re the magic. Here&apos;s what happens next.</p>
 
             <div className="stepper">
               <div className="stepper-step stepper-step-done">
                 <div className="stepper-number">1</div>
                 <div className="stepper-content">
                   <div className="stepper-label">Get Your Golden Ticket</div>
-                  <div className="stepper-desc">Done. You&apos;re in.</div>
+                  <div className="stepper-desc">Done.</div>
                 </div>
               </div>
 
               <div className="stepper-step stepper-step-active">
                 <div className="stepper-number">2</div>
                 <div className="stepper-content">
-                  <div className="stepper-label">Choose Your Show</div>
+                  <div className="stepper-label">Choose an Upcoming Show</div>
                   <div className="stepper-desc">Pick a date and location that calls to you.</div>
                   {upcomingShows.length > 0 ? (
                     <div className="stepper-shows">
                       {upcomingShows.map(show => (
                         <button
                           key={show.id}
-                          className={`stepper-show-card ${selectedShow === show.id ? 'stepper-show-selected' : ''}`}
+                          className={`stepper-show-visual ${selectedShow === show.id ? 'stepper-show-selected' : ''}`}
                           onClick={() => !showInterestSaved && handleShowInterest(show)}
                           disabled={showInterestSaved}
                         >
-                          <div className="stepper-show-location">{show.location}</div>
-                          <div className="stepper-show-dates">{show.dates}</div>
+                          {show.card_image && (
+                            <img src={show.card_image} alt={show.location} className="stepper-show-image" />
+                          )}
+                          <div className="stepper-show-info">
+                            <div className="stepper-show-location">{show.location}</div>
+                            <div className="stepper-show-dates">{show.dates}</div>
+                          </div>
                           {selectedShow === show.id && <div className="stepper-show-check">Interested</div>}
                         </button>
                       ))}
+                      {!showInterestSaved && (
+                        <button
+                          className={`stepper-show-notify ${notifyMe ? 'stepper-show-selected' : ''}`}
+                          onClick={() => !notifyMe && handleNotifyMe()}
+                          disabled={notifyMe}
+                        >
+                          {notifyMe ? 'We\u2019ll keep you updated.' : 'None of these \u2014 keep me updated'}
+                        </button>
+                      )}
                     </div>
                   ) : (
-                    <div className="stepper-no-shows">No shows announced yet. We&apos;ll notify you when one opens.</div>
+                    <div className="stepper-no-shows">
+                      <p>No shows announced yet.</p>
+                      <button
+                        className={`stepper-show-notify ${notifyMe ? 'stepper-show-selected' : ''}`}
+                        onClick={() => !notifyMe && handleNotifyMe()}
+                        disabled={notifyMe}
+                      >
+                        {notifyMe ? 'We\u2019ll keep you updated.' : 'Notify me when a show opens'}
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
@@ -172,7 +208,7 @@ function RedeemContent() {
               <div className="stepper-step stepper-step-upcoming">
                 <div className="stepper-number">3</div>
                 <div className="stepper-content">
-                  <div className="stepper-label">Get Approved</div>
+                  <div className="stepper-label">Grab a Spot</div>
                   <div className="stepper-desc">We&apos;ll reach out to confirm your spot and contribution.</div>
                 </div>
               </div>
@@ -180,8 +216,8 @@ function RedeemContent() {
               <div className="stepper-step stepper-step-upcoming">
                 <div className="stepper-number">4</div>
                 <div className="stepper-content">
-                  <div className="stepper-label">Enter the Show</div>
-                  <div className="stepper-desc">Complete your registration and prepare for the experience.</div>
+                  <div className="stepper-label">Prepare for the Show</div>
+                  <div className="stepper-desc">Everything you need to prepare for the experience.</div>
                 </div>
               </div>
             </div>
