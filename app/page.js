@@ -166,40 +166,43 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    function parseEventDate(d) {
+      if (!d) return 0;
+      const m = d.match(/([A-Za-z]+)\s+(\d+)/);
+      const y = d.match(/(\d{4})/);
+      if (m && y) return new Date(`${m[1]} ${m[2]}, ${y[1]}`).getTime();
+      return 0;
+    }
+
     async function loadEvents() {
-      // Fetch live event
-      const { data: liveArr } = await supabase
-        .from('magic_show_events')
-        .select('*')
-        .eq('is_live', true)
-        .limit(1);
-      setLiveEvent(liveArr?.[0] || null);
+      try {
+        // Fetch live event
+        const liveRes = await supabase
+          .from('magic_show_events')
+          .select('*')
+          .eq('is_live', true)
+          .limit(1);
+        setLiveEvent(liveRes.data?.[0] || null);
 
-      // Fetch past events (not live), sorted most recent first by actual event date
-      const { data: past } = await supabase
-        .from('magic_show_events')
-        .select('*')
-        .eq('is_live', false);
-      const sorted = (past || []).sort((a, b) => {
-        const parseDate = (d) => {
-          if (!d) return 0;
-          // Extract the last date and year from strings like "May 1–3, 2026" or "June 25–28, 2025"
-          const m = d.match(/([A-Za-z]+)\s+\d+[–\-]\d+,?\s*(\d{4})/);
-          if (m) return new Date(`${m[1]} 1, ${m[2]}`).getTime() + parseInt(d.match(/\d+/)[0]);
-          return new Date(d).getTime() || 0;
-        };
-        return parseDate(b) - parseDate(a);
-      });
-      setPastEvents(sorted);
+        // Fetch past events, sorted most recent first by actual event date
+        const pastRes = await supabase
+          .from('magic_show_events')
+          .select('*')
+          .eq('is_live', false);
+        const past = pastRes.data || [];
+        past.sort((a, b) => parseEventDate(b.dates) - parseEventDate(a.dates));
+        setPastEvents(past);
 
-      // Fetch waitlist count
-      const { count } = await supabase
-        .from('magic_show_leads')
-        .select('*', { count: 'exact', head: true })
-        .eq('interest_type', 'waitlist')
-        .is('invited_at', null);
-      setWaitlistCount(count || 0);
-
+        // Fetch waitlist count
+        const { count } = await supabase
+          .from('magic_show_leads')
+          .select('*', { count: 'exact', head: true })
+          .eq('interest_type', 'waitlist')
+          .is('invited_at', null);
+        setWaitlistCount(count || 0);
+      } catch (err) {
+        console.error('Failed to load events:', err);
+      }
       setEventsLoading(false);
     }
     loadEvents();
