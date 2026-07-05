@@ -182,6 +182,7 @@ export default function Home() {
           .select('*')
           .eq('is_live', true)
           .limit(1);
+        if (liveRes.error) console.error('Live event error:', liveRes.error);
         setLiveEvent(liveRes.data?.[0] || null);
 
         // Fetch past events, sorted most recent first by actual event date
@@ -189,9 +190,10 @@ export default function Home() {
           .from('magic_show_events')
           .select('*')
           .eq('is_live', false);
+        if (pastRes.error) console.error('Past events error:', pastRes.error);
         const past = pastRes.data || [];
         past.sort((a, b) => parseEventDate(b.dates) - parseEventDate(a.dates));
-        setPastEvents(past);
+        if (past.length > 0) setPastEvents(past);
 
         // Fetch waitlist count
         const { count } = await supabase
