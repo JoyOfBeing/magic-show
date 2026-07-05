@@ -91,7 +91,7 @@ export default function RequestPage() {
                 type="text"
                 value={form.heard}
                 onChange={e => setForm(f => ({ ...f, heard: e.target.value }))}
-                placeholder="A friend, social media, etc."
+                placeholder="Who told you?"
               />
             </div>
             <div className="form-field">
@@ -100,7 +100,7 @@ export default function RequestPage() {
                 type="text"
                 value={form.guess}
                 onChange={e => setForm(f => ({ ...f, guess: e.target.value }))}
-                placeholder=""
+                placeholder="Hint: You're the show"
               />
             </div>
             <button type="submit" className="rsvp-btn" disabled={status === 'submitting'}>
