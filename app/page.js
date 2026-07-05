@@ -226,7 +226,7 @@ export default function Home() {
       {!eventsLoading && liveEvent && (
         <section className="home-section">
           <div className="home-section-label">Upcoming Shows</div>
-          <a href="/big-sky" className="show-card show-card-open">
+          <a href={`/show/${liveEvent.id}`} className="show-card show-card-open">
             <img src={getShowImage(liveEvent)} alt={liveEvent.location} className="show-card-image" />
             <div className="show-card-body">
               <div className="show-card-city">{liveEvent.location}</div>
