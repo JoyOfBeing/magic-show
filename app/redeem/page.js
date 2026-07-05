@@ -257,6 +257,7 @@ function RedeemContent() {
             {error && <p className="pregate-error">{error}</p>}
           </form>
         </div>
+        <a href="/portal" className="pregate-gate-link">Been to a Magic Show before? Sign in.</a>
       </div>
     </div>
   );
