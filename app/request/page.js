@@ -5,9 +5,178 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import { supabase } from '../../lib/supabase';
 
-function RequestContent() {
-  const searchParams = useSearchParams();
-  const ref = searchParams.get('ref') || '';
+function GoldenTicketRedeem({ referrer }) {
+  const [form, setForm] = useState({ name: '', email: '', phone: '', event_id: '' });
+  const [status, setStatus] = useState('idle');
+  const [upcomingShows, setUpcomingShows] = useState([]);
+
+  useEffect(() => {
+    async function loadShows() {
+      const { data } = await supabase
+        .from('magic_show_events')
+        .select('id, name, dates, location')
+        .eq('is_live', true);
+      setUpcomingShows(data || []);
+    }
+    loadShows();
+  }, []);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setStatus('submitting');
+
+    const { error } = await supabase.from('magic_show_leads').insert([{
+      name: form.name,
+      email: form.email.trim().toLowerCase(),
+      phone: form.phone,
+      interest_type: 'waitlist',
+      source: 'referral',
+      event_id: form.event_id || null,
+      details: `Referred by: ${referrer}`,
+    }]);
+
+    if (error) {
+      setStatus('error');
+      return;
+    }
+    setStatus('success');
+  }
+
+  if (status === 'success') {
+    return (
+      <div className="page">
+        <div className="stars" />
+        <div className="pregate">
+          <div className="stepper-success">
+            <h2>You&apos;re in.</h2>
+            <p className="stepper-sub">Here&apos;s what happens next.</p>
+
+            <div className="stepper">
+              <div className="stepper-step stepper-step-done">
+                <div className="stepper-number">1</div>
+                <div className="stepper-content">
+                  <div className="stepper-label">Golden Ticket Claimed</div>
+                  <div className="stepper-desc">Done. You&apos;ve got your ticket.</div>
+                </div>
+              </div>
+
+              <div className="stepper-step stepper-step-active">
+                <div className="stepper-number">2</div>
+                <div className="stepper-content">
+                  <div className="stepper-label">We&apos;ll Reach Out</div>
+                  <div className="stepper-desc">We&apos;ll be in touch to confirm your spot and next steps.</div>
+                </div>
+              </div>
+
+              <div className="stepper-step stepper-step-upcoming">
+                <div className="stepper-number">3</div>
+                <div className="stepper-content">
+                  <div className="stepper-label">Register for Your Show</div>
+                  <div className="stepper-desc">Complete your intake and get ready.</div>
+                </div>
+              </div>
+
+              <div className="stepper-step stepper-step-upcoming">
+                <div className="stepper-number">4</div>
+                <div className="stepper-content">
+                  <div className="stepper-label">Prepare for the Show</div>
+                  <div className="stepper-desc">Everything you need to show up ready.</div>
+                </div>
+              </div>
+            </div>
+
+            <a href="/" className="pregate-home-link">&larr; Back to homepage</a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="page">
+      <div className="stars" />
+
+      <div className="ticket-wrapper">
+        <div className="ticket">
+          <div className="ticket-edge ticket-edge-left" />
+          <div className="ticket-inner">
+            <div className="ticket-eyebrow">You&apos;ve been chosen</div>
+            <h1 className="ticket-title">Golden Ticket</h1>
+            <div className="ticket-tagline">Someone who&apos;s been through the magic sent you this.</div>
+            <div className="ticket-admit">THE MAGIC SHOW</div>
+          </div>
+          <div className="ticket-edge ticket-edge-right" />
+        </div>
+      </div>
+
+      <div className="pregate">
+        <div className="pregate-form-section">
+          <h2>Claim Your Ticket</h2>
+          <p>Tell us who you are and which show you&apos;re interested in. We&apos;ll be in touch to get you in.</p>
+          <form onSubmit={handleSubmit} className="pregate-form">
+            <div className="form-field">
+              <label>Name *</label>
+              <input
+                type="text"
+                required
+                value={form.name}
+                onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                placeholder="First and Last"
+              />
+            </div>
+            <div className="form-field">
+              <label>Email *</label>
+              <input
+                type="email"
+                required
+                value={form.email}
+                onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                placeholder="you@email.com"
+              />
+            </div>
+            <div className="form-field">
+              <label>Phone *</label>
+              <input
+                type="tel"
+                required
+                value={form.phone}
+                onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                placeholder="(555) 555-5555"
+              />
+            </div>
+            {upcomingShows.length > 0 && (
+              <div className="form-field">
+                <label>Which show are you interested in?</label>
+                <select
+                  value={form.event_id}
+                  onChange={e => setForm(f => ({ ...f, event_id: e.target.value }))}
+                >
+                  <option value="">Not sure yet</option>
+                  {upcomingShows.map(show => (
+                    <option key={show.id} value={show.id}>
+                      {show.name} — {show.dates}, {show.location}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            <button type="submit" className="rsvp-btn" disabled={status === 'submitting'}>
+              {status === 'submitting' ? 'Claiming...' : status === 'error' ? 'Try again' : 'Claim My Ticket'}
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <footer className="footer">
+        <a href="/">Home</a>
+        <span className="footer-sep">&middot;</span>
+        <a href="https://itsthejob.vercel.app" target="_blank" rel="noopener noreferrer">J.O.B.</a>
+      </footer>
+    </div>
+  );
+}
+
+function RequestForm() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', heard: '', guess: '', event_id: '' });
   const [status, setStatus] = useState('idle');
   const [upcomingShows, setUpcomingShows] = useState([]);
@@ -32,10 +201,9 @@ function RequestContent() {
       email: form.email.trim().toLowerCase(),
       phone: form.phone,
       interest_type: 'waitlist',
-      source: ref ? 'referral' : 'organic',
+      source: 'organic',
       event_id: form.event_id || null,
       details: [
-        ref && `Referred by: ${ref}`,
         form.heard && `How they heard: ${form.heard}`,
         form.guess && `What they think it is: ${form.guess}`,
       ].filter(Boolean).join(' | ') || null,
@@ -178,8 +346,25 @@ function RequestContent() {
           </form>
         </div>
       </div>
+
+      <footer className="footer">
+        <a href="/">Home</a>
+        <span className="footer-sep">&middot;</span>
+        <a href="https://itsthejob.vercel.app" target="_blank" rel="noopener noreferrer">J.O.B.</a>
+      </footer>
     </div>
   );
+}
+
+function RequestContent() {
+  const searchParams = useSearchParams();
+  const ref = searchParams.get('ref') || '';
+
+  if (ref) {
+    return <GoldenTicketRedeem referrer={ref} />;
+  }
+
+  return <RequestForm />;
 }
 
 export default function RequestPage() {
