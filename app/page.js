@@ -160,11 +160,11 @@ export default function Home() {
         <section className="home-cta">
           <h2>Want in on the magic?</h2>
           <p>
-            The only way in is a Golden Ticket from someone who&apos;s been. Don&apos;t know anyone? Join the waitlist &mdash; if it&apos;s meant to be, the magic will find you.
+            The only way in is a Golden Ticket from someone who&apos;s been. Don&apos;t know anyone? Request one &mdash; if it&apos;s meant to be, the magic will find you.
           </p>
           <div className="home-cta-buttons">
-            <a href="/waitlist" className="cta-btn cta-btn-primary">
-              Get on the Waitlist
+            <a href="/request" className="cta-btn cta-btn-primary">
+              Request a Golden Ticket
             </a>
             <a href="/host" className="cta-btn cta-btn-secondary">
               Host a Show
