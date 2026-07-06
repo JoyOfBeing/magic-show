@@ -3456,3 +3456,101 @@ a { color: inherit; text-decoration: none; }
   font-size: 0.85rem;
   color: var(--muted);
 }
+
+/* Host page */
+.host-page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 4rem;
+}
+.host-hero {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+.host-hero h1 {
+  font-size: 2.2rem;
+  margin: 0.5rem 0 1rem;
+}
+.host-sub {
+  font-size: 1.05rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.host-details {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+.host-detail-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+}
+.host-detail-card h3 {
+  font-size: 1rem;
+  color: var(--gold);
+  margin: 0 0 0.5rem;
+}
+.host-detail-card p {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.5;
+}
+.host-how {
+  margin-bottom: 3rem;
+}
+.host-how h2 {
+  font-size: 1.3rem;
+  margin-bottom: 1.5rem;
+}
+.host-steps {
+  display: grid;
+  gap: 1.25rem;
+}
+.host-step {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+.host-step-num {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--gold);
+  color: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+.host-step strong {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+.host-step p {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin: 0;
+}
+.host-form {
+  margin-top: 2rem;
+}
+.host-form h2 {
+  font-size: 1.3rem;
+  margin-bottom: 1.5rem;
+}
+.host-success {
+  text-align: center;
+  padding: 3rem 0;
+}
+.host-success h2 {
+  margin-bottom: 0.75rem;
+}
+.host-success p {
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+}
