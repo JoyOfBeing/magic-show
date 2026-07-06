@@ -82,7 +82,7 @@ export default function HostPage() {
               <div className="host-step-num">2</div>
               <div>
                 <strong>We design it together</strong>
-                <p>We&apos;ll talk through your vision, group size, venue, and budget to create the right container.</p>
+                <p>We&apos;ll talk through your vision, group size, location, and budget to create the right container.</p>
               </div>
             </div>
             <div className="host-step">
