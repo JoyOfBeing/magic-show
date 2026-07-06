@@ -55,16 +55,16 @@ export default function HostPage() {
 
         <div className="host-details">
           <div className="host-detail-card">
-            <h3>For Friends &amp; Families</h3>
-            <p>Gather your closest people for an experience none of you will forget. Birthdays, reunions, or just because.</p>
+            <h3>For Your Inner Circle</h3>
+            <p>The people you&apos;d trust in the dark. Gather them for something none of you will be able to explain &mdash; but all of you will feel.</p>
           </div>
           <div className="host-detail-card">
             <h3>For Companies &amp; Teams</h3>
-            <p>Skip the trust falls. This is real team building &mdash; the kind that actually changes how people show up for each other.</p>
+            <p>Skip the trust falls. This is the kind of experience that dissolves titles, breaks open assumptions, and rewires how your people show up for each other.</p>
           </div>
           <div className="host-detail-card">
-            <h3>For Communities</h3>
-            <p>Churches, retreats, organizations. If you have a group that&apos;s ready to go deeper, we&apos;ll meet you there.</p>
+            <h3>For the Brave &amp; Curious</h3>
+            <p>Retreat centers, collectives, communities on the edge. If your people are ready to go somewhere most groups won&apos;t, we&apos;ll take them there.</p>
           </div>
         </div>
 
