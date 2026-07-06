@@ -49,42 +49,7 @@ function GoldenTicketRedeem({ referrer }) {
         <div className="pregate">
           <div className="stepper-success">
             <h2>You&apos;re in.</h2>
-            <p className="stepper-sub">Here&apos;s what happens next.</p>
-
-            <div className="stepper">
-              <div className="stepper-step stepper-step-done">
-                <div className="stepper-number">1</div>
-                <div className="stepper-content">
-                  <div className="stepper-label">Golden Ticket Claimed</div>
-                  <div className="stepper-desc">Done. You&apos;ve got your ticket.</div>
-                </div>
-              </div>
-
-              <div className="stepper-step stepper-step-active">
-                <div className="stepper-number">2</div>
-                <div className="stepper-content">
-                  <div className="stepper-label">We&apos;ll Reach Out</div>
-                  <div className="stepper-desc">We&apos;ll be in touch to confirm your spot and next steps.</div>
-                </div>
-              </div>
-
-              <div className="stepper-step stepper-step-upcoming">
-                <div className="stepper-number">3</div>
-                <div className="stepper-content">
-                  <div className="stepper-label">Register for Your Show</div>
-                  <div className="stepper-desc">Complete your intake and get ready.</div>
-                </div>
-              </div>
-
-              <div className="stepper-step stepper-step-upcoming">
-                <div className="stepper-number">4</div>
-                <div className="stepper-content">
-                  <div className="stepper-label">Prepare for the Show</div>
-                  <div className="stepper-desc">Everything you need to show up ready.</div>
-                </div>
-              </div>
-            </div>
-
+            <p className="stepper-sub">We&apos;ll find you when the time is right. Keep an eye on your inbox.</p>
             <a href="/" className="pregate-home-link">&larr; Back to homepage</a>
           </div>
         </div>
@@ -102,7 +67,7 @@ function GoldenTicketRedeem({ referrer }) {
           <div className="ticket-inner">
             <div className="ticket-eyebrow">You&apos;ve been chosen</div>
             <h1 className="ticket-title">Golden Ticket</h1>
-            <div className="ticket-tagline">Someone who&apos;s been through the magic sent you this.</div>
+            <div className="ticket-tagline">The Magic Show is a multi-day immersive experience &mdash; invite only, no two are alike, and no one can really explain it until you&apos;ve been.</div>
             <div className="ticket-admit">THE MAGIC SHOW</div>
           </div>
           <div className="ticket-edge ticket-edge-right" />
@@ -112,7 +77,7 @@ function GoldenTicketRedeem({ referrer }) {
       <div className="pregate">
         <div className="pregate-form-section">
           <h2>Claim Your Ticket</h2>
-          <p>Tell us who you are and which show you&apos;re interested in. We&apos;ll be in touch to get you in.</p>
+          <p>Someone who&apos;s been through the magic thought you were ready. Claim your ticket and we&apos;ll take it from here.</p>
           <form onSubmit={handleSubmit} className="pregate-form">
             <div className="form-field">
               <label>Name *</label>
