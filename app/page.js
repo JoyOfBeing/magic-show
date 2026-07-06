@@ -41,55 +41,53 @@ function getShowImage(show) {
   return show.venue_image || '';
 }
 
-const PAST_SHOWS_FALLBACK = [
-  { id: 'nashville', city: 'Nashville', name: 'The Magic Show', image: '/nashville.jpeg' },
-  { id: 'minneapolis', city: 'Minneapolis', name: 'The Magic Show', image: '/minneapolis.jpg' },
-];
+function getEventEndDate(dates) {
+  if (!dates) return null;
+  const yearMatch = dates.match(/(\d{4})/);
+  if (!yearMatch) return null;
+  const year = yearMatch[1];
+  const parts = dates.split(/[–—-]/);
+  const lastPart = parts[parts.length - 1].trim();
+  const monthMatch = parts[0].trim().match(/([A-Za-z]+)/);
+  const hasMonth = lastPart.match(/[A-Za-z]/);
+  const dateStr = hasMonth ? lastPart : (monthMatch ? monthMatch[1] + ' ' + lastPart : lastPart);
+  const fullDateStr = dateStr.match(/\d{4}/) ? dateStr : dateStr + ', ' + year;
+  const d = new Date(fullDateStr);
+  return isNaN(d) ? null : d;
+}
 
 export default function Home() {
   const { user, loading: authLoading } = useAuth();
-  const [liveEvent, setLiveEvent] = useState(null);
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [pastEvents, setPastEvents] = useState([]);
   const [eventsLoading, setEventsLoading] = useState(true);
-  const [waitlistCount, setWaitlistCount] = useState(0);
 
   useEffect(() => {
-    function parseEventDate(d) {
-      if (!d || typeof d !== 'string') return 0;
-      const m = d.match(/([A-Za-z]+)\s+(\d+)/);
-      const y = d.match(/(\d{4})/);
-      if (m && y) return new Date(`${m[1]} ${m[2]}, ${y[1]}`).getTime();
-      return 0;
-    }
-
     async function loadEvents() {
       try {
-        // Fetch live event
-        const liveRes = await supabase
+        const { data, error } = await supabase
           .from('magic_show_events')
-          .select('*')
-          .eq('is_live', true)
-          .limit(1);
-        if (liveRes.error) console.error('Live event error:', liveRes.error);
-        setLiveEvent(liveRes.data?.[0] || null);
+          .select('*');
+        if (error) console.error('Events error:', error);
+        const all = data || [];
+        const now = new Date();
 
-        // Fetch past events, sorted most recent first by actual event date
-        const pastRes = await supabase
-          .from('magic_show_events')
-          .select('*')
-          .eq('is_live', false);
-        if (pastRes.error) console.error('Past events error:', pastRes.error);
-        const past = pastRes.data || [];
-        past.sort((a, b) => parseEventDate(b.dates) - parseEventDate(a.dates));
-        if (past.length > 0) setPastEvents(past);
+        const upcoming = all.filter(ev => {
+          const end = getEventEndDate(ev.dates);
+          return !end || end >= now;
+        });
+        const past = all.filter(ev => {
+          const end = getEventEndDate(ev.dates);
+          return end && end < now;
+        });
 
-        // Fetch waitlist count
-        const { count } = await supabase
-          .from('magic_show_leads')
-          .select('*', { count: 'exact', head: true })
-          .eq('interest_type', 'waitlist')
-          .is('invited_at', null);
-        setWaitlistCount(count || 0);
+        // Sort upcoming by date ascending (soonest first)
+        upcoming.sort((a, b) => (getEventEndDate(a.dates)?.getTime() || 0) - (getEventEndDate(b.dates)?.getTime() || 0));
+        // Sort past by date descending (most recent first)
+        past.sort((a, b) => (getEventEndDate(b.dates)?.getTime() || 0) - (getEventEndDate(a.dates)?.getTime() || 0));
+
+        setUpcomingEvents(upcoming);
+        setPastEvents(past);
       } catch (err) {
         console.error('Failed to load events:', err);
       }
@@ -123,46 +121,40 @@ export default function Home() {
 
 
 
-      {!eventsLoading && liveEvent && (
+      {!eventsLoading && upcomingEvents.length > 0 && (
         <section className="home-section">
           <div className="home-section-label">Upcoming Shows</div>
-          <a href={`/show/${liveEvent.id}`} className="show-card show-card-open">
-            <img src={getShowImage(liveEvent)} alt={liveEvent.location} className="show-card-image" />
-            <div className="show-card-body">
-              <div className="show-card-city">{liveEvent.location}</div>
-              <div className="show-card-name">{liveEvent.name}</div>
-              <div className="show-card-dates">{liveEvent.dates}</div>
-              <div className="show-card-cta">Enter &rarr;</div>
-            </div>
-          </a>
+          {upcomingEvents.map(ev => (
+            <a key={ev.id} href={`/show/${ev.id}`} className="show-card show-card-open">
+              <img src={getShowImage(ev)} alt={ev.location} className="show-card-image" />
+              <div className="show-card-body">
+                <div className="show-card-city">{ev.location}</div>
+                <div className="show-card-name">{ev.name}</div>
+                <div className="show-card-dates">{ev.dates}</div>
+                <div className="show-card-cta">Enter &rarr;</div>
+              </div>
+            </a>
+          ))}
         </section>
       )}
 
-      <section className="home-section">
-        <div className="home-section-label">Past Shows</div>
-        <div className="show-grid">
-          {pastEvents.length > 0
-            ? pastEvents.map(show => (
-                <PastShowCard
-                  key={show.id}
-                  image={getShowImage(show)}
-                  city={show.location}
-                  name={show.name}
-                  dates={show.dates}
-                  secret={show.secret}
-                />
-              ))
-            : PAST_SHOWS_FALLBACK.map(show => (
-                <PastShowCard
-                  key={show.id}
-                  image={show.image}
-                  city={show.city}
-                  name={show.name}
-                />
-              ))
-          }
-        </div>
-      </section>
+      {!eventsLoading && pastEvents.length > 0 && (
+        <section className="home-section">
+          <div className="home-section-label">Past Shows</div>
+          <div className="show-grid">
+            {pastEvents.map(show => (
+              <PastShowCard
+                key={show.id}
+                image={getShowImage(show)}
+                city={show.location}
+                name={show.name}
+                dates={show.dates}
+                secret={show.secret}
+              />
+            ))}
+          </div>
+        </section>
+      )}
 
       {!user && (
         <section className="home-cta">

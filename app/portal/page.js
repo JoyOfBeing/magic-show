@@ -15,7 +15,23 @@ function LoginForm() {
     e.preventDefault();
     setStatus('sending');
     setErrorMsg('');
-    const { error } = await signIn(email.trim().toLowerCase());
+
+    const cleanEmail = email.trim().toLowerCase();
+
+    // Check if this email exists in our system
+    const { data: rsvps } = await supabase
+      .from('magic_show_rsvp')
+      .select('id')
+      .eq('email', cleanEmail)
+      .limit(1);
+
+    if (!rsvps || rsvps.length === 0) {
+      setErrorMsg('No account found with that email. Register for a show first.');
+      setStatus('error');
+      return;
+    }
+
+    const { error } = await signIn(cleanEmail);
     if (error) {
       setErrorMsg(error.message || 'Something went wrong');
       setStatus('error');

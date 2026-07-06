@@ -241,7 +241,7 @@ function PreGate({ event, onInviteValid }) {
       <div className="pregate">
         <button className="pregate-back" onClick={() => setView('landing')}>&larr; Back</button>
         <div className="pregate-form-section">
-          <h2>Reserve with a Golden Ticket</h2>
+          <h2>Use Your Golden Ticket</h2>
           <p>Enter the code from your golden ticket to reserve your spot.</p>
           <form onSubmit={handleReserve} className="pregate-form">
             <div className="form-field">
@@ -316,7 +316,7 @@ function PreGate({ event, onInviteValid }) {
     <div className="pregate">
       <div className="pregate-landing">
         <div className="pregate-eyebrow">The Magic Show</div>
-        <h1 className="pregate-title">Your only job is to show up.</h1>
+        <h1 className="pregate-title">Your only job is to show up.<br />Be a part of the mystery.</h1>
         <div className="pregate-details">
           <div className="pregate-detail">
             <span className="pregate-detail-label">When</span>
@@ -330,7 +330,7 @@ function PreGate({ event, onInviteValid }) {
 
         <div className="pregate-actions">
           <button className="cta-btn cta-btn-primary" onClick={() => setView('reserve')}>
-            Reserve with a Golden Ticket
+            Use Your Golden Ticket
           </button>
           <button className="cta-btn" onClick={() => setView('request')}>
             Request a Golden Ticket
