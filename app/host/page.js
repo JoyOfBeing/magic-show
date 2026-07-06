@@ -89,7 +89,7 @@ export default function HostPage() {
               <div className="host-step-num">3</div>
               <div>
                 <strong>We bring the magic</strong>
-                <p>Our team handles facilitation, programming, food, and everything in between. You just show up.</p>
+                <p>Our team handles facilitation, programming, food, and everything in between. You show up. Which is easier said than done.</p>
               </div>
             </div>
           </div>
