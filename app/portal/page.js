@@ -87,11 +87,19 @@ function ShowCard({ rsvp, event }) {
   let timeStatus = 'upcoming';
   if (event && event.dates) {
     const now = new Date();
-    const parts = event.dates.split(/[–—-]/);
-    const lastPart = parts[parts.length - 1].trim();
-    const tryDate = lastPart.match(/\d{4}/) ? new Date(lastPart) : new Date(lastPart + ', ' + now.getFullYear());
-    if (!isNaN(tryDate) && tryDate < now) {
-      timeStatus = 'completed';
+    const yearMatch = event.dates.match(/(\d{4})/);
+    if (yearMatch) {
+      const year = yearMatch[1];
+      const parts = event.dates.split(/[–—-]/);
+      const lastPart = parts[parts.length - 1].trim();
+      const monthMatch = parts[0].trim().match(/([A-Za-z]+)/);
+      const hasMonth = lastPart.match(/[A-Za-z]/);
+      const dateStr = hasMonth ? lastPart : (monthMatch ? monthMatch[1] + ' ' + lastPart : lastPart);
+      const fullDateStr = dateStr.match(/\d{4}/) ? dateStr : dateStr + ', ' + year;
+      const endDate = new Date(fullDateStr);
+      if (!isNaN(endDate) && endDate < now) {
+        timeStatus = 'completed';
+      }
     }
   }
 
@@ -125,229 +133,82 @@ function ShowCard({ rsvp, event }) {
   );
 }
 
-const TICKETS_PER_SHOW = 3;
-
-function generateCode() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let code = 'GT-';
-  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
-  return code;
-}
-
-function SendTicketForm({ ticket, user, displayName, onSent }) {
-  const [form, setForm] = useState({ name: '', email: '', note: '' });
-  const [status, setStatus] = useState('idle');
+function GoldenTickets({ user, displayName, hasCompletedShow, rsvps }) {
+  const [referralLink, setReferralLink] = useState('');
   const [copied, setCopied] = useState(false);
-  const [sentCode, setSentCode] = useState(null);
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setStatus('sending');
-
-    const code = generateCode();
-
-    const { error } = await supabase
-      .from('golden_tickets')
-      .update({
-        code,
-        recipient_name: form.name,
-        recipient_email: form.email.trim().toLowerCase(),
-        note: form.note || null,
-        sender_name: displayName,
-        sender_email: user.email,
-        status: 'sent',
-      })
-      .eq('id', ticket.id);
-
-    if (error) {
-      setStatus('error');
-    } else {
-      setSentCode(code);
-      setStatus('sent');
-      onSent();
-    }
-  }
-
-  if (status === 'sent' && sentCode) {
-    const ticketUrl = `${window.location.origin}/ticket/${sentCode}`;
-    const message = `Something extraordinary is waiting for you. I can't tell you what it is — that would ruin the whole thing. But I chose you.\n\n${ticketUrl}`;
-
-    function handleCopy() {
-      navigator.clipboard.writeText(message);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 3000);
-    }
-
-    return (
-      <div className="gt-sent-confirmation">
-        <div className="gt-sent-icon">&#10024;</div>
-        <h3>Golden Ticket sent to {form.name}</h3>
-        <p>Share this link with them however feels right:</p>
-        <div className="golden-ticket-link">
-          <input type="text" readOnly value={ticketUrl} />
-          <button onClick={handleCopy} className="golden-ticket-copy">
-            {copied ? 'Copied!' : 'Copy Message'}
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <form className="gt-send-form" onSubmit={handleSubmit}>
-      <div className="form-field">
-        <label>Their Name *</label>
-        <input type="text" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="First and Last" />
-      </div>
-      <div className="form-field">
-        <label>Their Email *</label>
-        <input type="email" required value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="friend@email.com" />
-      </div>
-      <div className="form-field">
-        <label>Personal Note (they&apos;ll see this)</label>
-        <textarea value={form.note} onChange={e => setForm(f => ({ ...f, note: e.target.value }))} placeholder="Why you chose them..." rows={2} />
-      </div>
-      <div className="gt-send-actions">
-        <button type="submit" className="rsvp-btn" disabled={status === 'sending'}>
-          {status === 'sending' ? 'Sending...' : status === 'error' ? 'Try again' : 'Send Golden Ticket'}
-        </button>
-        <button type="button" className="gt-gift-btn" disabled>
-          Gift a Golden Ticket ($2,500) — Coming Soon
-        </button>
-      </div>
-    </form>
-  );
-}
-
-function GoldenTickets({ user, displayName, hasCompletedShow }) {
-  const [tickets, setTickets] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [sendingTicket, setSendingTicket] = useState(null);
-
-  async function loadTickets() {
-    const { data } = await supabase
-      .from('golden_tickets')
-      .select('*')
-      .eq('sender_user_id', user.id)
-      .order('created_at', { ascending: true });
-
-    // Auto-expire and return sent tickets older than 90 days
-    if (data) {
-      for (const t of data) {
-        if (t.status === 'sent') {
-          const age = Date.now() - new Date(t.created_at).getTime();
-          if (age > 90 * 24 * 60 * 60 * 1000) {
-            await supabase.from('golden_tickets')
-              .update({
-                status: 'available',
-                recipient_name: null,
-                recipient_email: null,
-                note: null,
-                code: generateCode(),
-              })
-              .eq('id', t.id);
-            t.status = 'available';
-            t.recipient_name = null;
-          }
-        }
-      }
-    }
-
-    setTickets(data || []);
-    setLoading(false);
-  }
-
-  async function seedTickets() {
-    // Check if user already has tickets
-    const { count } = await supabase
-      .from('golden_tickets')
-      .select('*', { count: 'exact', head: true })
-      .eq('sender_user_id', user.id);
-
-    if ((count === 0 || count === null) && hasCompletedShow) {
-      // Seed 3 available tickets
-      const newTickets = [];
-      for (let i = 0; i < TICKETS_PER_SHOW; i++) {
-        newTickets.push({
-          code: generateCode(),
-          sender_user_id: user.id,
-          sender_name: displayName,
-          sender_email: user.email,
-          status: 'available',
-          type: 'invite',
-        });
-      }
-      await supabase.from('golden_tickets').insert(newTickets);
-    }
-    await loadTickets();
-  }
 
   useEffect(() => {
-    seedTickets();
-  }, [user.id]);
+    if (!hasCompletedShow || !rsvps?.length) return;
 
-  if (loading) return null;
+    async function ensureReferralSlug() {
+      // Find first RSVP with a referral slug, or create one
+      const withSlug = rsvps.find(r => r.referral_slug);
+      if (withSlug) {
+        setReferralLink(`${window.location.origin}/request?ref=${withSlug.referral_slug}`);
+        return;
+      }
+
+      // Generate from name on first RSVP
+      const rsvp = rsvps[0];
+      const slug = (rsvp.name || '')
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '');
+
+      let finalSlug = slug;
+      const { error } = await supabase
+        .from('magic_show_rsvp')
+        .update({ referral_slug: finalSlug })
+        .eq('id', rsvp.id);
+
+      if (error) {
+        finalSlug = slug + '-' + Math.random().toString(36).substring(2, 6);
+        await supabase
+          .from('magic_show_rsvp')
+          .update({ referral_slug: finalSlug })
+          .eq('id', rsvp.id);
+      }
+
+      setReferralLink(`${window.location.origin}/request?ref=${finalSlug}`);
+    }
+    ensureReferralSlug();
+  }, [hasCompletedShow, rsvps]);
+
   if (!hasCompletedShow) return null;
 
-  const available = tickets.filter(t => t.status === 'available');
-  const spent = tickets.filter(t => ['sent', 'redeemed', 'gifted'].includes(t.status));
-  const earnedBack = tickets.filter(t => t.earned_back).length;
-  const balance = available.length;
+  function handleCopy() {
+    navigator.clipboard.writeText(referralLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
 
   return (
     <div className="portal-golden-ticket">
-      <h2>Your Golden Tickets</h2>
+      <h2>Golden Tickets</h2>
+      <p>Send your Golden Ticket link to people who are ready for this kind of experience — people who show up with an open heart, hold space for others, and can be trusted with what happens in the room.</p>
 
-      <div className="gt-balance">
-        <div className="gt-ticket-icons">
-          {tickets.map((t, i) => (
-            <div key={t.id} className={`gt-ticket-icon ${t.status === 'available' ? 'gt-ticket-available' : 'gt-ticket-spent'}`}>
-              &#9733;
-            </div>
-          ))}
-        </div>
-        <p className="gt-balance-text">
-          {balance} {balance === 1 ? 'ticket' : 'tickets'} remaining
-          {earnedBack > 0 && <span className="gt-earned"> (+{earnedBack} earned back)</span>}
-        </p>
-      </div>
-
-      {balance > 0 && !sendingTicket && (
-        <div className="gt-choose">
-          <p>Choose wisely. Each ticket is an invitation into something extraordinary.</p>
-          <button className="rsvp-btn" onClick={() => setSendingTicket(available[0])}>
-            Send a Golden Ticket
-          </button>
-        </div>
-      )}
-
-      {sendingTicket && (
-        <SendTicketForm
-          ticket={sendingTicket}
-          user={user}
-          displayName={displayName}
-          onSent={() => { setSendingTicket(null); loadTickets(); }}
-        />
-      )}
-
-      {balance === 0 && (
-        <p className="gt-empty">You&apos;ve sent all your golden tickets. When someone you invited completes a show, you&apos;ll earn one back.</p>
-      )}
-
-      {spent.length > 0 && (
-        <div className="gt-sent-list">
-          <h3>Sent Tickets</h3>
-          {spent.map(t => (
-            <div key={t.id} className="gt-sent-item">
-              <div className="gt-sent-info">
-                <strong>{t.recipient_name}</strong>
-                <span className={`gt-sent-status gt-status-${t.status}`}>
-                  {t.status === 'sent' ? 'Pending' : t.status === 'redeemed' ? 'Redeemed' : 'Gifted'}
-                </span>
-              </div>
-              <div className="gt-sent-email">{t.recipient_email}</div>
-            </div>
-          ))}
+      {referralLink && (
+        <div style={{ marginTop: '1.5rem' }}>
+          <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--gold)', fontWeight: 600 }}>Your Golden Ticket Link</label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <input
+              type="text"
+              readOnly
+              value={referralLink}
+              style={{ flex: 1, fontSize: '0.9rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '6px', padding: '0.75rem', color: 'var(--text-muted)' }}
+              onClick={e => e.target.select()}
+            />
+            <button
+              type="button"
+              className="rsvp-btn"
+              onClick={handleCopy}
+              style={{ whiteSpace: 'nowrap' }}
+            >
+              {copied ? 'Copied!' : 'Copy Link'}
+            </button>
+          </div>
+          <p style={{ marginTop: '0.75rem', fontSize: '0.9rem', opacity: 0.6 }}>Share this link however you want — text, DM, email. There&apos;s no limit.</p>
         </div>
       )}
     </div>
@@ -425,21 +286,59 @@ function Dashboard() {
         <GoldenTickets
           user={user}
           displayName={displayName}
-          hasCompletedShow={shows.some(s => s.rsvp.waiver_signed)}
+          hasCompletedShow={shows.some(s => s.rsvp.waiver_signed || s.rsvp.intake_complete)}
+          rsvps={shows.map(s => s.rsvp)}
         />
       </section>
 
       <section className="portal-section">
-        <h2>Your Shows</h2>
         {loading && <p className="portal-loading">Loading your shows...</p>}
         {!loading && shows.length === 0 && (
           <div className="portal-empty">
             <p>No shows yet. <Link href="/">Find a Magic Show</Link> to get started.</p>
           </div>
         )}
-        {!loading && shows.map(({ rsvp, event }) => (
-          <ShowCard key={rsvp.id} rsvp={rsvp} event={event} />
-        ))}
+        {!loading && (() => {
+          const now = new Date();
+          const upcoming = shows.filter(({ event }) => {
+            if (!event?.dates) return true;
+            const yearMatch = event.dates.match(/(\d{4})/);
+            if (!yearMatch) return true;
+            const year = yearMatch[1];
+            const parts = event.dates.split(/[–—-]/);
+            const lastPart = parts[parts.length - 1].trim();
+            // Extract month from the first part (e.g. "June 25" → "June")
+            const monthMatch = parts[0].trim().match(/([A-Za-z]+)/);
+            // If lastPart is just "28, 2025" (no month), prepend the month
+            const hasMonth = lastPart.match(/[A-Za-z]/);
+            const dateStr = hasMonth ? lastPart : (monthMatch ? monthMatch[1] + ' ' + lastPart : lastPart);
+            // Ensure year is included
+            const fullDateStr = dateStr.match(/\d{4}/) ? dateStr : dateStr + ', ' + year;
+            const endDate = new Date(fullDateStr);
+            return isNaN(endDate) || endDate >= now;
+          });
+          const past = shows.filter(s => !upcoming.includes(s));
+          return (
+            <>
+              {upcoming.length > 0 && (
+                <>
+                  <h2>Upcoming Shows</h2>
+                  {upcoming.map(({ rsvp, event }) => (
+                    <ShowCard key={rsvp.id} rsvp={rsvp} event={event} />
+                  ))}
+                </>
+              )}
+              {past.length > 0 && (
+                <>
+                  <h2 style={{ marginTop: upcoming.length > 0 ? '2rem' : 0 }}>Past Shows</h2>
+                  {past.map(({ rsvp, event }) => (
+                    <ShowCard key={rsvp.id} rsvp={rsvp} event={event} />
+                  ))}
+                </>
+              )}
+            </>
+          );
+        })()}
       </section>
     </div>
   );

@@ -114,53 +114,6 @@ const SECTIONS = [
       },
     ],
   },
-  {
-    id: 'integration',
-    icon: '~',
-    title: 'Integration',
-    content: [
-      {
-        heading: 'What is Integration?',
-        text: 'Integration is what happens when the show ends and real life sets back in. It\'s the process of how you weave together what you experienced \u2014 the existential insights, the unexpected feelings, and the stuff you can\'t quite name \u2014 into your actual day-to-day. The show kicks open the door. Integration is how you walk through it.',
-      },
-      {
-        heading: 'The First 48 Hours',
-        items: [
-          'Move slowly. Give yourself permission to do absolutely nothing',
-          'Avoid making major life decisions (seriously)',
-          'Stay off social media — protect the space you\'ve opened',
-          'Eat nourishing, simple food',
-          'Drink plenty of water',
-          'Journal or record voice memos while it\'s fresh — you\'ll forget more than you think',
-        ],
-      },
-      {
-        heading: 'The First Two Weeks',
-        items: [
-          'Keep eating clean — your body is still processing',
-          'Continue journaling, even when it feels repetitive',
-          'Spend time outside',
-          'Talk to people who get it — your Signal group is there for a reason',
-          'Notice what\'s shifted in how you see, feel, and respond to daily life',
-          'Be patient with yourself. Integration is not linear. Some days feel like breakthroughs, some feel like backslides. Both are the work.',
-        ],
-      },
-      {
-        heading: 'Ongoing',
-        items: [
-          'Consider working with a therapist or integration coach who understands these experiences',
-          'Stay connected to the community — you don\'t have to figure this out alone',
-          'Revisit your journal entries from time to time — you\'ll see things you missed',
-          'Pay attention to your dreams',
-          'Practice what you learned. The show was the spark — your life is the magic',
-        ],
-      },
-      {
-        heading: 'When to Reach Out',
-        text: 'Outside of our group Signal thread, if you\'re experiencing persistent anxiety, confusion, or difficulty functioning after the experience, reach out to us or to a mental health professional. Everyone processes transformation differently. If this happens, think of it as a sign you\'re processing something significant and that you deserve support doing it.',
-      },
-    ],
-  },
 ];
 
 export default function PreparePage() {
@@ -171,9 +124,9 @@ export default function PreparePage() {
       <div className="stars" />
 
       <div className="prep-header">
-        <a href="/big-sky" className="prep-back">&larr; Back</a>
-        <h1>Preparation & Integration</h1>
-        <p>Everything you need to show up ready and take it home with you.</p>
+        <button className="prep-back" onClick={() => window.history.back()}>&larr; Back</button>
+        <h1>Prepare for the Show</h1>
+        <p>Everything you need to show up ready.</p>
       </div>
 
       <nav className="prep-nav">

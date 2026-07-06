@@ -482,6 +482,36 @@ a { color: inherit; text-decoration: none; }
 .next-step:hover {
   border-color: rgba(212, 168, 67, 0.3);
 }
+.integration-tips {
+  margin-top: 2rem;
+}
+.integration-tips-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  cursor: pointer;
+  color: var(--gold);
+  transition: border-color 0.2s;
+}
+.integration-tips-toggle:hover {
+  border-color: rgba(212, 168, 67, 0.3);
+}
+.integration-tips-toggle h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+.integration-tips-arrow {
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+.integration-tips .next-steps {
+  margin-top: 1.25rem;
+}
 .step-number {
   width: 32px;
   height: 32px;
@@ -3249,7 +3279,7 @@ a { color: inherit; text-decoration: none; }
   padding: 0.15rem 0.4rem;
   border-radius: 4px;
 }
-.admin-waitlist-source-golden {
+.admin-waitlist-source-referral {
   background: var(--gold-dark);
   color: #1a1200;
 }
@@ -3276,4 +3306,153 @@ a { color: inherit; text-decoration: none; }
   text-align: center;
   padding: 1rem 0;
   font-size: 0.85rem;
+}
+.admin-waitlist-details {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.25rem;
+  opacity: 0.7;
+}
+.admin-waitlist-referrer {
+  font-size: 0.75rem;
+  color: var(--gold);
+  opacity: 0.8;
+}
+.admin-waitlist-show {
+  font-size: 0.75rem;
+  color: var(--text);
+  margin-top: 0.15rem;
+}
+.admin-waitlist-filter-sm {
+  font-size: 0.7rem;
+  padding: 0.25rem 0.6rem;
+}
+
+/* Collapsible show cards */
+.admin-collapse-arrow {
+  font-size: 0.85rem;
+  color: var(--muted);
+  width: 1rem;
+  flex-shrink: 0;
+}
+.admin-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.admin-card-body {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+/* Roster status badges */
+.roster-status-badge {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.roster-status-confirmed {
+  background: rgba(76, 175, 80, 0.15);
+  color: #81c784;
+}
+.roster-status-intake {
+  background: rgba(255, 183, 77, 0.15);
+  color: #ffb74d;
+}
+.roster-status-registered {
+  background: var(--border);
+  color: var(--muted);
+}
+
+/* Pipeline section */
+.admin-pipeline {
+  margin-top: 2.5rem;
+}
+.admin-pipeline-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.admin-pipeline-header h2 {
+  font-size: 1.3rem;
+  color: var(--text);
+}
+.admin-pipeline-count {
+  font-size: 0.85rem;
+  color: var(--gold);
+  opacity: 0.8;
+}
+
+/* Past shows — minimal rows */
+.admin-past-section {
+  margin-top: 2rem;
+}
+.admin-past-heading {
+  font-size: 1rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.5rem;
+}
+.admin-past-row {
+  border-bottom: 1px solid var(--border);
+}
+.admin-past-row:last-child {
+  border-bottom: none;
+}
+.admin-past-row-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.6rem 0;
+  background: none;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85rem;
+  text-align: left;
+}
+.admin-past-row-header:hover {
+  color: var(--gold);
+}
+.admin-past-name {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.admin-past-meta {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.admin-past-actions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.25rem 0 0.75rem 1.5rem;
+}
+
+/* Email lists */
+.admin-email-lists {
+  margin-top: 2.5rem;
+}
+.admin-email-lists h2 {
+  font-size: 1.3rem;
+  color: var(--text);
+  margin-bottom: 1rem;
+}
+.admin-email-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+}
+.admin-email-count {
+  font-size: 0.85rem;
+  color: var(--muted);
 }

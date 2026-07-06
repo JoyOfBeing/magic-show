@@ -22,6 +22,18 @@ const EMPTY_EVENT = {
   card_image: '',
 };
 
+function getFlowStatus(r) {
+  if (r.program_agreement) return 'Confirmed';
+  if (r.intake_complete) return 'Intake done';
+  return 'Registered';
+}
+
+function getFlowStatusClass(r) {
+  if (r.program_agreement) return 'roster-status-confirmed';
+  if (r.intake_complete) return 'roster-status-intake';
+  return 'roster-status-registered';
+}
+
 function RosterRow({ r, onDelete }) {
   const [expanded, setExpanded] = useState(false);
   const has = (v) => v && v.trim && v.trim().length > 0;
@@ -32,6 +44,7 @@ function RosterRow({ r, onDelete }) {
           <div className="roster-name">{r.name} {expanded ? '▾' : '▸'}</div>
           <div className="roster-contact">{r.email} · {r.phone}</div>
         </button>
+        <span className={`roster-status-badge ${getFlowStatusClass(r)}`}>{getFlowStatus(r)}</span>
         <button className="invite-delete" onClick={() => onDelete(r)} title="Remove">×</button>
       </div>
       {expanded && (
@@ -55,51 +68,8 @@ function RosterRow({ r, onDelete }) {
           {has(r.emergency_name) && (
             <div className="roster-field"><strong>Emergency contact:</strong> {r.emergency_name} · {r.emergency_phone}</div>
           )}
-          {r.waiver_signed && (
-            <div className="roster-field roster-field-meta">
-              Waiver signed {r.waiver_signed_at ? new Date(r.waiver_signed_at).toLocaleDateString() : ''}
-            </div>
-          )}
         </div>
       )}
-    </div>
-  );
-}
-
-function ReferralsSection({ event }) {
-  const [referrals, setReferrals] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function load() {
-      const { data } = await supabase
-        .from('magic_show_referrals')
-        .select('*')
-        .eq('event', event.id)
-        .order('created_at', { ascending: false });
-      setReferrals(data || []);
-      setLoading(false);
-    }
-    load();
-  }, [event.id]);
-
-  if (loading) return <p>Loading referrals...</p>;
-  if (referrals.length === 0) return null;
-
-  return (
-    <div className="referral-section">
-      <h3 className="roster-section-title">Referrals ({referrals.length})</h3>
-      <div className="referral-list">
-        {referrals.map(r => (
-          <div key={r.id} className="referral-row">
-            <div>
-              <div className="referral-row-friend">{r.friend_name} &mdash; {r.friend_email}</div>
-              <div className="referral-row-from">Referred by {r.referrer_name} ({r.referrer_email})</div>
-              {r.note && <div className="referral-row-note">&ldquo;{r.note}&rdquo;</div>}
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
@@ -158,8 +128,8 @@ function RosterView({ event, onClose }) {
     await load();
   }
 
-  const confirmed = rsvps.filter(r => r.waiver_signed);
-  const inProgress = rsvps.filter(r => !r.waiver_signed);
+  const confirmed = rsvps.filter(r => r.program_agreement);
+  const inProgress = rsvps.filter(r => !r.program_agreement);
 
   return (
     <div className="invite-manager">
@@ -171,7 +141,7 @@ function RosterView({ event, onClose }) {
       <div className="roster-stats">
         <div className="roster-stat">
           <div className="roster-stat-num">{confirmed.length}{event.capacity ? ` / ${event.capacity}` : ''}</div>
-          <div className="roster-stat-label">Confirmed (waiver signed)</div>
+          <div className="roster-stat-label">Confirmed (agreement signed)</div>
         </div>
         <div className="roster-stat">
           <div className="roster-stat-num">{inProgress.length}</div>
@@ -217,8 +187,6 @@ function RosterView({ event, onClose }) {
           </div>
         </>
       )}
-
-      <ReferralsSection event={event} />
     </div>
   );
 }
@@ -348,12 +316,12 @@ function EventForm({ event, isNew, onSave, onCancel }) {
         <div className="admin-field">
           <label>Invite Code</label>
           <input type="text" value={form.invite_code} onChange={e => set('invite_code', e.target.value.toUpperCase())} placeholder="MAGIC-BIGSKY" />
-          <span className="admin-hint">One code shared with all guests. Share as link: /big-sky?code=YOURCODE</span>
+          <span className="admin-hint">Shared with invited guests. Link: /show/EVENT_ID?code=CODE</span>
         </div>
         <div className="admin-field">
           <label>Capacity</label>
           <input type="number" min="1" value={form.capacity} onChange={e => set('capacity', e.target.value)} placeholder="12" />
-          <span className="admin-hint">Code stops working once this many people complete the waiver.</span>
+          <span className="admin-hint">Registration closes when this many people confirm.</span>
         </div>
       </div>
 
@@ -453,56 +421,163 @@ function InviteLinkRow({ eventId, inviteCode }) {
   );
 }
 
-function WaitlistSection() {
+function ShowCard({ ev, onEdit, onRoster, onToggleLive, onSetNotLive, toggling }) {
+  const [collapsed, setCollapsed] = useState(!ev.is_live);
+
+  return (
+    <div className={`admin-card ${ev.is_live ? 'admin-card-live' : ''}`}>
+      <div className="admin-card-header" onClick={() => setCollapsed(c => !c)} style={{ cursor: 'pointer' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <span className="admin-collapse-arrow">{collapsed ? '▸' : '▾'}</span>
+          <div>
+            <h3>{ev.name}</h3>
+            <div className="admin-card-details" style={{ marginTop: '0.25rem' }}>
+              <span>{ev.dates}</span>
+              <span>{ev.location}</span>
+            </div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          {ev.is_live && <span className="admin-live-badge">LIVE</span>}
+        </div>
+      </div>
+      {!collapsed && (
+        <div className="admin-card-body">
+          <p className="admin-card-id">{ev.id}</p>
+          <EventUrlRow eventId={ev.id} />
+          <InviteLinkRow eventId={ev.id} inviteCode={ev.invite_code} />
+          <div className="admin-card-meta">
+            {ev.venue_address && <span>Venue: {ev.venue_address}</span>}
+            {ev.arrival && <span>Arrival: {ev.arrival}</span>}
+            {ev.signal_group && <span>Signal: set</span>}
+          </div>
+          <div className="admin-card-actions">
+            <button className="admin-edit-btn" onClick={() => onEdit(ev)}>Edit</button>
+            <button className="admin-edit-btn" onClick={() => onRoster(ev)}>Roster</button>
+            {ev.is_live ? (
+              <button className="admin-unlive-btn" onClick={() => onSetNotLive(ev.id)} disabled={toggling}>
+                Take Offline
+              </button>
+            ) : (
+              <button className="admin-live-btn" onClick={() => onToggleLive(ev.id)} disabled={toggling}>
+                Make Live
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PastShowRow({ ev, onEdit, onRoster }) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div className="admin-past-row">
+      <button className="admin-past-row-header" onClick={() => setExpanded(e => !e)}>
+        <span className="admin-collapse-arrow">{expanded ? '▾' : '▸'}</span>
+        <span className="admin-past-name">{ev.name}</span>
+        <span className="admin-past-meta">{ev.dates} · {ev.location}</span>
+      </button>
+      {expanded && (
+        <div className="admin-past-actions">
+          <button className="admin-edit-btn" onClick={() => onEdit(ev)}>Edit</button>
+          <button className="admin-edit-btn" onClick={() => onRoster(ev)}>Roster</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function isEventPast(ev) {
+  if (!ev.dates) return false;
+  const yearMatch = ev.dates.match(/(\d{4})/);
+  if (!yearMatch) return false;
+  const year = yearMatch[1];
+  const parts = ev.dates.split(/[–—-]/);
+  const lastPart = parts[parts.length - 1].trim();
+  const monthMatch = parts[0].trim().match(/([A-Za-z]+)/);
+  const hasMonth = lastPart.match(/[A-Za-z]/);
+  const dateStr = hasMonth ? lastPart : (monthMatch ? monthMatch[1] + ' ' + lastPart : lastPart);
+  const fullDateStr = dateStr.match(/\d{4}/) ? dateStr : dateStr + ', ' + year;
+  const endDate = new Date(fullDateStr);
+  return !isNaN(endDate) && endDate < new Date();
+}
+
+function PipelineSection({ events }) {
   const [entries, setEntries] = useState([]);
-  const [filter, setFilter] = useState('waiting');
+  const [filter, setFilter] = useState('referrals');
+  const [statusFilter, setStatusFilter] = useState('waiting');
   const [loading, setLoading] = useState(true);
 
-  async function loadWaitlist() {
+  const eventMap = {};
+  if (events) events.forEach(ev => { eventMap[ev.id] = ev; });
+
+  async function loadPipeline() {
     const { data } = await supabase
       .from('magic_show_leads')
       .select('*')
       .eq('interest_type', 'waitlist')
       .order('created_at', { ascending: true });
 
-    if (data) {
-      // Sort: golden ticket holders first, then by date
-      data.sort((a, b) => {
-        if (a.source === 'golden_ticket' && b.source !== 'golden_ticket') return -1;
-        if (a.source !== 'golden_ticket' && b.source === 'golden_ticket') return 1;
-        return new Date(a.created_at) - new Date(b.created_at);
-      });
-    }
     setEntries(data || []);
     setLoading(false);
   }
 
-  useEffect(() => { loadWaitlist(); }, []);
+  useEffect(() => { loadPipeline(); }, []);
 
   async function markInvited(id) {
     await supabase.from('magic_show_leads')
       .update({ invited_at: new Date().toISOString() })
       .eq('id', id);
-    loadWaitlist();
+    loadPipeline();
   }
 
-  const filtered = entries.filter(e =>
-    filter === 'waiting' ? !e.invited_at : !!e.invited_at
-  );
+  function parseReferrer(details) {
+    if (!details) return null;
+    const match = details.match(/Referred by:\s*(.+?)(\s*\||$)/);
+    return match ? match[1].trim() : null;
+  }
+
+  const referrals = entries.filter(e => e.source === 'referral');
+  const general = entries.filter(e => e.source !== 'referral');
+  const pool = filter === 'referrals' ? referrals : general;
+  const filtered = pool.filter(e => statusFilter === 'waiting' ? !e.invited_at : !!e.invited_at);
+
+  const waitingReferrals = referrals.filter(e => !e.invited_at).length;
+  const waitingGeneral = general.filter(e => !e.invited_at).length;
 
   return (
-    <div className="admin-waitlist">
-      <h2>Waitlist ({entries.filter(e => !e.invited_at).length} waiting)</h2>
+    <div className="admin-pipeline">
+      <div className="admin-pipeline-header">
+        <h2>Incoming Requests</h2>
+        <span className="admin-pipeline-count">{waitingReferrals + waitingGeneral} waiting</span>
+      </div>
       <div className="admin-waitlist-filters">
         <button
-          className={`admin-waitlist-filter ${filter === 'waiting' ? 'active' : ''}`}
-          onClick={() => setFilter('waiting')}
+          className={`admin-waitlist-filter ${filter === 'referrals' ? 'active' : ''}`}
+          onClick={() => setFilter('referrals')}
+        >
+          Referrals ({referrals.length})
+        </button>
+        <button
+          className={`admin-waitlist-filter ${filter === 'general' ? 'active' : ''}`}
+          onClick={() => setFilter('general')}
+        >
+          General ({general.length})
+        </button>
+      </div>
+      <div className="admin-waitlist-filters" style={{ marginTop: '0.25rem' }}>
+        <button
+          className={`admin-waitlist-filter admin-waitlist-filter-sm ${statusFilter === 'waiting' ? 'active' : ''}`}
+          onClick={() => setStatusFilter('waiting')}
         >
           Waiting
         </button>
         <button
-          className={`admin-waitlist-filter ${filter === 'invited' ? 'active' : ''}`}
-          onClick={() => setFilter('invited')}
+          className={`admin-waitlist-filter admin-waitlist-filter-sm ${statusFilter === 'invited' ? 'active' : ''}`}
+          onClick={() => setStatusFilter('invited')}
         >
           Invited
         </button>
@@ -510,30 +585,110 @@ function WaitlistSection() {
       {loading && <p className="admin-waitlist-empty">Loading...</p>}
       {!loading && filtered.length === 0 && (
         <p className="admin-waitlist-empty">
-          {filter === 'waiting' ? 'No one on the waitlist yet.' : 'No one invited yet.'}
+          {statusFilter === 'waiting' ? 'No one waiting.' : 'No one invited yet.'}
         </p>
       )}
-      {filtered.map((entry, i) => (
-        <div key={entry.id} className="admin-waitlist-row">
-          <div className="admin-waitlist-info">
-            <div className="admin-waitlist-name">
-              {filter === 'waiting' && <span style={{ color: 'var(--muted)', marginRight: '0.5rem' }}>#{i + 1}</span>}
-              {entry.name}
+      {filtered.map((entry, i) => {
+        const referrer = parseReferrer(entry.details);
+        const ev = entry.event_id ? eventMap[entry.event_id] : null;
+        return (
+          <div key={entry.id} className="admin-waitlist-row">
+            <div className="admin-waitlist-info">
+              <div className="admin-waitlist-name">
+                {statusFilter === 'waiting' && <span style={{ color: 'var(--muted)', marginRight: '0.5rem' }}>#{i + 1}</span>}
+                {entry.name}
+              </div>
+              <div className="admin-waitlist-email">
+                {entry.email} {entry.phone && `· ${entry.phone}`}
+              </div>
+              {ev && (
+                <div className="admin-waitlist-show">Interested in: {ev.name} — {ev.dates}</div>
+              )}
+              {referrer && (
+                <div className="admin-waitlist-referrer">via {referrer}</div>
+              )}
+              {entry.details && (
+                <div className="admin-waitlist-details">{entry.details}</div>
+              )}
             </div>
-            <div className="admin-waitlist-email">{entry.email} {entry.phone && `· ${entry.phone}`}</div>
+            <div className="admin-waitlist-meta">
+              {statusFilter === 'waiting' && (
+                <button className="admin-waitlist-invite" onClick={() => markInvited(entry.id)}>
+                  Mark Invited
+                </button>
+              )}
+            </div>
           </div>
-          <div className="admin-waitlist-meta">
-            <span className={`admin-waitlist-source ${entry.source === 'golden_ticket' ? 'admin-waitlist-source-golden' : 'admin-waitlist-source-organic'}`}>
-              {entry.source === 'golden_ticket' ? 'Golden Ticket' : 'Organic'}
-            </span>
-            {filter === 'waiting' && (
-              <button className="admin-waitlist-invite" onClick={() => markInvited(entry.id)}>
-                Mark Invited
-              </button>
-            )}
-          </div>
-        </div>
-      ))}
+        );
+      })}
+    </div>
+  );
+}
+
+function EmailLists() {
+  const [attendeeEmails, setAttendeeEmails] = useState(null);
+  const [leadEmails, setLeadEmails] = useState(null);
+  const [copiedAttendees, setCopiedAttendees] = useState(false);
+  const [copiedLeads, setCopiedLeads] = useState(false);
+
+  async function loadAttendees() {
+    const { data } = await supabase
+      .from('magic_show_rsvp')
+      .select('email')
+      .order('created_at', { ascending: false });
+    const unique = [...new Set((data || []).map(r => r.email))];
+    setAttendeeEmails(unique);
+  }
+
+  async function loadLeads() {
+    const { data } = await supabase
+      .from('magic_show_leads')
+      .select('email')
+      .is('invited_at', null)
+      .order('created_at', { ascending: false });
+    const unique = [...new Set((data || []).map(r => r.email))];
+    setLeadEmails(unique);
+  }
+
+  function copyAttendees() {
+    navigator.clipboard.writeText(attendeeEmails.join(', '));
+    setCopiedAttendees(true);
+    setTimeout(() => setCopiedAttendees(false), 2000);
+  }
+
+  function copyLeads() {
+    navigator.clipboard.writeText(leadEmails.join(', '));
+    setCopiedLeads(true);
+    setTimeout(() => setCopiedLeads(false), 2000);
+  }
+
+  return (
+    <div className="admin-email-lists">
+      <h2>Email Lists</h2>
+      <div className="admin-email-row">
+        {attendeeEmails === null ? (
+          <button className="admin-edit-btn" onClick={loadAttendees}>Load Past Attendees</button>
+        ) : (
+          <>
+            <span className="admin-email-count">{attendeeEmails.length} past attendees</span>
+            <button className="admin-edit-btn" onClick={copyAttendees}>
+              {copiedAttendees ? 'Copied!' : 'Copy Emails'}
+            </button>
+          </>
+        )}
+      </div>
+      <div className="admin-email-row">
+        {leadEmails === null ? (
+          <button className="admin-edit-btn" onClick={loadLeads}>Load Pending Requests</button>
+        ) : (
+          <>
+            <span className="admin-email-count">{leadEmails.length} pending requests</span>
+            <button className="admin-edit-btn" onClick={copyLeads}>
+              {copiedLeads ? 'Copied!' : 'Copy Emails'}
+            </button>
+          </>
+        )}
+      </div>
     </div>
   );
 }
@@ -541,7 +696,7 @@ function WaitlistSection() {
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false);
   const [events, setEvents] = useState([]);
-  const [editing, setEditing] = useState(null); // event object or 'new'
+  const [editing, setEditing] = useState(null);
   const [viewingRoster, setViewingRoster] = useState(null);
   const [toggling, setToggling] = useState(false);
 
@@ -605,47 +760,45 @@ export default function AdminPage() {
         <RosterView event={viewingRoster} onClose={() => setViewingRoster(null)} />
       ) : (
         <>
-          <div className="admin-grid">
-            {events.map(ev => (
-              <div key={ev.id} className={`admin-card ${ev.is_live ? 'admin-card-live' : ''}`}>
-                <div className="admin-card-header">
-                  <div>
-                    <h3>{ev.name}</h3>
-                    <p className="admin-card-id">{ev.id}</p>
-                  </div>
-                  {ev.is_live && <span className="admin-live-badge">LIVE</span>}
-                </div>
-                <div className="admin-card-details">
-                  <span>{ev.dates}</span>
-                  <span>{ev.location}</span>
-                </div>
-                <EventUrlRow eventId={ev.id} />
-                <InviteLinkRow eventId={ev.id} inviteCode={ev.invite_code} />
-                <div className="admin-card-meta">
-                  {ev.venue_address && <span>Venue: {ev.venue_address}</span>}
-                  {ev.arrival && <span>Arrival: {ev.arrival}</span>}
-                  {ev.signal_group && <span>Signal: set</span>}
-                </div>
-                <div className="admin-card-actions">
-                  <button className="admin-edit-btn" onClick={() => setEditing(ev)}>Edit</button>
-                  <button className="admin-edit-btn" onClick={() => setViewingRoster(ev)}>Roster</button>
-                  {ev.is_live ? (
-                    <button className="admin-unlive-btn" onClick={() => setNotLive(ev.id)} disabled={toggling}>
-                      Take Offline
-                    </button>
-                  ) : (
-                    <button className="admin-live-btn" onClick={() => toggleLive(ev.id)} disabled={toggling}>
-                      Make Live
-                    </button>
+          {(() => {
+            const current = events.filter(ev => ev.is_live || !isEventPast(ev));
+            const past = events.filter(ev => !ev.is_live && isEventPast(ev));
+            return (
+              <>
+                <div className="admin-grid">
+                  {current.map(ev => (
+                    <ShowCard
+                      key={ev.id}
+                      ev={ev}
+                      onEdit={setEditing}
+                      onRoster={setViewingRoster}
+                      onToggleLive={toggleLive}
+                      onSetNotLive={setNotLive}
+                      toggling={toggling}
+                    />
+                  ))}
+                  {events.length === 0 && (
+                    <p className="admin-empty">No events yet. Create your first Magic Show.</p>
                   )}
                 </div>
-              </div>
-            ))}
-            {events.length === 0 && (
-              <p className="admin-empty">No events yet. Create your first Magic Show.</p>
-            )}
-          </div>
-          <WaitlistSection />
+                {past.length > 0 && (
+                  <div className="admin-past-section">
+                    <h2 className="admin-past-heading">Past Shows</h2>
+                    {past.map(ev => (
+                      <PastShowRow
+                        key={ev.id}
+                        ev={ev}
+                        onEdit={setEditing}
+                        onRoster={setViewingRoster}
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
+            );
+          })()}
+          <PipelineSection events={events} />
+          <EmailLists />
         </>
       )}
     </div>

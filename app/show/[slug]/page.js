@@ -316,7 +316,7 @@ function PreGate({ event, onInviteValid }) {
     <div className="pregate">
       <div className="pregate-landing">
         <div className="pregate-eyebrow">The Magic Show</div>
-        <h1 className="pregate-title">{event.name}</h1>
+        <h1 className="pregate-title">Your only job is to show up.</h1>
         <div className="pregate-details">
           <div className="pregate-detail">
             <span className="pregate-detail-label">When</span>
@@ -336,10 +336,6 @@ function PreGate({ event, onInviteValid }) {
             Request a Golden Ticket
           </button>
         </div>
-
-        <button className="pregate-gate-link" onClick={() => setView('gate')}>
-          Already confirmed? Enter your invite code
-        </button>
       </div>
     </div>
   );
@@ -864,11 +860,9 @@ function LookupLink({ event, onFound }) {
       setStatus('not_found');
       return;
     }
-    let foundStep = 'program_agreement';
-    if (data.waiver_signed) foundStep = 'preparation';
-    else if (data.intake_complete) foundStep = 'waiver';
-    else if (data.membership_attested) foundStep = 'intake';
-    else if (data.program_agreement_signed) foundStep = 'membership';
+    let foundStep = 'intake';
+    if (data.waiver_signed || data.program_agreement_signed) foundStep = 'preparation';
+    else if (data.intake_complete) foundStep = 'program_agreement';
     onFound({ name: data.name, email: data.email, id: data.id }, foundStep);
   }
 
@@ -925,6 +919,7 @@ function IntakeForm({ rsvpData, onComplete }) {
         emergency_phone: form.emergency_phone,
         intake_complete: true,
         intake_accuracy_confirmed: true,
+        status: 'completed',
       })
       .eq('id', rsvpData.id);
     if (error) {
@@ -1031,7 +1026,7 @@ function IntakeForm({ rsvpData, onComplete }) {
         </div>
 
         <button type="submit" className="intake-btn" disabled={status === 'submitting' || !accuracyConfirmed}>
-          {status === 'submitting' ? 'Saving...' : status === 'error' ? 'Try again' : 'Continue to Ceremonial Agreement'}
+          {status === 'submitting' ? 'Saving...' : status === 'error' ? 'Try again' : 'Continue to Agreement'}
         </button>
       </form>
     </div>
@@ -1051,12 +1046,12 @@ function PreparationScreen({ event }) {
         <div className="next-step">
           <div className="step-number">1</div>
           <div className="step-content">
-            <h3>Join the Signal Group</h3>
-            <p>All group communications for this Magic Show happen on Signal. Download the app now if you don&apos;t have it — we&apos;ll send the group invite to your phone number shortly.</p>
+            <h3>Join Signal</h3>
+            <p>All comms will be here.</p>
             {event.signal_group ? (
-              <a href={event.signal_group} target="_blank" rel="noopener noreferrer" className="step-action">Join Signal Group</a>
+              <a href={event.signal_group} target="_blank" rel="noopener noreferrer" className="step-action">Join Group Chat</a>
             ) : (
-              <a href="https://signal.org/download/" target="_blank" rel="noopener noreferrer" className="step-action">Download Signal</a>
+              <p className="tbd">Group chat link coming soon.</p>
             )}
           </div>
         </div>
@@ -1064,43 +1059,8 @@ function PreparationScreen({ event }) {
         <div className="next-step">
           <div className="step-number">2</div>
           <div className="step-content">
-            <h3>Location Details</h3>
-            {event.venue_address || event.venue_image ? (
-              <>
-                {event.venue_image && (
-                  <a href={event.venue_image} target="_blank" rel="noopener noreferrer" className="venue-link">
-                    View the space &rarr;
-                  </a>
-                )}
-                {event.venue_address && <p className="venue-address">{event.venue_address}</p>}
-              </>
-            ) : (
-              <p className="tbd">Location details coming soon. You&apos;ll be notified via Signal.</p>
-            )}
-          </div>
-        </div>
-
-        <div className="next-step">
-          <div className="step-number">3</div>
-          <div className="step-content">
-            <h3>Arrival & Departure</h3>
-            {event.arrival ? (
-              <>
-                <p><strong>Arrive:</strong> {event.arrival}</p>
-                <p><strong>Depart:</strong> {event.departure}</p>
-              </>
-            ) : (
-              <p className="tbd">Arrival and departure times coming soon.</p>
-            )}
-          </div>
-        </div>
-
-        <div className="next-step">
-          <div className="step-number">4</div>
-          <div className="step-content">
-            <h3>Prepare Your Body & Spirit</h3>
-            <p>Read our preparation and integration guide so you arrive ready — what to bring, how to eat, how to prepare mentally, and how to integrate after.</p>
-            <a href="/prepare" className="step-action">View Preparation Guide</a>
+            <h3>Prepare for the Show</h3>
+            <a href="/prepare" className="step-action">View Suggested Preparation Guide</a>
           </div>
         </div>
       </div>
@@ -1109,88 +1069,150 @@ function PreparationScreen({ event }) {
 }
 
 function IntegrationScreen({ event }) {
+  const [tipsOpen, setTipsOpen] = useState(false);
+
+  const tips = [
+    { title: 'No Major Decisions', desc: 'For at least a couple of weeks after getting home, avoid big changes in jobs, relationships, etc. Let it settle.' },
+    { title: 'Hold the Gold', desc: 'Protect what is precious. Your work is not meant for anyone but you, and it may be difficult to explain.' },
+    { title: 'Avoid Comparisons and Expectations', desc: 'Expectations reduce joy. Everyone\u2019s process is personal and individual.' },
+    { title: 'Keep the Body Clean', desc: 'The longer you eat nourishing, nurturing food and avoid alcohol, the stronger your mental wellness will be. Avoid sugar, fried food, etc. Drink lots of water each day.' },
+    { title: 'Catalyze Clarity', desc: 'Journal. Listen to the \u201cdownloads\u201d that come through. Eventually, this can serve as the action plan and mission statement for life.' },
+    { title: 'No Other Big Self-Development Endeavors', desc: 'For at least a month. Bringing in too much new information may make integration harder, longer, and more challenging to \u201cbring it all home.\u201d' },
+    { title: 'Nature is Church', desc: 'Spend time in nature as much as possible. Reconnecting to the roots of the planet helps ease the transition back into the busyness and business of modern-day living.' },
+    { title: 'Get Support Before Things Get Rough', desc: 'Seek mentorship, support, and community early. Don\u2019t wait until you\u2019re struggling. Your Signal group is there for a reason.' },
+  ];
+
   return (
     <div className="confirmed">
       <h2>Integration</h2>
-      <p className="confirmed-sub">The work doesn&apos;t end when the ceremony does. Here are your resources for bringing the experience home.</p>
+      <p className="confirmed-sub">Integration is the process of weaving what you experienced into your everyday life.</p>
 
       <div className="next-steps">
         <div className="next-step">
           <div className="step-number">1</div>
           <div className="step-content">
-            <h3>Group Integration Call</h3>
-            <p>Reconnect with your cohort and share what&apos;s landed since the retreat. This is a sacred space to process together.</p>
-            <div className="crowdcast-embed">
-              <p className="tbd">Video call link coming soon.</p>
-            </div>
+            <h3>Group Integration</h3>
+            <p>We integrate together on the last day of the retreat. Within a month after the event, we&apos;ll hold a group integration call to reconnect and process what&apos;s landed. For ongoing support, we use Marco Polo to stay in touch in smaller groups — keeping the container alive long after the show ends.</p>
           </div>
         </div>
 
         <div className="next-step">
           <div className="step-number">2</div>
           <div className="step-content">
-            <h3>1:1 Integration Coaching</h3>
-            <p>Your private session to go deeper into what came up for you. This is your space — no agenda, no performance, just presence.</p>
+            <h3>Personal Integration</h3>
+            <p>Your facilitator is available for ongoing coaching and support as you integrate. Pricing is worked out directly between the two of you.</p>
           </div>
         </div>
+      </div>
 
-        <div className="next-step">
-          <div className="step-number">3</div>
-          <div className="step-content">
-            <h3>Integration Resources</h3>
-            <p>Journaling prompts, somatic practices, and guidance for the weeks ahead. Integration is a practice, not a moment.</p>
+      <div className="integration-tips">
+        <button className="integration-tips-toggle" onClick={() => setTipsOpen(o => !o)}>
+          <h3>Best Practices for Integration</h3>
+          <span className="integration-tips-arrow">{tipsOpen ? '\u25B2' : '\u25BC'}</span>
+        </button>
+        {tipsOpen && (
+          <div className="next-steps">
+            {tips.map((tip, i) => (
+              <div key={i} className="next-step">
+                <div className="step-number">{i + 1}</div>
+                <div className="step-content">
+                  <h3>{tip.title}</h3>
+                  <p>{tip.desc}</p>
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
-
-        <div className="next-step">
-          <div className="step-number">4</div>
-          <div className="step-content">
-            <h3>Stay Connected</h3>
-            <p>Your Signal group remains open. Lean on your cohort. The container holds beyond the retreat.</p>
-            {event.signal_group && (
-              <a href={event.signal_group} target="_blank" rel="noopener noreferrer" className="step-action">Open Signal Group</a>
-            )}
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
 }
 
-function FacilitationScreen() {
+function PassItOnScreen({ rsvpData }) {
+  const [referralLink, setReferralLink] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    async function ensureReferralSlug() {
+      if (!rsvpData?.id) return;
+
+      // Check if slug already exists
+      const { data } = await supabase
+        .from('magic_show_rsvp')
+        .select('referral_slug')
+        .eq('id', rsvpData.id)
+        .single();
+
+      if (data?.referral_slug) {
+        setReferralLink(`${window.location.origin}/request?ref=${data.referral_slug}`);
+        return;
+      }
+
+      // Generate slug from name
+      const slug = (rsvpData.name || '')
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '');
+
+      // Try to save it, add random suffix if taken
+      let finalSlug = slug;
+      const { error } = await supabase
+        .from('magic_show_rsvp')
+        .update({ referral_slug: finalSlug })
+        .eq('id', rsvpData.id);
+
+      if (error) {
+        finalSlug = slug + '-' + Math.random().toString(36).substring(2, 6);
+        await supabase
+          .from('magic_show_rsvp')
+          .update({ referral_slug: finalSlug })
+          .eq('id', rsvpData.id);
+      }
+
+      setReferralLink(`${window.location.origin}/request?ref=${finalSlug}`);
+    }
+    ensureReferralSlug();
+  }, [rsvpData]);
+
+  function handleCopy() {
+    navigator.clipboard.writeText(referralLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
   return (
     <div className="confirmed">
       <div className="facilitation-hero">
         <div className="facilitation-hero-glow" />
-        <div className="facilitation-hero-stars">&#9733; &#9733; &#9733;</div>
-        <h2>You Have 3 Golden Tickets</h2>
-        <p>The magic doesn&apos;t end with you. You now hold 3 golden tickets — each one gives someone you choose priority access to the waitlist for the next Magic Show.</p>
-        <p className="facilitation-hero-sub">Choose wisely. When someone you invite completes a show, you earn a ticket back.</p>
-        <a href="/portal" className="ticket-landing-cta">Send a Golden Ticket</a>
+        <h2>Send a Golden Ticket</h2>
+        <p>The magic doesn&apos;t end with you. You can now send Golden Tickets to people in your life who are ready for this kind of experience — people who show up with an open heart, hold space for others, and can be trusted with what happens in the room. This is how the community grows: one intentional invitation at a time. There&apos;s no limit. Send as many as you want.</p>
+
+        {referralLink && (
+          <div style={{ marginTop: '2rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--gold)', fontWeight: 600 }}>Your Golden Ticket Link</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <input
+                type="text"
+                readOnly
+                value={referralLink}
+                style={{ flex: 1, fontSize: '0.9rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '6px', padding: '0.75rem', color: 'var(--text-muted)' }}
+                onClick={e => e.target.select()}
+              />
+              <button
+                type="button"
+                className="rsvp-btn"
+                onClick={handleCopy}
+                style={{ whiteSpace: 'nowrap' }}
+              >
+                {copied ? 'Copied!' : 'Copy Link'}
+              </button>
+            </div>
+            <p style={{ marginTop: '1rem', fontSize: '0.9rem', opacity: 0.6 }}>Share this link with anyone you think is ready. Text it, DM it, send it however you want.</p>
+          </div>
+        )}
       </div>
 
-      <div className="facilitation-secondary">
-        <h3 className="facilitation-secondary-label">Other Ways to Go Deeper</h3>
-        <div className="next-steps">
-          <div className="next-step">
-            <div className="step-number">&rarr;</div>
-            <div className="step-content">
-              <h3>Host Your Own Magic Show</h3>
-              <p>Bring the experience to your community. We handle the facilitation, the ceremony, and the container — you bring the people and the place.</p>
-              <a href="/?host=true" className="step-action">Plan Your Magic Show</a>
-            </div>
-          </div>
-
-          <div className="next-step">
-            <div className="step-number">&rarr;</div>
-            <div className="step-content">
-              <h3>Hold Space at a Magic Show</h3>
-              <p>Train as an ordained elder of Joy of Being to hold ceremonial space and facilitate Magic Shows. This is the path from participant to practitioner.</p>
-              <a href="mailto:omg@itsthejob.com?subject=Elder%20Training" className="step-action">Learn About Elder Initiation</a>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
@@ -1220,6 +1242,7 @@ function WaiverForm({ event, rsvpData, onComplete }) {
         waiver_signature_name: signatureName.trim(),
         waiver_version: WAIVER_VERSION,
         consent: true,
+        status: 'completed',
       })
       .eq('id', rsvpData.id);
     if (error) {
@@ -1300,25 +1323,24 @@ function WaiverForm({ event, rsvpData, onComplete }) {
   );
 }
 
-// Flow: RSVP → program_agreement → membership → intake → waiver → preparation → integration → facilitation
-// Steps: Agreement (1) → Health & Safety (2) → Ceremony (3) → Preparation (4) → Integration (5) → Facilitation (6)
+// Flow: RSVP → program_agreement → intake → preparation → integration → facilitation
+// Steps: Agreement (1) → Health & Safety (2) → Preparation (3) → Integration (4) → Facilitation (5)
+// NOTE: membership and waiver (ceremony) steps are preserved in code but skipped in flow for now
 
-const STEP_LABELS = ['Agreement', 'Health & Safety', 'Ceremony', 'Preparation', 'Integration', 'Facilitation'];
+const STEP_LABELS = ['Health & Safety', 'Agreement', 'Preparation', 'Integration', 'Golden Tickets'];
 
-const STEP_KEYS = [null, null, null, 'preparation', 'integration', 'facilitation'];
+const STEP_KEYS = ['intake', 'program_agreement', 'preparation', 'integration', 'pass_it_on'];
 
 function StepIndicator({ step, onNavigate }) {
   const stepMap = {
-    program_agreement: 1,
-    membership: 1,
-    intake: 2,
-    waiver: 3,
-    preparation: 4,
-    integration: 5,
-    facilitation: 6,
+    intake: 1,
+    program_agreement: 2,
+    preparation: 3,
+    integration: 4,
+    pass_it_on: 5,
   };
   const current = stepMap[step] || 1;
-  const isPostRegistration = current >= 4;
+  const isPostRegistration = current >= 3;
 
   return (
     <div className="step-indicator">
@@ -1327,7 +1349,7 @@ function StepIndicator({ step, onNavigate }) {
           const num = i + 1;
           const isDone = current > num;
           const isActive = current === num;
-          const isClickable = isPostRegistration && num >= 4 && STEP_KEYS[i];
+          const isClickable = (isDone || (isPostRegistration && num >= 3 && num <= 5)) && STEP_KEYS[i];
           return (
             <div key={num} className="step-indicator-item">
               {i > 0 && <div className="step-line" />}
@@ -1449,16 +1471,12 @@ function ShowInner({ eventSlug }) {
           .single();
         if (existing) {
           setRsvpData({ name: existing.name, email: existing.email, id: existing.id });
-          if (existing.waiver_signed) {
+          if (existing.waiver_signed || existing.program_agreement_signed) {
             setStep('preparation');
           } else if (existing.intake_complete) {
-            setStep('waiver');
-          } else if (existing.membership_attested) {
-            setStep('intake');
-          } else if (existing.program_agreement_signed) {
-            setStep('membership');
-          } else {
             setStep('program_agreement');
+          } else {
+            setStep('intake');
           }
         }
       }
@@ -1472,19 +1490,15 @@ function ShowInner({ eventSlug }) {
     if (event) {
       localStorage.setItem(`magic_show_rsvp_${event.id}`, data.id);
     }
-    setStep('program_agreement');
-  }
-
-  function handleProgramAgreementComplete() {
-    setStep('membership');
-  }
-
-  function handleMemberConfirm() {
     setStep('intake');
   }
 
   function handleIntakeComplete() {
-    setStep('waiver');
+    setStep('program_agreement');
+  }
+
+  function handleProgramAgreementComplete() {
+    setStep('preparation');
   }
 
   async function handleWaiverComplete() {
@@ -1521,6 +1535,9 @@ function ShowInner({ eventSlug }) {
     return (
       <div className="page">
         <div className="stars" />
+        <nav className="home-nav">
+          <a href="/portal" className="home-nav-link">Enter</a>
+        </nav>
         {isFull ? <FullScreen /> : <PreGate event={event} onInviteValid={() => setHasInvite(true)} />}
         <footer className="footer">
           <a href="/" className="footer-home">Home</a>
@@ -1564,8 +1581,8 @@ function ShowInner({ eventSlug }) {
           <div className="ticket">
             <div className="ticket-edge ticket-edge-left" />
             <div className="ticket-inner">
-              <div className="ticket-eyebrow">You&apos;ve been invited to</div>
-              <h1 className="ticket-title">{event.name}</h1>
+              <div className="ticket-eyebrow">You&apos;re officially in</div>
+              <h1 className="ticket-title">The Magic Show</h1>
               <div className="ticket-details">
                 <div className="ticket-detail">
                   <span className="detail-label">When</span>
@@ -1576,7 +1593,7 @@ function ShowInner({ eventSlug }) {
                   <span className="detail-value">{event.location}</span>
                 </div>
               </div>
-              <div className="ticket-tagline">Surprise, you&apos;re the magic.</div>
+              <div className="ticket-tagline">Your only job is to show up.</div>
               <div className="ticket-admit">ADMIT ONE</div>
             </div>
             <div className="ticket-edge ticket-edge-right" />
@@ -1590,8 +1607,8 @@ function ShowInner({ eventSlug }) {
 
       {step === 'rsvp' && (
         <div className="rsvp-section">
-          <h2 className="rsvp-heading">RSVP</h2>
-          <p className="rsvp-sub">Spots are limited. This invitation is non-transferable.</p>
+          <h2 className="rsvp-heading">Let&apos;s get you ready.</h2>
+          <p className="rsvp-sub">A few things we need before the show.</p>
           <RSVPForm event={event} onComplete={handleRSVP} />
           <LookupLink event={event} onFound={(data, foundStep) => {
             setRsvpData(data);
@@ -1601,9 +1618,8 @@ function ShowInner({ eventSlug }) {
         </div>
       )}
 
-      {step === 'program_agreement' && <ProgramAgreementForm event={event} rsvpData={rsvpData} onComplete={handleProgramAgreementComplete} />}
 
-      {step === 'membership' && <MembershipCheck event={event} rsvpData={rsvpData} onConfirm={handleMemberConfirm} />}
+      {step === 'program_agreement' && <ProgramAgreementForm event={event} rsvpData={rsvpData} onComplete={handleProgramAgreementComplete} />}
 
       {step === 'intake' && <IntakeForm rsvpData={rsvpData} onComplete={handleIntakeComplete} />}
 
@@ -1627,14 +1643,14 @@ function ShowInner({ eventSlug }) {
           <IntegrationScreen event={event} />
           <div className="step-nav">
             <button className="step-nav-btn step-nav-back" onClick={() => setStep('preparation')}>&larr; Preparation</button>
-            <button className="step-nav-btn" onClick={() => setStep('facilitation')}>Facilitation &rarr;</button>
+            <button className="step-nav-btn" onClick={() => setStep('pass_it_on')}>Pass It On &rarr;</button>
           </div>
         </>
       )}
 
-      {step === 'facilitation' && (
+      {step === 'pass_it_on' && (
         <>
-          <FacilitationScreen />
+          <PassItOnScreen rsvpData={rsvpData} />
           <div className="step-nav">
             <button className="step-nav-btn step-nav-back" onClick={() => setStep('integration')}>&larr; Integration</button>
           </div>

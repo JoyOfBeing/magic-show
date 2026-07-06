@@ -15,7 +15,7 @@ function PastShowCard({ image, city, name, dates, secret }) {
       <img src={image} alt={city} className="show-card-image" />
       <div className="show-card-body">
         <div className="show-card-city">{city}</div>
-        <div className="show-card-name">Your only job is to show up.</div>
+        <div className="show-card-name">{name}</div>
         {dates && <div className="show-card-dates">{dates}</div>}
         {revealed && secret && (
           <div className="show-card-secret">{secret}</div>
@@ -241,7 +241,7 @@ export default function Home() {
             <img src={getShowImage(liveEvent)} alt={liveEvent.location} className="show-card-image" />
             <div className="show-card-body">
               <div className="show-card-city">{liveEvent.location}</div>
-              <div className="show-card-name">Your only job is to show up.</div>
+              <div className="show-card-name">{liveEvent.name}</div>
               <div className="show-card-dates">{liveEvent.dates}</div>
               <div className="show-card-cta">Enter &rarr;</div>
             </div>

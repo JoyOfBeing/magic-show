@@ -1,27 +1,27 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import { supabase } from '../../lib/supabase';
 
-export default function RequestPage() {
-  const [form, setForm] = useState({ name: '', email: '', phone: '', heard: '', guess: '' });
+function RequestContent() {
+  const searchParams = useSearchParams();
+  const ref = searchParams.get('ref') || '';
+  const [form, setForm] = useState({ name: '', email: '', phone: '', heard: '', guess: '', event_id: '' });
   const [status, setStatus] = useState('idle');
   const [upcomingShows, setUpcomingShows] = useState([]);
-  const [selectedShow, setSelectedShow] = useState(null);
-  const [showInterestSaved, setShowInterestSaved] = useState(false);
 
-  // Load upcoming shows for step 2
   useEffect(() => {
-    if (status !== 'success') return;
     async function loadShows() {
       const { data } = await supabase
         .from('magic_show_events')
-        .select('id, name, dates, location, card_image')
+        .select('id, name, dates, location')
         .eq('is_live', true);
       setUpcomingShows(data || []);
     }
     loadShows();
-  }, [status]);
+  }, []);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -32,8 +32,10 @@ export default function RequestPage() {
       email: form.email.trim().toLowerCase(),
       phone: form.phone,
       interest_type: 'waitlist',
-      source: 'organic',
+      source: ref ? 'referral' : 'organic',
+      event_id: form.event_id || null,
       details: [
+        ref && `Referred by: ${ref}`,
         form.heard && `How they heard: ${form.heard}`,
         form.guess && `What they think it is: ${form.guess}`,
       ].filter(Boolean).join(' | ') || null,
@@ -44,19 +46,6 @@ export default function RequestPage() {
       return;
     }
     setStatus('success');
-  }
-
-  async function handleShowInterest(show) {
-    setSelectedShow(show.id);
-    await supabase.from('magic_show_leads').insert([{
-      name: form.name,
-      email: form.email.trim().toLowerCase(),
-      phone: form.phone,
-      interest_type: 'waitlist',
-      source: 'organic',
-      details: `event_id: ${show.id} | Interested via request flow`,
-    }]);
-    setShowInterestSaved(true);
   }
 
   if (status === 'success') {
@@ -72,42 +61,24 @@ export default function RequestPage() {
               <div className="stepper-step stepper-step-done">
                 <div className="stepper-number">1</div>
                 <div className="stepper-content">
-                  <div className="stepper-label">Get Your Golden Ticket</div>
-                  <div className="stepper-desc">We&apos;ll be in touch when a spot opens up.</div>
+                  <div className="stepper-label">Request a Golden Ticket</div>
+                  <div className="stepper-desc">Done. We&apos;ll be in touch.</div>
                 </div>
               </div>
 
-              <div className="stepper-step stepper-step-active">
+              <div className="stepper-step stepper-step-upcoming">
                 <div className="stepper-number">2</div>
                 <div className="stepper-content">
-                  <div className="stepper-label">Choose an Upcoming Show</div>
-                  <div className="stepper-desc">Pick a date and location that calls to you.</div>
-                  {upcomingShows.length > 0 ? (
-                    <div className="stepper-shows">
-                      {upcomingShows.map(show => (
-                        <button
-                          key={show.id}
-                          className={`stepper-show-card ${selectedShow === show.id ? 'stepper-show-selected' : ''}`}
-                          onClick={() => !showInterestSaved && handleShowInterest(show)}
-                          disabled={showInterestSaved}
-                        >
-                          <div className="stepper-show-location">{show.location}</div>
-                          <div className="stepper-show-dates">{show.dates}</div>
-                          {selectedShow === show.id && <div className="stepper-show-check">Interested</div>}
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="stepper-no-shows">No shows announced yet. We&apos;ll notify you when one opens.</div>
-                  )}
+                  <div className="stepper-label">Get Your Invite</div>
+                  <div className="stepper-desc">We&apos;ll reach out when a spot opens up.</div>
                 </div>
               </div>
 
               <div className="stepper-step stepper-step-upcoming">
                 <div className="stepper-number">3</div>
                 <div className="stepper-content">
-                  <div className="stepper-label">Grab a Spot</div>
-                  <div className="stepper-desc">We&apos;ll reach out to confirm your spot and contribution.</div>
+                  <div className="stepper-label">Register for a Show</div>
+                  <div className="stepper-desc">Complete your intake and confirm your spot.</div>
                 </div>
               </div>
 
@@ -115,7 +86,7 @@ export default function RequestPage() {
                 <div className="stepper-number">4</div>
                 <div className="stepper-content">
                   <div className="stepper-label">Prepare for the Show</div>
-                  <div className="stepper-desc">Everything you need to prepare for the experience.</div>
+                  <div className="stepper-desc">Everything you need to show up ready.</div>
                 </div>
               </div>
             </div>
@@ -167,6 +138,22 @@ export default function RequestPage() {
                 placeholder="(555) 555-5555"
               />
             </div>
+            {upcomingShows.length > 0 && (
+              <div className="form-field">
+                <label>Which show are you interested in?</label>
+                <select
+                  value={form.event_id}
+                  onChange={e => setForm(f => ({ ...f, event_id: e.target.value }))}
+                >
+                  <option value="">Not sure yet</option>
+                  {upcomingShows.map(show => (
+                    <option key={show.id} value={show.id}>
+                      {show.name} — {show.dates}, {show.location}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
             <div className="form-field">
               <label>How did you hear about The Magic Show?</label>
               <input
@@ -192,5 +179,13 @@ export default function RequestPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RequestPage() {
+  return (
+    <Suspense fallback={<div className="page"><div className="stars" /></div>}>
+      <RequestContent />
+    </Suspense>
   );
 }
