@@ -65,10 +65,10 @@ function GoldenTicketRedeem({ referrer }) {
         <div className="ticket">
           <div className="ticket-edge ticket-edge-left" />
           <div className="ticket-inner">
-            <div className="ticket-eyebrow">You&apos;ve been chosen</div>
+            <div className="ticket-eyebrow">The Magic Show</div>
             <h1 className="ticket-title">Golden Ticket</h1>
-            <div className="ticket-tagline">The Magic Show is a multi-day immersive experience &mdash; invite only, no two are alike, and no one can really explain it until you&apos;ve been.</div>
-            <div className="ticket-admit">THE MAGIC SHOW</div>
+            <div className="ticket-tagline">A multi-day immersive experience &mdash; invite only, no two alike, and surprise, you&apos;re the show.</div>
+            <div className="ticket-admit">YOU&apos;VE BEEN CHOSEN</div>
           </div>
           <div className="ticket-edge ticket-edge-right" />
         </div>
