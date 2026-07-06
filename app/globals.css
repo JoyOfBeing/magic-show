@@ -3462,6 +3462,20 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* Host page */
+.home-cta-alt {
+  margin-top: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.home-cta-alt a {
+  color: var(--gold);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.home-cta-alt a:hover {
+  color: var(--text);
+}
+
 .host-page {
   max-width: 640px;
   margin: 0 auto;

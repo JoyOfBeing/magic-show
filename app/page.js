@@ -166,10 +166,10 @@ export default function Home() {
             <a href="/request" className="cta-btn cta-btn-primary">
               Request a Golden Ticket
             </a>
-            <a href="/host" className="cta-btn cta-btn-secondary">
-              Host a Show
-            </a>
           </div>
+          <p className="home-cta-alt">
+            Or skip the line entirely &mdash; <a href="/host">hire us to bring the magic to you</a>.
+          </p>
         </section>
       )}
 
